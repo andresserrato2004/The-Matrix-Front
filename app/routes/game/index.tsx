@@ -256,6 +256,8 @@ export default function GameScreen() {
           setActualFruit={setActualFruit}
           fruitsCounter={fruitsCounter}
           setFruitsCounter={setFruitsCounter}
+          setMinutes={setMinutes}
+          setSeconds={setSeconds}
         />
         <FruitBar
           fruits={gameData.match.board.fruitsType}

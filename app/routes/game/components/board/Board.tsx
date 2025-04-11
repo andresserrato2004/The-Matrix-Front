@@ -31,6 +31,8 @@ type BoardProps = {
   setActualFruit: (fruit: string) => void;
   fruitsCounter: number;
   setFruitsCounter: (count: number) => void;
+  setMinutes: (minutes: number) => void;
+  setSeconds: (seconds: number) => void;
 };
 
 export default function Board({
@@ -46,7 +48,9 @@ export default function Board({
   actualFruit,
   setActualFruit,
   fruitsCounter,
-  setFruitsCounter
+  setFruitsCounter,
+  setMinutes,
+  setSeconds
 }: BoardProps) {
   // Referencia al canvas
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -170,8 +174,8 @@ export default function Board({
       ws.onmessage = (event) => {
         try {
           const message = JSON.parse(event.data);
-
           // Verificar si el mensaje contiene datos del jugador
+          console.log("Received message: ", message);
           if (message.id && message.coordinates && message.direction) {
             console.log("Received player update:", message);
             console.log(message.coordinates, message.coordinates[1])
@@ -191,11 +195,26 @@ export default function Board({
               });
             }
             if (message.idItemConsumed) {
-              // Eliminar la fruta consumida
               console.log("Removing fruit with ID:", message.idItemConsumed);
               removeFruit(message.idItemConsumed);
               setFruitsCounter(fruitsCounter + 1);
             }
+          }
+          else if (message.minutesLeft && message.secondsLeft) {
+            // Actualizar el temporizador del juego
+            setMinutes(message.minutesLeft);
+            setSeconds(message.secondsLeft);
+          }
+          else if (message.fruits && message.board && message.fruitsType && message.currentRound) {
+            setActualFruit(message.fruitsType);
+            for (const cell of message.board) {
+              if (cell.item?.type === 'fruit') {
+                addFruit(cell);
+              }
+            }
+          }
+          else if (message.enemyId && message.coordinates && message.direction) {
+            updateEnemy(message.enemyId, message.coordinates.y, message.coordinates.x, message.direction);
           }
         } catch (error) {
           console.error("Error parsing WebSocket message:", error);
@@ -366,11 +385,11 @@ export default function Board({
   });
 
   const renderFruits = () => {
-    return fruits.map((fruit) => {
+    return fruits.map((fruit: BoardCell) => {
       if (!fruit.item) return null; // Asegúrate de que el item exista
       const style = getElementsStyles(fruit.y, fruit.x, cellSize);
       return (
-        <div key={fruit.item.id} style={style}>
+        <div key={fruit.item.id} style={position: 'absolute'}>
           <Fruit fruitInformation={fruit} subtype={actualFruit} />
         </div>
       );
@@ -378,7 +397,7 @@ export default function Board({
   };
 
   const renderIceBlocks = () => {
-    return iceBlocks.map((block) => {
+    return iceBlocks.map((block: BoardCell) => {
       if (!block.item) return null; // Asegúrate de que el item exista
       const style = getElementsStyles(block.y, block.x, cellSize);
       return (
@@ -390,7 +409,7 @@ export default function Board({
   };
 
   const renderEnemies = () => {
-    return enemies.map((enemy) => {
+    return enemies.map((enemy: BoardCell) => {
       if (!enemy.character) return null; // Asegúrate de que el item exista
       const style = getElementsStyles(enemy.y, enemy.x, cellSize);
       return (
@@ -402,7 +421,7 @@ export default function Board({
   };
 
   const renderIceCreams = () => {
-    return iceCreams.map((iceCream) => {
+    return iceCreams.map((iceCream: BoardCell) => {
       if (!iceCream.character) return null; // Asegúrate de que el item exista
       const style = getElementsStyles(iceCream.y, iceCream.x, cellSize);
       return (
@@ -461,7 +480,7 @@ export default function Board({
 
   // FUNCIONES DE ENEMIGOS
   // --- Actualiza un enemigo dado su id
-  const updateEnemy = useCallback((id: string, newX: number, newY: number, newDirection: Direction) => {
+  const updateEnemy = useCallback((id: string, newX: number, newY: number, newDirection: String) => {
     setEnemies(prev =>
       prev.map(cell =>
         cell.character?.id === id
@@ -470,8 +489,8 @@ export default function Board({
             x: newX,
             y: newY,
             character: {
-              ...cell.character!,
-              direction: newDirection
+              ...cell.character,
+              orientation: newDirection
             }
           }
           : cell
@@ -491,7 +510,7 @@ export default function Board({
             y: newY,
             character: {
               ...cell.character!,
-              direction: newDirection
+              orientation: newDirection
             }
           }
           : cell
