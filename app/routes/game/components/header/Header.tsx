@@ -29,7 +29,7 @@ export default function Header({
       <ScoreCounter score={fruitsCounter} playerNumber={1} />
 
       {/* Timer */}
-      <Timer isRunning={isRunning} setIsRunning={setIsRunning} minutes={minutes} seconds={seconds} />
+      <Timer isRunning={isRunning} minutes={minutes} seconds={seconds} />
 
       {/* Settings buttons */}
       <div className="settings-buttons-container">
