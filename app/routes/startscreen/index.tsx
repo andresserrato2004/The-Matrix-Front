@@ -1,6 +1,6 @@
 import { useNavigate } from "@remix-run/react";
 import { useState } from "react";
-import { useUser } from "../../userContext";
+import { useUser } from "../../contexts/user/userContext";
 import api from "../../services/api";
 import "./styles.css";
 

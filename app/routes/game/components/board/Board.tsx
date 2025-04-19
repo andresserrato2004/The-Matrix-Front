@@ -5,7 +5,7 @@ import Troll from "./enemy/Troll";
 import IceBlock from "./ice-block/IceBlock";
 import "./Board.css";
 import type { Character, BoardCell, Item } from "./types/types";
-import { useUser } from "~/userContext";
+import { useUser } from "~/contexts/user/userContext";
 import { createWebSocketConnection, sendMessage, ws } from "~/services/websocket";
 
 
@@ -389,7 +389,7 @@ export default function Board({
       if (!fruit.item) return null; // Asegúrate de que el item exista
       const style = getElementsStyles(fruit.y, fruit.x, cellSize);
       return (
-        <div key={fruit.item.id} style={position: 'absolute'}>
+        <div key={fruit.item.id} style={style}>
           <Fruit fruitInformation={fruit} subtype={actualFruit} />
         </div>
       );

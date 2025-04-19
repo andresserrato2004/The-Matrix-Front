@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useUser } from '~/userContext';
+import { useUser } from '~/contexts/user/userContext';
 import { createWebSocketConnection, ws } from '~/services/websocket';
 
 export function useWebSocket(initialPath = "") {

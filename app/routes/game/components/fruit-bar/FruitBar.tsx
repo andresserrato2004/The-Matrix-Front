@@ -4,7 +4,6 @@ import "./FruitBar.css";
 interface FruitBarProps {
   fruits: string[];
   selectedFruit: string;
-  setSelectedFruit: (fruit: string) => void;
 }
 
 export default function FruitBar({ fruits, selectedFruit }: FruitBarProps) {

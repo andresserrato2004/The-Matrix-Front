@@ -262,7 +262,6 @@ export default function GameScreen() {
         <FruitBar
           fruits={gameData.match.board.fruitsType}
           selectedFruit={gameData.match.board.fruitType}
-          setSelectedFruit={setActualFruit}
         />
       </Suspense>
     </div>

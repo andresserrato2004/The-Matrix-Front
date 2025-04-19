@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useWebSocket } from "~/hooks/useWebSocket";
 import { useNavigate } from "@remix-run/react";
-import { useUser } from "~/userContext";
+import { useUser } from "~/contexts/user/userContext";
 import IceCreamSelector from "./components/IceCreamSelector";
 import GameControls from "./components/GameControls";
 import api from "~/services/api";
@@ -145,7 +145,7 @@ export default function Lobby() {
                 setCountdown(prev => {
                     if (prev <= 1) {
                         clearInterval(timer);
-
+                        console.log("game data:", message);
                         // Marcar como iniciado y navegar
                         navigate("/game", { state: message });
                         setGameStarted(true);
@@ -273,6 +273,7 @@ export default function Lobby() {
             // For solo mode, only check if player 1 is ready
             if (player1Ready && player1IceCream) {
                 setGameStarted(true);
+                console.log("game data:", message);
                 navigate("/game", { state: message });
             } else {
                 alert("Please select your character and click Ready to start");
@@ -281,6 +282,7 @@ export default function Lobby() {
             // For two-player mode, check both players
             if ((player1Ready && player2Ready) && (player1IceCream && player2IceCream)) {
                 setGameStarted(true);
+                console.log("game data:", message);
                 navigate("/game", { state: message });
             } else {
                 alert("Both players must select a character and be ready to start");
