@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ws } from "~/services/websocket";
-import type {Character, BoardCell, Item } from "../types/types";
+import type {Character, BoardCell, Item } from "../../../../../contexts/game/types/types";
 
 export default function Troll({trollInformation}: {trollInformation: BoardCell}) {
 

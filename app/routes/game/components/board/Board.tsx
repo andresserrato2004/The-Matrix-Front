@@ -4,7 +4,7 @@ import Fruit from "./fruit/Fruit";
 import Troll from "./enemy/Troll";
 import IceBlock from "./ice-block/IceBlock";
 import "./Board.css";
-import type { Character, BoardCell, Item } from "./types/types";
+import type { Character, BoardCell, Item } from "../../../../contexts/game/types/types";
 import { useUser } from "~/contexts/user/userContext";
 import { createWebSocketConnection, sendMessage, ws } from "~/services/websocket";
 

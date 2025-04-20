@@ -1,7 +1,7 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useLocation } from "@remix-run/react";
 import LoadingScreen from "~/components/loadingScreen/LoadingScreen";
-import type { BoardCell } from "./components/board/types/types";
+import type { BoardCell } from "../../contexts/game/types/types";
 import { HeaderProvider } from "~/contexts/game/Header/HeaderContext";
 import { BoardProvider } from "~/contexts/game/Board/BoardContext";
 import { FruitBarProvider } from "~/contexts/game/FruitBar/FruitBarContext";

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ws, sendMessage } from "~/services/websocket";
 import "./IceCream.css";
-import type { BoardCell } from "../types/types";
+import type { BoardCell } from "../../../../../contexts/game/types/types";
 
 type IceCreamProps = {
   playerInformation: BoardCell
