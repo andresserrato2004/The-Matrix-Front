@@ -7,6 +7,8 @@ import "./Board.css";
 import type { Character, BoardCell, Item } from "../../../../contexts/game/types/types";
 import { useUser } from "~/contexts/user/userContext";
 import { createWebSocketConnection, sendMessage, ws } from "~/services/websocket";
+import { useBoard } from "~/contexts/game/Board/BoardContext";
+import { useFruitBar } from "~/contexts/game/FruitBar/FruitBarContext";
 
 
 
@@ -27,12 +29,6 @@ type BoardProps = {
   guestIsAlive: boolean;
   setGuestIsAlive: (isAlive: boolean) => void;
   backgroundImage?: string;
-  actualFruit: string;
-  setActualFruit: (fruit: string) => void;
-  fruitsCounter: number;
-  setFruitsCounter: (count: number) => void;
-  setMinutes: (minutes: number) => void;
-  setSeconds: (seconds: number) => void;
 };
 
 export default function Board({
@@ -44,13 +40,7 @@ export default function Board({
   setHostIsAlive,
   guestIsAlive,
   setGuestIsAlive,
-  backgroundImage = "/fondo mapa.png",
-  actualFruit,
-  setActualFruit,
-  fruitsCounter,
-  setFruitsCounter,
-  setMinutes,
-  setSeconds
+  backgroundImage = "/fondo mapa.png"
 }: BoardProps) {
   // Referencia al canvas
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -70,18 +60,13 @@ export default function Board({
   const isMovingRef = useRef(false);
 
   // informacion del tablero
-  const [fruits, setFruits] = useState<BoardCell[]>([]);
-  const [iceBlocks, setIceBlocks] = useState<BoardCell[]>([]);
-  const [enemies, setEnemies] = useState<BoardCell[]>([]);
-  const [iceCreams, setIceCreams] = useState<BoardCell[]>([]);
+  const { state: boardState, dispatch: boardDispatch } = useBoard();
+  const fruits = boardState.fruits;
+  const iceBlocks = boardState.iceBlocks;
+  const enemies = boardState.enemies;
+  const iceCreams = boardState.iceCreams;
 
-  // Cargar información del tablero desde el WebSocket
-  useEffect(() => {
-    setFruits(boardData.filter(cell => cell.item?.type === 'fruit'));
-    setEnemies(boardData.filter(cell => cell.character?.type === 'troll'));
-    setIceBlocks(boardData.filter(cell => cell.item?.type === 'block'));
-    setIceCreams(boardData.filter(cell => cell.character?.type === 'iceCream'));
-  }, [boardData]);
+  const {  state: fruitBarState, dispatch: fruitBarDispatch } = useFruitBar();
 
   // Inicializar y configurar el canvas
   useEffect(() => {
@@ -194,27 +179,6 @@ export default function Board({
                 direction: message.direction,
               });
             }
-            if (message.idItemConsumed) {
-              console.log("Removing fruit with ID:", message.idItemConsumed);
-              removeFruit(message.idItemConsumed);
-              setFruitsCounter(fruitsCounter + 1);
-            }
-          }
-          else if (message.minutesLeft && message.secondsLeft) {
-            // Actualizar el temporizador del juego
-            setMinutes(message.minutesLeft);
-            setSeconds(message.secondsLeft);
-          }
-          else if (message.fruits && message.board && message.fruitsType && message.currentRound) {
-            setActualFruit(message.fruitsType);
-            for (const cell of message.board) {
-              if (cell.item?.type === 'fruit') {
-                addFruit(cell);
-              }
-            }
-          }
-          else if (message.enemyId && message.coordinates && message.direction) {
-            updateEnemy(message.enemyId, message.coordinates.y, message.coordinates.x, message.direction);
           }
         } catch (error) {
           console.error("Error parsing WebSocket message:", error);
@@ -390,7 +354,7 @@ export default function Board({
       const style = getElementsStyles(fruit.y, fruit.x, cellSize);
       return (
         <div key={fruit.item.id} style={style}>
-          <Fruit fruitInformation={fruit} subtype={actualFruit} />
+          <Fruit fruitInformation={fruit} subtype={fruitBarState.actualFruit} />
         </div>
       );
     });
@@ -428,7 +392,7 @@ export default function Board({
         <div key={iceCream.character.id} style={style}>
           <IceCream
             playerInformation={iceCream}
-            playerColor={actualFruit}
+            playerColor={fruitBarState.actualFruit}
             hostIsAlive={hostIsAlive} setHostIsAlive={setHostIsAlive}
             guestIsAlive={guestIsAlive} setGuestIsAlive={setGuestIsAlive}
             hostId={hostId} guestId={guestId} matchId={matchId}
@@ -437,87 +401,6 @@ export default function Board({
       );
     });
   };
-
-  // FUNCIONES DE FRUTAS
-  // --- Elimina una fruit dado su id
-  const removeFruit = useCallback((id: string) => {
-    console.log("Removing fruit with ID:", id);
-    // Eliminar la fruta del estado actual
-    setFruits((prev) => prev.filter((cell) => cell.item?.id !== id));
-  }, []);
-
-  // --- Añade una fruta
-  const addFruit = (newFruitCell: BoardCell) => {
-    setFruits(prevFruits => {
-      // Verifica si ya existe una fruta en esa posición para evitar duplicados
-      const exists = prevFruits.some(
-        fruit => fruit.item?.id === newFruitCell.item?.id
-      );
-      if (!exists) {
-        return [...prevFruits, newFruitCell];
-      }
-      return prevFruits;
-    });
-  };
-
-  // FUNCIONES DE BLOQUES
-  // --- Elimina un bloque de hielo dado su id
-  const removeBlock = useCallback((id: string) => {
-    setIceBlocks(prev => prev.filter(cell => cell.item?.id !== id));
-  }, []);
-  const addIceBlock = (newIceBlock: BoardCell) => {
-    setIceBlocks(prevIceBlock => {
-      // Verifica si ya existe una fruta en esa posición para evitar duplicados
-      const exists = prevIceBlock.some(
-        iceBlock => iceBlock.item?.id === newIceBlock.item?.id
-      );
-      if (!exists) {
-        return [...prevIceBlock, newIceBlock];
-      }
-      return prevIceBlock;
-    });
-  };
-
-  // FUNCIONES DE ENEMIGOS
-  // --- Actualiza un enemigo dado su id
-  const updateEnemy = useCallback((id: string, newX: number, newY: number, newDirection: String) => {
-    setEnemies(prev =>
-      prev.map(cell =>
-        cell.character?.id === id
-          ? {
-            ...cell,
-            x: newX,
-            y: newY,
-            character: {
-              ...cell.character,
-              orientation: newDirection
-            }
-          }
-          : cell
-      )
-    );
-  }, []);
-
-  // FUNCIONES DE HELADOS
-  // --- Actualiza un helado dado su id
-  const updateIceCream = useCallback((id: string, newX: number, newY: number, newDirection: Direction) => {
-    setIceCreams(prev =>
-      prev.map(cell =>
-        cell.character?.id === id
-          ? {
-            ...cell,
-            x: newX,
-            y: newY,
-            character: {
-              ...cell.character!,
-              orientation: newDirection
-            }
-          }
-          : cell
-      )
-    );
-  }, []);
-
 
   return (
     <div className="board">

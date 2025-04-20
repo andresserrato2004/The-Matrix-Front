@@ -25,7 +25,8 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
            // Actualizar el temporizador del juego
            headerDispatch({ type: "SET_MINUTES", payload: message.minutesLeft });
            headerDispatch({ type: "SET_SECONDS", payload: message.secondsLeft });
-        } else if (message.id && message.coordinates && message.direction) {
+        } else if (message.id && message.coordinates && message.direction && message.state) {
+          boardDispatch({ type: "MOVE_PLAYER", payload: { playerId: message.id, coordinates: message.coordinates, direction: message.direction, state: message.state } });
           if (message.idItemConsumed) {
             // Manejar el consumo de una fruta
             console.log("Removing fruit with ID:", message.idItemConsumed);
@@ -37,13 +38,15 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
           // Actualizar el estado del tablero y las frutas
           boardDispatch({ type: "SET_BOARD", payload: message.board });
           fruitBarDispatch({ type: "SET_ACTUAL_FRUIT", payload: message.currentType });
+        } else if (message.enemyId && message.coordinates && message.direction) {
+          // Manejar el movimiento de un enemigo
+          boardDispatch({ type: "MOVE_ENEMY", payload: message });
         }
-        // MENSAJES PARA EL TABLERO
       } catch (error) {
         console.error("Error parsing WebSocket message:", error);
       }
     };
-  }, [headerDispatch, boardDispatch, fruitBarDispatch]);
+  }, [ws, headerDispatch, boardDispatch, fruitBarDispatch]);
 
   // Puedes exponer sendMessage por contexto si lo necesitas en los hijos
   return <>{children}</>;

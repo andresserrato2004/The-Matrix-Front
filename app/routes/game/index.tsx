@@ -240,17 +240,7 @@ export default function GameScreen() {
           <FruitBarProvider>
             <GameWebSocketProvider>
               <Suspense fallback={<LoadingScreen message="Cargando componentes..." progress={100} />}>
-                <Header
-                  isRunning={isRunning}
-                  setIsRunning={setIsRunning}
-                  fruitsCounter={fruitsCounter}
-                  minutes={minutes}
-                  seconds={seconds}
-                  musicOn={musicOn}
-                  setMusicOn={setMusicOn}
-                  soundEffectsOn={soundEffectsOn}
-                  setSoundEffectsOn={setSoundEffectsOn}
-                />
+                <Header/>
                 <Board
                   boardData={gameData.match.board.board}
                   matchId={gameData.match.id}
@@ -260,17 +250,8 @@ export default function GameScreen() {
                   setHostIsAlive={setHostIsAlive}
                   guestIsAlive={guestIsAlive}
                   setGuestIsAlive={setGuestIsAlive}
-                  actualFruit={gameData.match.board.fruitType}
-                  setActualFruit={setActualFruit}
-                  fruitsCounter={fruitsCounter}
-                  setFruitsCounter={setFruitsCounter}
-                  setMinutes={setMinutes}
-                  setSeconds={setSeconds}
                 />
-                <FruitBar
-                  fruits={gameData.match.board.fruitsType}
-                  selectedFruit={gameData.match.board.fruitType}
-                />
+                <FruitBar/>
               </Suspense>
           </GameWebSocketProvider>
         </FruitBarProvider>

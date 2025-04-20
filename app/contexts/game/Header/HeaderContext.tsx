@@ -5,18 +5,27 @@ interface HeaderState {
   score: number;
   minutes: number;
   seconds: number;
+  musicOn: boolean;
+  soundEffectsOn: boolean;
+  isRunning: boolean;
 }
 
 type HeaderAction =
   | { type: "INCREMENT_SCORE" }
   | { type: "SET_SCORE"; payload: number }
   | { type: "SET_MINUTES"; payload: number }
-  | { type: "SET_SECONDS"; payload: number };
+  | { type: "SET_SECONDS"; payload: number }
+  | { type: "SET_MUSIC"; payload: boolean }
+  | { type: "SET_SOUND_EFFECTS"; payload: boolean }
+  | { type: "SET_IS_RUNNING"; payload: boolean };
 
 const initialState: HeaderState = {
   score: 0,
   minutes: 0,
-  seconds: 0
+  seconds: 0,
+  musicOn: true,
+  soundEffectsOn: true,
+  isRunning: true
 };
 
 function headerReducer(state: HeaderState, action: HeaderAction): HeaderState {
@@ -29,6 +38,12 @@ function headerReducer(state: HeaderState, action: HeaderAction): HeaderState {
       return { ...state, minutes: action.payload };
     case "SET_SECONDS":
       return { ...state, seconds: action.payload };
+    case "SET_MUSIC":
+      return { ...state, musicOn: action.payload };
+    case "SET_SOUND_EFFECTS":
+      return { ...state, soundEffectsOn: action.payload };
+    case "SET_IS_RUNNING":
+      return { ...state, isRunning: action.payload };
     default:
       return state;
   }

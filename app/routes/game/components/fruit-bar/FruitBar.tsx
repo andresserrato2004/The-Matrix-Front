@@ -2,13 +2,8 @@ import FruitSelector from "./fruitSelector/FruitSelector";
 import { useFruitBar } from "../../../../contexts/game/FruitBar/FruitBarContext";
 import "./FruitBar.css";
 
-interface FruitBarProps {
-  fruits: string[];
-  selectedFruit: string;
-}
-
-export default function FruitBar({ fruits, selectedFruit }: FruitBarProps) {
-
+export default function FruitBar() {
+  
   const { state, dispatch } = useFruitBar();
 
   return (
