@@ -1,4 +1,5 @@
 import FruitSelector from "./fruitSelector/FruitSelector";
+import { useFruitBar } from "../../../../contexts/game/FruitBar/FruitBarContext";
 import "./FruitBar.css";
 
 interface FruitBarProps {
@@ -7,6 +8,9 @@ interface FruitBarProps {
 }
 
 export default function FruitBar({ fruits, selectedFruit }: FruitBarProps) {
+
+  const { state, dispatch } = useFruitBar();
+
   return (
     <div className="fruit-bar">
       <div className="fruit-bar-container">
@@ -16,9 +20,9 @@ export default function FruitBar({ fruits, selectedFruit }: FruitBarProps) {
           className="fruit-bar-image"
         />
         <div className="fruit-items-container">
-          {fruits.map((fruit) => (
+          {state.fruits.map((fruit) => (
             <div key={fruit} className="fruit-item">
-              <FruitSelector fruitName={fruit} actualFruit={selectedFruit} />
+              <FruitSelector fruitName={fruit} actualFruit={state.actualFruit} />
             </div>
           ))}
         </div>

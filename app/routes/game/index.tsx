@@ -2,6 +2,10 @@ import { useState, useEffect, lazy, Suspense } from "react";
 import { useLocation } from "@remix-run/react";
 import LoadingScreen from "~/components/loadingScreen/LoadingScreen";
 import type { BoardCell } from "./components/board/types/types";
+import { HeaderProvider } from "~/contexts/game/Header/HeaderContext";
+import { BoardProvider } from "~/contexts/game/Board/BoardContext";
+import { FruitBarProvider } from "~/contexts/game/FruitBar/FruitBarContext";
+import { GameWebSocketProvider } from "./GameWebSocketProvider";
 import "./styles.css";
 
 
@@ -231,39 +235,48 @@ export default function GameScreen() {
   // Solo renderizar el juego cuando la carga esté completa
   return (
     <div className="game-screen">
-      <Suspense fallback={<LoadingScreen message="Cargando componentes..." progress={100} />}>
-        <Header
-          isRunning={isRunning}
-          setIsRunning={setIsRunning}
-          fruitsCounter={fruitsCounter}
-          minutes={minutes}
-          seconds={seconds}
-          musicOn={musicOn}
-          setMusicOn={setMusicOn}
-          soundEffectsOn={soundEffectsOn}
-          setSoundEffectsOn={setSoundEffectsOn}
-        />
-        <Board
-          boardData={gameData.match.board.board}
-          matchId={gameData.match.id}
-          hostId={gameData.match.host}
-          guestId={gameData.match.guest}
-          hostIsAlive={hostIsAlive}
-          setHostIsAlive={setHostIsAlive}
-          guestIsAlive={guestIsAlive}
-          setGuestIsAlive={setGuestIsAlive}
-          actualFruit={gameData.match.board.fruitType}
-          setActualFruit={setActualFruit}
-          fruitsCounter={fruitsCounter}
-          setFruitsCounter={setFruitsCounter}
-          setMinutes={setMinutes}
-          setSeconds={setSeconds}
-        />
-        <FruitBar
-          fruits={gameData.match.board.fruitsType}
-          selectedFruit={gameData.match.board.fruitType}
-        />
-      </Suspense>
+      <HeaderProvider>
+        <BoardProvider>
+          <FruitBarProvider>
+            <GameWebSocketProvider>
+              <Suspense fallback={<LoadingScreen message="Cargando componentes..." progress={100} />}>
+                <Header
+                  isRunning={isRunning}
+                  setIsRunning={setIsRunning}
+                  fruitsCounter={fruitsCounter}
+                  minutes={minutes}
+                  seconds={seconds}
+                  musicOn={musicOn}
+                  setMusicOn={setMusicOn}
+                  soundEffectsOn={soundEffectsOn}
+                  setSoundEffectsOn={setSoundEffectsOn}
+                />
+                <Board
+                  boardData={gameData.match.board.board}
+                  matchId={gameData.match.id}
+                  hostId={gameData.match.host}
+                  guestId={gameData.match.guest}
+                  hostIsAlive={hostIsAlive}
+                  setHostIsAlive={setHostIsAlive}
+                  guestIsAlive={guestIsAlive}
+                  setGuestIsAlive={setGuestIsAlive}
+                  actualFruit={gameData.match.board.fruitType}
+                  setActualFruit={setActualFruit}
+                  fruitsCounter={fruitsCounter}
+                  setFruitsCounter={setFruitsCounter}
+                  setMinutes={setMinutes}
+                  setSeconds={setSeconds}
+                />
+                <FruitBar
+                  fruits={gameData.match.board.fruitsType}
+                  selectedFruit={gameData.match.board.fruitType}
+                />
+              </Suspense>
+          </GameWebSocketProvider>
+        </FruitBarProvider>
+      </BoardProvider>
+    </HeaderProvider>
+      
     </div>
   );
 }
