@@ -3,18 +3,24 @@ import type { ReactNode } from "react";
 import { useHeader } from "../../contexts/game/Header/HeaderContext";
 import { useBoard } from "../../contexts/game/Board/BoardContext";
 import { useFruitBar } from "../../contexts/game/FruitBar/FruitBarContext";
-import { useUser } from "~/contexts/user/userContext";
-import { ws } from "~/services/websocket";
+import { useUsers } from "~/contexts/UsersContext";
+import { ws, createWebSocketConnection } from "~/services/websocket";
 
 export function GameWebSocketProvider({ children }: { children: ReactNode }) {
   const { dispatch: headerDispatch } = useHeader();
   const { dispatch: boardDispatch } = useBoard();
   const { dispatch: fruitBarDispatch } = useFruitBar();
-  const { userData, secondaryUserData, setSecondaryUserData } = useUser();
+  const { state: usersState, dispatch: usersDispatch } = useUsers();
 
 
   useEffect(() => {
-    if (!ws) return;
+    if (!ws) {
+      console.error("WebSocket is not initialized.");
+      return;
+    }
+    if (!usersState.mainUser.id || !usersState.secondaryUser.id || !usersState.mainUser.matchId || !usersState.secondaryUser.matchId) return;
+    // Crea la conexión SOLO aquí
+    createWebSocketConnection(`/ws/game/${usersState.mainUser.id}/${usersState.mainUser.matchId}`);
     // Configurar el manejador de mensajes del WebSocket
     ws.onmessage = (event) => {
       try {
@@ -26,7 +32,7 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
            headerDispatch({ type: "SET_MINUTES", payload: message.minutesLeft });
            headerDispatch({ type: "SET_SECONDS", payload: message.secondsLeft });
         } else if (message.id && message.coordinates && message.direction && message.state) {
-          boardDispatch({ type: "MOVE_PLAYER", payload: { playerId: message.id, coordinates: message.coordinates, direction: message.direction, state: message.state } });
+          
           if (message.idItemConsumed) {
             // Manejar el consumo de una fruta
             console.log("Removing fruit with ID:", message.idItemConsumed);
@@ -46,7 +52,7 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
         console.error("Error parsing WebSocket message:", error);
       }
     };
-  }, [ws, headerDispatch, boardDispatch, fruitBarDispatch]);
+  }, [ws]);
 
   // Puedes exponer sendMessage por contexto si lo necesitas en los hijos
   return <>{children}</>;

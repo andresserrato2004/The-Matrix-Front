@@ -33,3 +33,19 @@ export type PlayerMove = {
     direction: "up" | "down" | "left" | "right"; // Dirección en la que se mueve el jugador (por ejemplo: "up", "down", "left", "right")
     state: "alive" | "dead"; // Estado del jugador (por ejemplo: "alive" o "dead")
 };
+
+export type UserInformation = {
+    id: string; // ID del usuario
+    matchId: string; // ID de la partida
+    name: string; // Nombre de usuario
+    flavour: string; // flavour del usuario
+    position: Coordinates; // Posición del usuario en el tablero (opcional)
+    direction: "up" | "down" | "left" | "right"; // Dirección del usuario (opcional)
+    state: "alive" | "dead"; // Estado del usuario (opcional)
+};
+
+export type UsersBoardInformation = {
+    id: string;
+    position: Coordinates;
+    direction: "up" | "down" | "left" | "right";
+};

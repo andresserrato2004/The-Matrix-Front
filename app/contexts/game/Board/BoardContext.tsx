@@ -1,13 +1,11 @@
-import React, { createContext, useReducer, useContext } from "react";
+import { createContext, useReducer, useContext } from "react";
 import type { ReactNode, Dispatch } from "react";
 import type { BoardCell, EnemyMove, PlayerMove } from "../types/types"; 
-import IceBlock from "~/routes/game/components/board/ice-block/IceBlock";
 
 interface BoardState {
   fruits: BoardCell[];
   enemies: BoardCell[];
   iceBlocks: BoardCell[];
-  iceCreams: BoardCell[];
 }
 
 type BoardAction =
@@ -20,21 +18,18 @@ type BoardAction =
   | { type: "DELETE_ICE_BLOCKS"; payload: string[] }
   | { type: "ADD_ICE_BLOCKS"; payload: BoardCell[] }
   // Enemigos
-  | { type: "MOVE_ENEMY"; payload: EnemyMove }
-  // Helados
-  | { type: "MOVE_PLAYER"; payload: PlayerMove };
+  | { type: "MOVE_ENEMY"; payload: EnemyMove };
 
 const initialState: BoardState = {
   fruits: [],
   enemies: [],
   iceBlocks: [],
-  iceCreams: []
 };
 
 function boardReducer(state: BoardState, action: BoardAction): BoardState {
   switch (action.type) {
     case "SET_BOARD":
-      return { ...state }; // Example logic for setting the board
+      return setBoard(action.payload);
     case "SET_FRUITS":
       return setFruits(state, action.payload);
     case "DELETE_FRUIT":
@@ -43,16 +38,22 @@ function boardReducer(state: BoardState, action: BoardAction): BoardState {
       return deleteIceBlocks(state, action.payload); 
     case "ADD_ICE_BLOCKS":
       return addIceBlocks(state, action.payload); 
-    case "MOVE_PLAYER":
-      return updateIceCream(state, action.payload); // Update the player position
     case "MOVE_ENEMY":
-      return updateEnemy(state, action.payload); // Update the enemy position
+      return updateEnemy(state, action.payload);
     default:
       return state;
   }
 }
 
 // --- Funciones auxiliares para el reducer ---
+// TABLERO
+function setBoard(payload: BoardCell[]): BoardState {
+  return {
+    fruits: payload.filter(cell => cell.item?.type === "fruit"),
+    enemies: payload.filter(cell => cell.character?.type === "troll"),
+    iceBlocks: payload.filter(cell => cell.item?.type === "iceBlock"),
+  }
+}
 // FRUTAS
 function deleteFruit(state: BoardState, fruitId: string): BoardState {
   return {
@@ -99,27 +100,6 @@ function updateEnemy(state: BoardState, enemyMove: EnemyMove): BoardState {
             }
           }
         : enemy
-    )
-  };
-}
-// HELADOS
-function updateIceCream(
-  state: BoardState, iceCreamMove: PlayerMove): BoardState {
-  return {
-    ...state,
-    iceCreams: state.iceCreams.map(iceCream =>
-      iceCream.character?.id === iceCreamMove.playerId
-        ? {
-            ...iceCream,
-            x: iceCreamMove.coordinates.x,
-            y: iceCreamMove.coordinates.y,
-            character: {
-              ...iceCream.character,
-              orientation: iceCreamMove.direction,
-              state: iceCreamMove.state
-            }
-          }
-        : iceCream
     )
   };
 }

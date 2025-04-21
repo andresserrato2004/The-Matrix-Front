@@ -6,11 +6,9 @@ interface FruitBarState {
   actualFruit: string;
 }
 
-type FruitBarAction = { 
-  type: "SET_FRUITS"; payload: string[]} | 
-  {
-  type: "SET_ACTUAL_FRUIT"; payload: string
-  };
+type FruitBarAction = 
+  | { type: "SET_FRUITS"; payload: string[] } 
+  | { type: "SET_ACTUAL_FRUIT"; payload: string };
 
 const initialState: FruitBarState = {
   fruits: [],
@@ -21,6 +19,8 @@ function fruitBarReducer(state: FruitBarState, action: FruitBarAction): FruitBar
   switch (action.type) {
     case "SET_FRUITS":
       return { ...state, fruits: action.payload };
+    case "SET_ACTUAL_FRUIT":
+      return { ...state, actualFruit: action.payload };
     default:
       return state;
   }

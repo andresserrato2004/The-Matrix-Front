@@ -6,25 +6,25 @@ import IceCreamSelector from "./components/IceCreamSelector";
 import GameControls from "./components/GameControls";
 import api from "~/services/api";
 import "./styles.css";
-import { ws } from "~/services/websocket";
-
+import { UsersProvider, useUsers } from "~/contexts/UsersContext";
+import { GameWebSocketProvider } from "../game/GameWebSocketProvider";
 
 // TODO tipar todo
 
 // TODO hacer clean code
 
 const iceCreams = [
-    { id: 1, name: "Vanilla", image: "/vainilla.png" },
-    { id: 2, name: "Chocolate", image: "/chocolate.png" },
-    { id: 3, name: "amarillo", image: "/amarillo.png" },
-    { id: 4, name: "azulito", image: "/azulito.png" },
-    { id: 5, name: "fresa", image: "/fresa.png" },
-    { id: 6, name: "verde", image: "/verde.png" }
+    { id: 1, name: "Vanilla", image: "/vainilla.png", flavour: "vanilla" },
+    { id: 2, name: "Chocolate", image: "/chocolate.png", flavour: "chocolate" },
+    { id: 3, name: "amarillo", image: "/amarillo.png", flavour: "yellow" },
+    { id: 4, name: "azulito", image: "/azulito.png", flavour: "blue" },
+    { id: 5, name: "fresa", image: "/fresa.png", flavour: "strawberry" },
+    { id: 6, name: "verde", image: "/verde.png", flavour: "lime" }
 ];
-
 
 export default function Lobby() {
     const navigate = useNavigate();
+    const { state: usersState, dispatch: usersDispatch } = useUsers();
     const { userData, setUserData, secondaryUserData, setSecondaryUserData } = useUser();
 
     const { connect } = useWebSocket();

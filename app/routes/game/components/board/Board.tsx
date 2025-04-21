@@ -4,12 +4,12 @@ import Fruit from "./fruit/Fruit";
 import Troll from "./enemy/Troll";
 import IceBlock from "./ice-block/IceBlock";
 import "./Board.css";
-import type { Character, BoardCell, Item } from "../../../../contexts/game/types/types";
+import type { Character, BoardCell, Item, UserInformation } from "../../../../contexts/game/types/types";
 import { useUser } from "~/contexts/user/userContext";
 import { createWebSocketConnection, sendMessage, ws } from "~/services/websocket";
 import { useBoard } from "~/contexts/game/Board/BoardContext";
 import { useFruitBar } from "~/contexts/game/FruitBar/FruitBarContext";
-
+import { useUsers } from "~/contexts/UsersContext";
 
 
 // TODO porner las interfaces en un archivo separado
@@ -20,10 +20,6 @@ interface GameMessageInput {
 }
 
 type BoardProps = {
-  boardData: BoardCell[];
-  matchId: string;
-  hostId: string;
-  guestId: string;
   hostIsAlive: boolean;
   setHostIsAlive: (isAlive: boolean) => void;
   guestIsAlive: boolean;
@@ -32,10 +28,6 @@ type BoardProps = {
 };
 
 export default function Board({
-  boardData,
-  matchId,
-  hostId,
-  guestId,
   hostIsAlive,
   setHostIsAlive,
   guestIsAlive,
@@ -48,6 +40,7 @@ export default function Board({
   const [cellSize, setCellSize] = useState(0);
   const [isBackgroundLoaded, setIsBackgroundLoaded] = useState(false);
   const { userData, secondaryUserData, setSecondaryUserData } = useUser();
+  const {state: usersState, dispatch: usersDispatch} = useUsers();
 
   // Estado para el helado controlable
   const [playerDirection, setPlayerDirection] = useState("down");
@@ -64,8 +57,7 @@ export default function Board({
   const fruits = boardState.fruits;
   const iceBlocks = boardState.iceBlocks;
   const enemies = boardState.enemies;
-  const iceCreams = boardState.iceCreams;
-
+  const iceCreams = [usersState.mainUser, usersState.secondaryUser];
   const {  state: fruitBarState, dispatch: fruitBarDispatch } = useFruitBar();
 
   // Inicializar y configurar el canvas
@@ -140,8 +132,6 @@ export default function Board({
     };
 
     // Configurar canvas inicial
-
-    createWebSocketConnection(`/ws/game/${userData?.userId}/${userData?.matchId}`);
     setupCanvas();
 
     // Reconfigurarlo si cambia el tamaño de la ventana
@@ -160,7 +150,7 @@ export default function Board({
         try {
           const message = JSON.parse(event.data);
           // Verificar si el mensaje contiene datos del jugador
-          console.log("Received message: ", message);
+          console.log("Received message on Board.tsx: ", message);
           if (message.id && message.coordinates && message.direction) {
             console.log("Received player update:", message);
             console.log(message.coordinates, message.coordinates[1])
@@ -348,6 +338,10 @@ export default function Board({
     height: `${size}px`,
   });
 
+  useEffect(() => {
+    renderFruits();
+  }, fruits);
+
   const renderFruits = () => {
     return fruits.map((fruit: BoardCell) => {
       if (!fruit.item) return null; // Asegúrate de que el item exista
@@ -372,6 +366,10 @@ export default function Board({
     });
   };
 
+  useEffect(() => {
+    renderEnemies();
+  }, enemies);
+
   const renderEnemies = () => {
     return enemies.map((enemy: BoardCell) => {
       if (!enemy.character) return null; // Asegúrate de que el item exista
@@ -385,22 +383,21 @@ export default function Board({
   };
 
   const renderIceCreams = () => {
-    return iceCreams.map((iceCream: BoardCell) => {
-      if (!iceCream.character) return null; // Asegúrate de que el item exista
-      const style = getElementsStyles(iceCream.y, iceCream.x, cellSize);
+    return iceCreams.map((iceCream: UserInformation) => {
+      const style = getElementsStyles(iceCream.position.y, iceCream.position.x, cellSize);
       return (
-        <div key={iceCream.character.id} style={style}>
+        <div key={iceCream.id} style={style}>
           <IceCream
-            playerInformation={iceCream}
-            playerColor={fruitBarState.actualFruit}
-            hostIsAlive={hostIsAlive} setHostIsAlive={setHostIsAlive}
-            guestIsAlive={guestIsAlive} setGuestIsAlive={setGuestIsAlive}
-            hostId={hostId} guestId={guestId} matchId={matchId}
+            {...iceCream}
           />
         </div>
       );
     });
   };
+  
+  useEffect(() => {
+    renderIceCreams();
+  }, iceCreams);
 
   return (
     <div className="board">
