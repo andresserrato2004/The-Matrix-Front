@@ -3,9 +3,15 @@ import { useLocation } from "@remix-run/react";
 import LoadingScreen from "~/components/loadingScreen/LoadingScreen";
 import type { BoardCell } from "../../contexts/game/types/types";
 import { ws, createWebSocketConnection } from "~/services/websocket";
-import { HeaderProvider, useHeader } from "~/contexts/game/Header/HeaderContext";
+import {
+	HeaderProvider,
+	useHeader,
+} from "~/contexts/game/Header/HeaderContext";
 import { BoardProvider, useBoard } from "~/contexts/game/Board/BoardContext";
-import { FruitBarProvider, useFruitBar } from "~/contexts/game/FruitBar/FruitBarContext";
+import {
+	FruitBarProvider,
+	useFruitBar,
+} from "~/contexts/game/FruitBar/FruitBarContext";
 import { GameWebSocketProvider } from "~/routes/game/GameWebSocketProvider";
 import { useUser } from "~/contexts/user/userContext";
 import "./styles.css";
@@ -18,7 +24,7 @@ const FruitBar = lazy(() => import("./components/fruit-bar/FruitBar"));
 export default function GameScreen() {
 	// Estados de carga
 	const location = useLocation();
-  const { userData } = useUser();
+	const { userData } = useUser();
 
 	const [componentsLoaded, setComponentsLoaded] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
@@ -31,7 +37,7 @@ export default function GameScreen() {
 	const { state: headerSate, dispatch: headerDispatch } = useHeader();
 	const { state: boardState, dispatch: boardDispatch } = useBoard();
 	const { state: fruitBarState, dispatch: fruitBarDispatch } = useFruitBar();
-  const { state: usersState, dispatch: usersDispatch } = useUsers();
+	const { state: usersState, dispatch: usersDispatch } = useUsers();
 
 	// Estado de datos del juego
 	const [gameData, setGameData] = useState<{
@@ -110,8 +116,8 @@ export default function GameScreen() {
 	};
 
 	useEffect(() => {
-    console.log("tratando conexion de websocket", ws);
-    // cargar boardContext
+		console.log("tratando conexion de websocket", ws);
+		// cargar boardContext
 		boardDispatch({ type: "SET_BOARD", payload: gameData.match.board.board });
 		// cargar fruitBarContext
 		fruitBarDispatch({
@@ -119,9 +125,9 @@ export default function GameScreen() {
 			payload: ["banana", "grape", "orange"],
 		});
 		fruitBarDispatch({ type: "SET_ACTUAL_FRUIT", payload: "banana" });
-    // cargar informacion de los usuarios
-    const board: BoardCell[] = gameData.match.board.board;
-    //const users = board.filter(cell => cell.character?.type === "ice-cream"),
+		// cargar informacion de los usuarios
+		const board: BoardCell[] = gameData.match.board.board;
+		//const users = board.filter(cell => cell.character?.type === "ice-cream"),
 	}, []);
 
 	// Efecto para precargar componentes React
@@ -263,12 +269,7 @@ export default function GameScreen() {
 				}
 			>
 				<Header />
-				<Board
-					hostIsAlive={hostIsAlive}
-					setHostIsAlive={setHostIsAlive}
-					guestIsAlive={guestIsAlive}
-					setGuestIsAlive={setGuestIsAlive}
-				/>
+				<Board />
 				<FruitBar />
 			</Suspense>
 		</div>

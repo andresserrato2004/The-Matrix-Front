@@ -15,12 +15,10 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!ws) {
-      console.error("WebSocket is not initialized.");
-      return;
+      createWebSocketConnection(`/ws/game/${usersState.mainUser.id}/${usersState.mainUser.matchId}`);
     }
     if (!usersState.mainUser.id || !usersState.secondaryUser.id || !usersState.mainUser.matchId || !usersState.secondaryUser.matchId) return;
     // Crea la conexión SOLO aquí
-    createWebSocketConnection(`/ws/game/${usersState.mainUser.id}/${usersState.mainUser.matchId}`);
     // Configurar el manejador de mensajes del WebSocket
     ws.onmessage = (event) => {
       try {

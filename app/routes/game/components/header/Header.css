@@ -6,8 +6,7 @@
     justify-content: space-between; /* Espacio entre los 3 contenedores */
     align-items: center;
     padding: 10px 20px;
-    background-color: #fffcad; /* Color de fondo del header */
-    border-bottom: 4px solid #a49131; /* Separación visual */
+    background-color: transparent; /* Color de fondo del header */
   }
   
   /* Contenedores principales */
