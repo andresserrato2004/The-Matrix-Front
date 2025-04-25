@@ -6,10 +6,12 @@ import IceBlock from "./ice-block/IceBlock";
 import "./Board.css";
 import type { Character, BoardCell, Item, UserInformation } from "../../../../contexts/game/types/types";
 import { useUser } from "~/contexts/user/userContext";
-import { createWebSocketConnection, sendMessage, ws } from "~/services/websocket";
 import { useBoard } from "~/contexts/game/Board/BoardContext";
 import { useFruitBar } from "~/contexts/game/FruitBar/FruitBarContext";
 import { useUsers } from "~/contexts/UsersContext";
+import { useGameWebSocket } from "~/routes/game/GameWebSocketProvider";
+import { closeWebSocket } from "~/services/websocket";
+
 
 
 
@@ -32,6 +34,8 @@ export default function Board() {
   const enemies = boardState.enemies;
   const iceCreams = [usersState.mainUser, usersState.secondaryUser];
   const { state: fruitBarState, dispatch: fruitBarDispatch } = useFruitBar();
+  const { connectWebSocket } = useGameWebSocket();
+
 
   useEffect(() => {
     const setupCanvas = () => {
@@ -89,7 +93,9 @@ export default function Board() {
         };
       }
     };
-    
+    closeWebSocket(); // Cierra cualquier conexión WebSocket existente
+    connectWebSocket();
+
     setupCanvas();
     window.addEventListener('resize', setupCanvas);
 
