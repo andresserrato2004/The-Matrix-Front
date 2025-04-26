@@ -30,7 +30,7 @@ export default function PlayerController() {
 
       // Envío repetido para movimiento continuo
       moveIntervalRef.current = setInterval(() => {
-        sendMessage({ type: "move", direction });
+        sendMessage({ type: "movement", direction });
       }, MOVE_INTERVAL);
     };
 
