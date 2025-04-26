@@ -1,39 +1,29 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import IceCream from "./ice-cream/IceCream";
+import IceCreamController from "./ice-cream/iceCreamController/IceCreamController";
 import Fruit from "./fruit/Fruit";
 import Troll from "./enemy/Troll";
 import IceBlock from "./ice-block/IceBlock";
-import "./Board.css";
-import type { Character, BoardCell, Item, UserInformation } from "../../../../contexts/game/types/types";
-import { useUser } from "~/contexts/user/userContext";
+import type {  BoardCell, UserInformation } from "../../../../contexts/game/types/types";
 import { useBoard } from "~/contexts/game/Board/BoardContext";
 import { useFruitBar } from "~/contexts/game/FruitBar/FruitBarContext";
 import { useUsers } from "~/contexts/UsersContext";
 import { useGameWebSocket } from "~/routes/game/GameWebSocketProvider";
 import { closeWebSocket } from "~/services/websocket";
-
-
-
+import "./Board.css";
 
 export default function Board() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [gridSize, setGridSize] = useState({ width: 0, height: 0 });
   const [cellSize, setCellSize] = useState(0);
   const [isBackgroundLoaded, setIsBackgroundLoaded] = useState(false);
-  const { userData, secondaryUserData, setSecondaryUserData } = useUser();
-  const {state: usersState, dispatch: usersDispatch} = useUsers();
-
-  const [playerDirection, setPlayerDirection] = useState("down");
-  const [playerPosition, setPlayerPosition] = useState({ x: userData?.position[0], y: userData?.position[1] });
-  const [isMoving, setIsMoving] = useState(false);
-  const isMovingRef = useRef(false);
-
-  const { state: boardState, dispatch: boardDispatch } = useBoard();
+  const {state: usersState} = useUsers();
+  
+  const { state: boardState } = useBoard();
   const fruits = boardState.fruits;
   const iceBlocks = boardState.iceBlocks;
   const enemies = boardState.enemies;
   const iceCreams = [usersState.mainUser, usersState.secondaryUser];
-  const { state: fruitBarState, dispatch: fruitBarDispatch } = useFruitBar();
+  const { state: fruitBarState } = useFruitBar();
   const { connectWebSocket } = useGameWebSocket();
 
 
@@ -54,7 +44,6 @@ export default function Board() {
   
       const cell = size / 16;
       setCellSize(cell);
-      setGridSize({ width: size, height: size });
 
       const ctx = canvas.getContext('2d');
       if (ctx) {
@@ -102,7 +91,8 @@ export default function Board() {
     return () => {
       window.removeEventListener('resize', setupCanvas);
     };
-}, []);
+  }, []);
+
 
   const getElementsStyles = (x: number, y: number, size: number) => ({
     position: 'absolute' as const,
@@ -183,6 +173,7 @@ export default function Board() {
           zIndex: 0,
         }}
       />
+      {cellSize > 0 && <IceCreamController />}
       {cellSize > 0 && renderEnemies()}
       {cellSize > 0 && renderIceBlocks()}
       {cellSize > 0 && renderFruits()}

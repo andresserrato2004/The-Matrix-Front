@@ -8,7 +8,10 @@ import { useUser } from "~/contexts/user/userContext";
 
 const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL || "ws://localhost:3000";
 
-const GameWebSocketContext = createContext<{ connectWebSocket: () => void } | undefined>(undefined);
+const GameWebSocketContext = createContext<{
+  connectWebSocket: () => void;
+  sendMessage: (msg: any) => void;
+} | undefined>(undefined);
 
 export function GameWebSocketProvider({ children }: { children: ReactNode }) {
   const { dispatch: headerDispatch } = useHeader();
@@ -34,6 +37,15 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
     console.log(ws);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData?.userId, userData?.matchId]);
+
+  // Función para enviar mensajes
+  const sendMessage = useCallback((msg: any) => {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(typeof msg === "string" ? msg : JSON.stringify(msg));
+    } else {
+      console.warn("WebSocket no está conectado, no se puede enviar el mensaje.");
+    }
+  }, [ws]);
 
 
   useEffect(() => {
@@ -80,7 +92,8 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
           // Actualizar el estado del tablero y las frutas
           boardDispatch({ type: "SET_BOARD", payload: message.board });
           fruitBarDispatch({ type: "SET_ACTUAL_FRUIT", payload: message.currentType });
-        } else if (message.enemyId && message.coordinates && message.direction) {
+        }
+        else if (message.enemyId && message.coordinates && message.direction) {
           // Manejar el movimiento de un enemigo
           boardDispatch({ type: "MOVE_ENEMY", payload: message });
         }
@@ -93,7 +106,7 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
 
   // Puedes exponer sendMessage por contexto si lo necesitas en los hijos
   return (
-    <GameWebSocketContext.Provider value={{ connectWebSocket }}>
+    <GameWebSocketContext.Provider value={{ connectWebSocket, sendMessage }}>
       {children}
     </GameWebSocketContext.Provider>
   );
