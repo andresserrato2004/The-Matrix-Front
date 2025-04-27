@@ -99,7 +99,7 @@ export default function Board() {
 	const renderFruits = () => {
 		return fruits.map((fruit: BoardCell) => {
 			if (!fruit.item || !fruit.item.id) return null;
-			const style = getElementsStyles(fruit.y, fruit.x, cellSize);
+			const style = getElementsStyles(fruit.coordinates.y, fruit.coordinates.x, cellSize);
 			return (
 				<div key={fruit.item.id} style={style}>
 					<Fruit fruitInformation={fruit} subtype={fruitBarState.actualFruit} />
@@ -111,7 +111,7 @@ export default function Board() {
 	const renderIceBlocks = () => {
 		return iceBlocks.map((block: BoardCell) => {
 			if (!block.item || block.item.id) return null;
-			const style = getElementsStyles(block.y, block.x, cellSize);
+			const style = getElementsStyles(block.coordinates.y, block.coordinates.x, cellSize);
 			return (
 				<div key={block.item.id} style={style}>
 					<IceBlock blockInformation={block} />
@@ -123,7 +123,7 @@ export default function Board() {
 	const renderEnemies = () => {
 		return enemies.map((enemy: BoardCell) => {
 			if (!enemy.character || !enemy.character.id) return null;
-			const style = getElementsStyles(enemy.y, enemy.x, cellSize);
+			const style = getElementsStyles(enemy.coordinates.y, enemy.coordinates.x, cellSize);
 			return (
 				<div key={enemy.character.id} style={style}>
 					<Troll trollInformation={enemy} />

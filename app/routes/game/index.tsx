@@ -38,19 +38,17 @@ export default function GameScreen() {
 			id: string;
 			level: number;
 			map: string;
-			host: string;
-			guest: string;
+			hostId: string;
+			guestId: string;
+			typeFruits: string[];
 			board: {
-				host: string | null;
-				guest: string | null;
+				enemiesNumber: number;
+				fruitsNumber: number;
+				playersStartCoordinates: number[][];
 				fruitType: string;
-				fruitsType: string[];
-				enemies: number;
 				enemiesCoordinates: number[][];
 				fruitsCoordinates: number[][];
-				fruits: number;
-				playersStartCoordinates: number[][];
-				board: BoardCell[];
+				cells: BoardCell[];
 			};
 		};
 	}>(location.state);
@@ -108,15 +106,15 @@ export default function GameScreen() {
 	};
 
 	useEffect(() => {
-		console.log("gameData", gameData);
+		console.log("gameData", JSON.stringify(gameData));
 		// cargar boardContext
-		boardDispatch({ type: "SET_BOARD", payload: gameData.match.board.board });
+		boardDispatch({ type: "SET_BOARD", payload: gameData.match.board.cells });
 		// cargar fruitBarContext
 		fruitBarDispatch({
 			type: "SET_FRUITS",
-			payload: ["banana", "grape", "orange"],
+			payload: gameData.match.typeFruits
 		});
-		fruitBarDispatch({ type: "SET_ACTUAL_FRUIT", payload: "banana" });
+		fruitBarDispatch({ type: "SET_ACTUAL_FRUIT", payload: gameData.match.typeFruits[0] });
 	}, []);
 
 	// Efecto para precargar componentes React
@@ -198,8 +196,7 @@ export default function GameScreen() {
 
 				// Establecer los datos del juego
 				setGameData(gameData);
-				setFruits(gameData.match.board.fruitsType || []);
-				setBoardData(gameData?.match.board.board || []);
+				setFruits(gameData.match.typeFruits || []);
 
 				// Verificar si podemos finalizar la carga
 				checkLoadingCompletion();
@@ -207,8 +204,7 @@ export default function GameScreen() {
 				console.error("Error al cargar recursos del juego:", error);
 				// Si hay error, cargar datos básicos de todos modos
 				setGameData(gameData);
-				setFruits(gameData.match.board.fruitsType || []);
-				setBoardData(gameData.match.board.board || []);
+				setFruits(gameData.match.typeFruits || []);
 
 				// Forzar finalización después de un tiempo
 				setTimeout(() => {

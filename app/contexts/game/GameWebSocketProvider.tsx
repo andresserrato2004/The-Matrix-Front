@@ -99,11 +99,6 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
           }
         }
         // MENSAJES PARA EL TABLERO Y HEADER 
-        else if (message.fruits && message.board && message.fruitType && message.currentType) {
-          // Actualizar el estado del tablero y las frutas
-          boardDispatch({ type: "SET_BOARD", payload: message.board });
-          fruitBarDispatch({ type: "SET_ACTUAL_FRUIT", payload: message.currentType });
-        }
         else if (message.enemyId && message.coordinates && message.direction) {
           // Manejar el movimiento de un enemigo
           boardDispatch({ type: "MOVE_ENEMY", payload: message });
@@ -142,6 +137,12 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
               },
             });
           }
+        }
+        else if (message.fruitType && message.fruitsNumber && message.cells && message.currentRound && message.nextFruitType) {
+          // Actualizar el estado del tablero y las frutas
+          console.log("Nueva ronda de frutas puesta: ", message);
+          boardDispatch({ type: "SET_FRUITS", payload: message.cells });
+          fruitBarDispatch({ type: "SET_ACTUAL_FRUIT", payload: message.nextFruitType });
         }
       } catch (error) {
         console.error("Error parsing WebSocket message:", error);

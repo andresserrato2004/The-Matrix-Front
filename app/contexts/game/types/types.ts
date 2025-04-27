@@ -10,8 +10,7 @@ export type Item = {
 };
   
 export type BoardCell = {
-    x: number; // Coordenada X de la celda
-    y: number; // Coordenada Y de la celda
+    coordinates: Coordinates; // Coordenadas de la celda
     item: Item | null; // El ítem en la celda, puede ser null si no hay ítem
     character: Character | null; // El personaje en la celda, puede ser null si no hay personaje
 };

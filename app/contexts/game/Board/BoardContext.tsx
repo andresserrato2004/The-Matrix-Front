@@ -92,8 +92,7 @@ function updateEnemy(state: BoardState, enemyMove: EnemyMove): BoardState {
       enemy.character?.id === enemyMove.enemyId
         ? {
             ...enemy,
-            x: enemyMove.coordinates.x,
-            y: enemyMove.coordinates.y,
+            coordinates: enemyMove.coordinates,
             character: {
               ...enemy.character,
               orientation: enemyMove.direction

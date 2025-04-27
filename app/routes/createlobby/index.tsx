@@ -209,7 +209,7 @@ export default function Lobby() {
 
                         // Llenar los datos del guest en secondaryUserData
                         setSecondaryUserData({
-                            userId: message.match.guest,
+                            userId: message.match.guestId,
                             username: message.match.guestUsername, // Si existe un campo para el nombre del guest
                             position: positions[1].reverse(),
                         });
@@ -219,7 +219,7 @@ export default function Lobby() {
                             payload: {
                                 ...usersState.secondaryUser,
                                 matchId: message.match.id,
-                                id: message.match.guest,
+                                id: message.match.guestId,
                                 position: message.match.board.playersStartCoordinates[1]
                             }
                         });
@@ -249,7 +249,7 @@ export default function Lobby() {
                             type: "SET_MAIN_USER",
                             payload: {
                                 ...usersState.mainUser,
-                                id: message.match.guest,
+                                id: message.match.guestId,
                                 matchId: message.match.id,
                                 position: message.match.board.playersStartCoordinates[1]
                             }
@@ -257,7 +257,7 @@ export default function Lobby() {
 
                         // Llenar los datos del host en secondaryUserData
                         setSecondaryUserData({
-                            userId: message.match.host,
+                            userId: message.match.hostId,
                             username: message.match.hostUsername, // Si existe un campo para el nombre del host
                             position: positions[0].reverse(),
                         });
@@ -266,7 +266,7 @@ export default function Lobby() {
                             type: "SET_SECONDARY_USER",
                             payload: {
                                 ...usersState.secondaryUser,
-                                id: message.match.host,
+                                id: message.match.hostId,
                                 matchId: message.match.id,
                                 position: message.match.board.playersStartCoordinates[0]
                             }
