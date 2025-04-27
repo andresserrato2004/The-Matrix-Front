@@ -1,30 +1,29 @@
 import { useState, useEffect } from "react";
 import { useWebSocket } from "~/hooks/useWebSocket";
 import { useNavigate } from "@remix-run/react";
-import { useUser } from "~/userContext";
+import { useUser } from "~/contexts/user/userContext";
 import IceCreamSelector from "./components/IceCreamSelector";
 import GameControls from "./components/GameControls";
 import api from "~/services/api";
 import "./styles.css";
-import { ws } from "~/services/websocket";
-
+import { UsersProvider, useUsers } from "~/contexts/UsersContext";
 
 // TODO tipar todo
 
 // TODO hacer clean code
 
 const iceCreams = [
-    { id: 1, name: "Vanilla", image: "/vainilla.png" },
-    { id: 2, name: "Chocolate", image: "/chocolate.png" },
-    { id: 3, name: "amarillo", image: "/amarillo.png" },
-    { id: 4, name: "azulito", image: "/azulito.png" },
-    { id: 5, name: "fresa", image: "/fresa.png" },
-    { id: 6, name: "verde", image: "/verde.png" }
+    { id: 1, name: "Vanilla", image: "/vainilla.png", flavour: "vanilla" },
+    { id: 2, name: "Chocolate", image: "/chocolate.png", flavour: "chocolate" },
+    { id: 3, name: "amarillo", image: "/amarillo.png", flavour: "yellow" },
+    { id: 4, name: "azulito", image: "/azulito.png", flavour: "blue" },
+    { id: 5, name: "fresa", image: "/fresa.png", flavour: "strawberry" },
+    { id: 6, name: "verde", image: "/verde.png", flavour: "lime" }
 ];
-
 
 export default function Lobby() {
     const navigate = useNavigate();
+    const { state: usersState, dispatch: usersDispatch } = useUsers();
     const { userData, setUserData, secondaryUserData, setSecondaryUserData } = useUser();
 
     const { connect } = useWebSocket();
@@ -134,6 +133,13 @@ export default function Lobby() {
             ...userData,
             imageUrl: isGameReady.image
         });
+        usersDispatch({
+            type: "SET_MAIN_USER",
+            payload: {
+                ...usersState.mainUser,
+                name: player1Name
+            }
+        });
 
         console.log("isGameReady:", isGameReady);
         // Solo iniciar el temporizador si el juego no ha comenzado ya
@@ -145,7 +151,7 @@ export default function Lobby() {
                 setCountdown(prev => {
                     if (prev <= 1) {
                         clearInterval(timer);
-
+                        console.log("game data:", message);
                         // Marcar como iniciado y navegar
                         navigate("/game", { state: message });
                         setGameStarted(true);
@@ -192,11 +198,30 @@ export default function Lobby() {
                             position: position.reverse(),
                         });
 
+                        usersDispatch({
+                            type: "SET_MAIN_USER",
+                            payload: {
+                                ...usersState.mainUser,
+                                matchId: message.match.id,
+                                position: message.match.board.playersStartCoordinates[0],
+                            }
+                        });
+
                         // Llenar los datos del guest en secondaryUserData
                         setSecondaryUserData({
                             userId: message.match.guest,
                             username: message.match.guestUsername, // Si existe un campo para el nombre del guest
                             position: positions[1].reverse(),
+                        });
+
+                        usersDispatch({
+                            type: "SET_SECONDARY_USER",
+                            payload: {
+                                ...usersState.secondaryUser,
+                                matchId: message.match.id,
+                                id: message.match.guest,
+                                position: message.match.board.playersStartCoordinates[1]
+                            }
                         });
 
                         console.log("Host data updated:", {
@@ -220,11 +245,31 @@ export default function Lobby() {
                             position: positions[1].reverse(),
                         });
 
+                        usersDispatch({
+                            type: "SET_MAIN_USER",
+                            payload: {
+                                ...usersState.mainUser,
+                                id: message.match.guest,
+                                matchId: message.match.id,
+                                position: message.match.board.playersStartCoordinates[1]
+                            }
+                        });
+
                         // Llenar los datos del host en secondaryUserData
                         setSecondaryUserData({
                             userId: message.match.host,
                             username: message.match.hostUsername, // Si existe un campo para el nombre del host
                             position: positions[0].reverse(),
+                        });
+
+                        usersDispatch({
+                            type: "SET_SECONDARY_USER",
+                            payload: {
+                                ...usersState.secondaryUser,
+                                id: message.match.host,
+                                matchId: message.match.id,
+                                position: message.match.board.playersStartCoordinates[0]
+                            }
                         });
 
                         console.log("Guest data updated:", {
@@ -273,6 +318,7 @@ export default function Lobby() {
             // For solo mode, only check if player 1 is ready
             if (player1Ready && player1IceCream) {
                 setGameStarted(true);
+                console.log("game data:", message);
                 navigate("/game", { state: message });
             } else {
                 alert("Please select your character and click Ready to start");
@@ -281,6 +327,7 @@ export default function Lobby() {
             // For two-player mode, check both players
             if ((player1Ready && player2Ready) && (player1IceCream && player2IceCream)) {
                 setGameStarted(true);
+                console.log("game data:", message);
                 navigate("/game", { state: message });
             } else {
                 alert("Both players must select a character and be ready to start");

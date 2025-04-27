@@ -1,35 +1,19 @@
 import ScoreCounter from "./score-counter/ScoreCounter";
 import Timer from "./timer/Timer";
 import "./Header.css";
+import { useHeader } from "~/contexts/game/Header/HeaderContext";
 
-interface HeaderProps {
-  isRunning: boolean;
-  setIsRunning: (isRunning: boolean) => void;
-  fruitsCounter: number;
-  minutes: number;
-  seconds: number;
-  musicOn: boolean;
-  setMusicOn: (musicOn: boolean) => void;
-  soundEffectsOn: boolean;
-  setSoundEffectsOn: (soundEffectsOn: boolean) => void;
-}
+export default function Header() {
 
-export default function Header({
-  isRunning, setIsRunning,
-  fruitsCounter,
-  minutes,
-  seconds,
-  musicOn, setMusicOn,
-  soundEffectsOn, setSoundEffectsOn
-}: HeaderProps) {
+  const { state, dispatch } = useHeader();
 
   return (
     <div className="header">
       {/* Scores */}
-      <ScoreCounter score={fruitsCounter} playerNumber={1} />
+      <ScoreCounter score={state.score} playerNumber={1} />
 
       {/* Timer */}
-      <Timer isRunning={isRunning} setIsRunning={setIsRunning} minutes={minutes} seconds={seconds} />
+      <Timer isRunning={state.isRunning} minutes={state.minutes} seconds={state.seconds} />
 
       {/* Settings buttons */}
       <div className="settings-buttons-container">
@@ -38,11 +22,11 @@ export default function Header({
         </button>
         <button
           type="button"
-          aria-label={isRunning ? "Pausar" : "Reanudar"}
-          onClick={() => setIsRunning(!isRunning)}
+          aria-label={state.isRunning ? "Pausar" : "Reanudar"}
+          onClick={dispatch.bind(null, { type: "SET_IS_RUNNING", payload: !state.isRunning })}
         >
           <img
-            src={isRunning
+            src={state.isRunning
               ? "/game-screen/header/settings/pause.webp"
               : "/game-screen/header/settings/continue.webp"
             }
@@ -52,10 +36,10 @@ export default function Header({
         <button
           type="button"
           aria-label="Musica"
-          onClick={() => setMusicOn(!musicOn)}
+          onClick={dispatch.bind(null, { type: "SET_MUSIC", payload: !state.musicOn })}
         >
           <img
-            src={musicOn
+            src={state.musicOn
               ? "/game-screen/header/settings/music.webp"
               : "/game-screen/header/settings/no-music.webp"
             }
@@ -65,10 +49,10 @@ export default function Header({
         <button
           type="button"
           aria-label="Efectos de sonido"
-          onClick={() => setSoundEffectsOn(!soundEffectsOn)}
+          onClick={dispatch.bind(null, { type: "SET_SOUND_EFFECTS", payload: !state.soundEffectsOn })}
         >
           <img
-            src={soundEffectsOn
+            src={state.soundEffectsOn
               ? "/game-screen/header/settings/effects.webp"
               : "/game-screen/header/settings/no-effects.webp"
             }

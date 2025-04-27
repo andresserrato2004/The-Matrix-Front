@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ws } from "~/services/websocket";
 import "./Fruit.css";
-import type { BoardCell } from "../types/types";
+import type { BoardCell } from "../../../../../contexts/game/types/types";
 
 type FruitProps = {
   fruitInformation: BoardCell;

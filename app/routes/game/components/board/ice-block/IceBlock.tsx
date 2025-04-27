@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ws } from "~/services/websocket";
-import type {Character, BoardCell, Item } from "../types/types";
+import type {Character, BoardCell, Item } from "../../../../../contexts/game/types/types";
 import "./IceBlock.css";
 
 export default function IceBlock({ blockInformation }: { blockInformation: BoardCell }) {

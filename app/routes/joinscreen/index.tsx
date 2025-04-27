@@ -1,5 +1,5 @@
 import { useNavigate } from "@remix-run/react";
-import { useUser } from "../../userContext";
+import { useUser } from "../../contexts/user/userContext";
 import { useState } from "react";
 import Modal from "~/components/modal/Modal";
 import api from "~/services/api";

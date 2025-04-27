@@ -3,12 +3,11 @@ import "./Timer.css";
 
 type TimerProps = {
   isRunning: boolean;
-  setIsRunning: (isRunning: boolean) => void;
   minutes: number;
   seconds: number;
 };
 
-export default function Timer({ isRunning, setIsRunning, minutes, seconds }: TimerProps) {
+export default function Timer({ isRunning, minutes, seconds}: TimerProps) {
   const frames = [
     "/game-screen/header/clock/clock-0.webp",
     "/game-screen/header/clock/clock-1.webp",
@@ -22,8 +21,6 @@ export default function Timer({ isRunning, setIsRunning, minutes, seconds }: Tim
 
   const digitsRoute = "/game-screen/header/digits/digit-";
   const [clockFrame, setClockFrame] = useState(0);
-  const [currentMinutes, setCurrentMinutes] = useState(minutes);
-  const [currentSeconds, setCurrentSeconds] = useState(seconds);
 
   // Animación del reloj
   useEffect(() => {
@@ -34,36 +31,12 @@ export default function Timer({ isRunning, setIsRunning, minutes, seconds }: Tim
     return () => clearInterval(frameInterval);
   }, [isRunning]);
 
-  // Actualización del tiempo
-  useEffect(() => {
-    if (!isRunning) return;
-
-    const timeInterval = setInterval(() => {
-      setCurrentSeconds((prevSeconds) => {
-        if (prevSeconds === 0) {
-          return 59;
-        }
-        return prevSeconds - 1;
-      });
-
-      setCurrentMinutes((prevMinutes) => {
-        if (prevMinutes === 0 && currentSeconds === 0) {
-          setIsRunning(false); // ✅ Se actualiza el estado en otro ciclo de renderizado
-          clearInterval(timeInterval);
-          return 0;
-        }
-        return prevMinutes > 0 && currentSeconds === 0 ? prevMinutes - 1 : prevMinutes;
-      });
-    }, 1000);
-
-    return () => clearInterval(timeInterval);
-  }, [isRunning, currentSeconds, setIsRunning]);
 
   // Obtener dígitos individuales
-  const tensMinutes = Math.floor(currentMinutes / 10);
-  const onesMinutes = currentMinutes % 10;
-  const tensSeconds = Math.floor(currentSeconds / 10);
-  const onesSeconds = currentSeconds % 10;
+  const tensMinutes = Math.floor(minutes / 10);
+  const onesMinutes = minutes % 10;
+  const tensSeconds = Math.floor(seconds / 10);
+  const onesSeconds = seconds % 10;
 
   return (
     <div className="time-container">
