@@ -7,6 +7,7 @@ import "./Board.css";
 import type { Character, BoardCell, Item } from "./types/types";
 import { useUser } from "~/userContext";
 import { createWebSocketConnection, sendMessage, ws } from "~/services/websocket";
+import ModalWinLose from "../modalWinLose"
 
 
 
@@ -165,6 +166,7 @@ export default function Board({
 
 
   useEffect(() => {
+    // todo crear switch
     // Configurar el manejador de mensajes del WebSocket
     if (ws) {
       ws.onmessage = (event) => {
@@ -172,31 +174,37 @@ export default function Board({
           const message = JSON.parse(event.data);
 
           // Verificar si el mensaje contiene datos del jugador
-          if (message.id && message.coordinates && message.direction) {
-            console.log("Received player update:", message);
-            console.log(message.coordinates, message.coordinates[1])
 
-            // Actualizar el usuario correspondiente
-            if (message.id === userData?.userId) {
-              console.log("Updating main player position:", message.coordinates);
-              // Actualizar al usuario principal
-              setPlayerPosition({ x: message.coordinates.x, y: message.coordinates.y });
-              setPlayerDirection(message.direction);
-            } else if (message.id === secondaryUserData?.userId) {
-              // Actualizar al usuario secundario
-              setSecondaryUserData({
-                ...secondaryUserData,
-                position: message.coordinates,
-                direction: message.direction,
-              });
-            }
-            if (message.idItemConsumed) {
-              // Eliminar la fruta consumida
-              console.log("Removing fruit with ID:", message.idItemConsumed);
-              removeFruit(message.idItemConsumed);
-              setFruitsCounter(fruitsCounter + 1);
-            }
+          console.log("Received WebSocket message in board:", message);
+          console.log("Received player update:", message);
+          console.log("")
+          // Actualizar el usuario correspondiente
+          if (message.id === userData?.userId) {
+            console.log("Updating main player position:", message.coordinates);
+            // Actualizar al usuario principal
+            setPlayerPosition({ x: message.coordinates.x, y: message.coordinates.y });
+            setPlayerDirection(message.direction);
+          } else if (message.id === secondaryUserData?.userId) {
+            // Actualizar al usuario secundario
+            setSecondaryUserData({
+              ...secondaryUserData,
+              position: message.coordinates,
+              direction: message.direction,
+            });
           }
+          if (message.idItemConsumed) {
+            // Eliminar la fruta consumida
+            console.log("Removing fruit with ID:", message.idItemConsumed);
+            removeFruit(message.idItemConsumed);
+            setFruitsCounter(fruitsCounter + 1);
+          }
+
+          if (message.error == 'Invalid move') {
+            // Eliminar el bloque de hielo
+            removeBlock(message.idBlockRemoved);
+          }
+
+
         } catch (error) {
           console.error("Error parsing WebSocket message:", error);
         }
@@ -422,7 +430,7 @@ export default function Board({
   // FUNCIONES DE FRUTAS
   // --- Elimina una fruit dado su id
   const removeFruit = useCallback((id: string) => {
-    console.log("Removing fruit with ID:", id);
+    console.log("Removing fruit with ID in function :", id);
     // Eliminar la fruta del estado actual
     setFruits((prev) => prev.filter((cell) => cell.item?.id !== id));
   }, []);
@@ -503,6 +511,8 @@ export default function Board({
   return (
     <div className="board">
       {/* Canvas para dibujar el fondo */}
+
+
       <canvas
         ref={canvasRef}
         className={`board-canvas ${isBackgroundLoaded ? 'loaded' : 'loading'}`}
@@ -600,6 +610,12 @@ export default function Board({
         {cellSize > 0 && renderIceCreams()}
 
       </div>
+      <ModalWinLose
+        title={"Win"}
+        message={"you winner"}
+        isVisible={true}
+
+      />
     </div>
   );
 }
