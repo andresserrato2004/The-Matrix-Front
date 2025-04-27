@@ -8,7 +8,7 @@ import type { BoardCell, UserInformation } from "~/contexts/game/types/types";
 import { useBoard } from "~/contexts/game/Board/BoardContext";
 import { useFruitBar } from "~/contexts/game/FruitBar/FruitBarContext";
 import { useUsers } from "~/contexts/UsersContext";
-import { useGameWebSocket } from "~/routes/game/GameWebSocketProvider";
+import { useGameWebSocket } from "~/contexts/game/GameWebSocketProvider";
 import { closeWebSocket } from "~/services/websocket";
 import "./Board.css";
 
@@ -133,6 +133,7 @@ export default function Board() {
 	};
 
 	const renderIceCreams = () => {
+		console.log("icecreams info ", iceCreams);
 		return iceCreams.map((iceCream: UserInformation) => {
 			if (!iceCream.id) return null;
 			const style = getElementsStyles(

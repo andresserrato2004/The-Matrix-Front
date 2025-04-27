@@ -10,7 +10,7 @@ import type { LinksFunction } from "@remix-run/node";
 import "./tailwind.css";
 import { UserProvider } from "./contexts/user/userContext";
 import { UsersProvider } from "./contexts/UsersContext";
-import { GameWebSocketProvider } from "./routes/game/GameWebSocketProvider";
+import { GameWebSocketProvider } from "./contexts/game/GameWebSocketProvider";
 import { HeaderProvider } from "./contexts/game/Header/HeaderContext";
 import { BoardProvider } from "./contexts/game/Board/BoardContext";
 import { FruitBarProvider } from "./contexts/game/FruitBar/FruitBarContext";

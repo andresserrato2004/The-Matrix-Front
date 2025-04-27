@@ -1,16 +1,17 @@
-import React, { useEffect, createContext, useContext, useCallback, useState } from "react";
-import type { ReactNode } from "react";
-import { useHeader } from "../../contexts/game/Header/HeaderContext";
-import { useBoard } from "../../contexts/game/Board/BoardContext";
-import { useFruitBar } from "../../contexts/game/FruitBar/FruitBarContext";
+import { useEffect, createContext, useContext, useCallback, useState } from "react";
+import type { ReactNode, Dispatch } from "react";
+import { useHeader } from "./Header/HeaderContext";
+import { useBoard } from "./Board/BoardContext";
+import { useFruitBar } from "./FruitBar/FruitBarContext";
 import { useUsers } from "~/contexts/UsersContext";
 import { useUser } from "~/contexts/user/userContext";
+import type { OutputMessage } from "~/contexts/game/types/outputMessage";
 
 const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL || "ws://localhost:3000";
 
 const GameWebSocketContext = createContext<{
   connectWebSocket: () => void;
-  sendMessage: (msg: any) => void;
+  sendMessage: (msg: OutputMessage ) => void;
 } | undefined>(undefined);
 
 export function GameWebSocketProvider({ children }: { children: ReactNode }) {
@@ -19,7 +20,7 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
   const { dispatch: fruitBarDispatch } = useFruitBar();
   const { state: usersState, dispatch: usersDispatch } = useUsers();
   const [ws, setWs] = useState<WebSocket | null>(null);
-
+  
   const { userData, secondaryUserData, setSecondaryUserData } = useUser();
 
   const connectWebSocket = useCallback(() => {
@@ -39,7 +40,7 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
   }, [userData?.userId, userData?.matchId]);
 
   // Función para enviar mensajes
-  const sendMessage = useCallback((msg: any) => {
+  const sendMessage = useCallback((msg: OutputMessage) => {
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(typeof msg === "string" ? msg : JSON.stringify(msg));
     } else {
@@ -80,11 +81,21 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
            headerDispatch({ type: "SET_MINUTES", payload: message.minutesLeft });
            headerDispatch({ type: "SET_SECONDS", payload: message.secondsLeft });
         } 
-        else if (message.id && message.coordinates && message.direction && message.state) {  
+        else if (message.id && message.coordinates && message.direction && message.state) {
+          usersDispatch({
+            type: "MOVE_USER",
+            payload: {
+              playerId: message.id,
+              coordinates: message.coordinates,
+              direction: message.direction,
+              state: message.state,
+            }
+          }); 
           if (message.idItemConsumed) {
             // Manejar el consumo de una fruta
             console.log("Removing fruit with ID:", message.idItemConsumed);
             headerDispatch({ type: "INCREMENT_SCORE" });
+            boardDispatch({ type: "DELETE_FRUIT", payload: message.idItemConsumed });
           }
         }
         // MENSAJES PARA EL TABLERO Y HEADER 
@@ -96,6 +107,20 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
         else if (message.enemyId && message.coordinates && message.direction) {
           // Manejar el movimiento de un enemigo
           boardDispatch({ type: "MOVE_ENEMY", payload: message });
+        }
+        else if (message.result) {
+          // Manejar el resultado del juego
+          if (message.result === "lose") {
+            usersDispatch({
+              type: "SET_GAME_STATE",
+              payload: "lost",
+            });
+          } else if (message.result === "win") {
+            usersDispatch({
+              type: "SET_GAME_STATE",
+              payload: "won",
+            });
+          }
         }
       } catch (error) {
         console.error("Error parsing WebSocket message:", error);

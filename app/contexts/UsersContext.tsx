@@ -1,10 +1,11 @@
 import { createContext, useReducer, useContext } from "react";
 import type { ReactNode, Dispatch } from "react";
-import type { PlayerMove, UserInformation } from "./game/types/types";
+import type { PlayerMove, UserInformation, GameState } from "./game/types/types";
 
 export interface UsersState {
     mainUser: UserInformation;
     secondaryUser: UserInformation;
+    gameState: GameState;
 }
 
 type UsersAction =
@@ -12,7 +13,8 @@ type UsersAction =
     | { type: "SET_MATCHID"; payload: { matchId: string } }
     | { type: "MOVE_USER"; payload: PlayerMove }
     | { type: "SET_MAIN_USER"; payload: UserInformation }
-    | { type: "SET_USER_BOARD_INFORMATION"; payload: UserInformation };
+    | { type: "SET_GAME_STATE"; payload: GameState }
+    | { type: "SET_SECONDARY_USER"; payload: UserInformation };
 
 const initialState: UsersState = {
     mainUser: {
@@ -32,11 +34,16 @@ const initialState: UsersState = {
         position: { x: 0, y: 0 },
         direction: "down",
         state: "alive"
-    }
+    },
+    gameState: "playing"
 };
 
 function usersReducer(state: UsersState, action: UsersAction): UsersState {
   switch (action.type) {
+    case "SET_MAIN_USER":
+        return { ...state, mainUser: action.payload };
+    case "SET_SECONDARY_USER":
+        return { ...state, secondaryUser: action.payload };
     case "SET_USER_INFORMATION":
         if (action.payload.id === state.mainUser.id) {
             return { ...state, mainUser: action.payload };
@@ -55,6 +62,7 @@ function usersReducer(state: UsersState, action: UsersAction): UsersState {
                 matchId: action.payload.matchId,
                 id: state.secondaryUser.id, // Ensure 'id' is preserved
             },
+            gameState: state.gameState,
         };
     case "MOVE_USER":
         if (action.payload.playerId === state.mainUser.id) {
@@ -76,6 +84,11 @@ function usersReducer(state: UsersState, action: UsersAction): UsersState {
                 direction: action.payload.direction,
                 state: action.payload.state
             },
+        };
+    case "SET_GAME_STATE":
+        return {
+            ...state,
+            gameState: action.payload,
         };
     default:
       return state;

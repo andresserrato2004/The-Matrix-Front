@@ -1,8 +1,9 @@
 import { useEffect, useRef } from "react";
-import { useGameWebSocket } from "~/routes/game/GameWebSocketProvider";
+import { useGameWebSocket } from "~/contexts/game/GameWebSocketProvider";
 import { useUsers } from "~/contexts/UsersContext";
+import type { MovementMessage } from "~/contexts/game/types/outputMessage";
 
-const MOVE_INTERVAL = 120; // ms entre movimientos continuos
+const MOVE_INTERVAL = 500; // ms entre movimientos continuos
 
 export default function PlayerController() {
   const { sendMessage } = useGameWebSocket();
@@ -13,9 +14,10 @@ export default function PlayerController() {
 
   // Helper para saber si el jugador está "vivo"
   const isAlive = usersState.mainUser.state !== "dead";
+  const canMakeMovements = usersState.gameState === "playing";
 
   useEffect(() => {
-    if (!isAlive) return;
+    if (!isAlive || !canMakeMovements) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       const direction = getDirectionFromKey(e.key);
@@ -26,11 +28,13 @@ export default function PlayerController() {
       pressedKeyRef.current = direction;
 
       // Envío inmediato para cambio de dirección
-      sendMessage({ type: "changeDirection", direction });
+      console.log("Enviando mensaje de movimiento:", direction);
+      sendMessage({ type: "movement", payload: direction });
 
       // Envío repetido para movimiento continuo
       moveIntervalRef.current = setInterval(() => {
-        sendMessage({ type: "movement", direction });
+        console.log("Enviando mensaje de movimiento continuo:", direction);
+        sendMessage({ type: "movement", payload: direction });
       }, MOVE_INTERVAL);
     };
 

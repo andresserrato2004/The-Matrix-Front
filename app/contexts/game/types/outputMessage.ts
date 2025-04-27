@@ -9,11 +9,17 @@ export type ChangeDirectionMessage = {
 };
 
 export type SetColorMessage = {
-    type: 'setColor';
+    type: 'set-color';
     payload: string;
 };
 
 export type ExecPowerMessage = {
     type: 'exec-power';
 };
+
+export type OutputMessage =
+    | MovementMessage
+    | ChangeDirectionMessage
+    | SetColorMessage
+    | ExecPowerMessage;
 

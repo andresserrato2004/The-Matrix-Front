@@ -7,7 +7,6 @@ import GameControls from "./components/GameControls";
 import api from "~/services/api";
 import "./styles.css";
 import { UsersProvider, useUsers } from "~/contexts/UsersContext";
-import { GameWebSocketProvider } from "../game/GameWebSocketProvider";
 
 // TODO tipar todo
 
@@ -134,6 +133,13 @@ export default function Lobby() {
             ...userData,
             imageUrl: isGameReady.image
         });
+        usersDispatch({
+            type: "SET_MAIN_USER",
+            payload: {
+                ...usersState.mainUser,
+                name: player1Name
+            }
+        });
 
         console.log("isGameReady:", isGameReady);
         // Solo iniciar el temporizador si el juego no ha comenzado ya
@@ -192,11 +198,30 @@ export default function Lobby() {
                             position: position.reverse(),
                         });
 
+                        usersDispatch({
+                            type: "SET_MAIN_USER",
+                            payload: {
+                                ...usersState.mainUser,
+                                matchId: message.match.id,
+                                position: message.match.board.playersStartCoordinates[0],
+                            }
+                        });
+
                         // Llenar los datos del guest en secondaryUserData
                         setSecondaryUserData({
                             userId: message.match.guest,
                             username: message.match.guestUsername, // Si existe un campo para el nombre del guest
                             position: positions[1].reverse(),
+                        });
+
+                        usersDispatch({
+                            type: "SET_SECONDARY_USER",
+                            payload: {
+                                ...usersState.secondaryUser,
+                                matchId: message.match.id,
+                                id: message.match.guest,
+                                position: message.match.board.playersStartCoordinates[1]
+                            }
                         });
 
                         console.log("Host data updated:", {
@@ -220,11 +245,31 @@ export default function Lobby() {
                             position: positions[1].reverse(),
                         });
 
+                        usersDispatch({
+                            type: "SET_MAIN_USER",
+                            payload: {
+                                ...usersState.mainUser,
+                                id: message.match.guest,
+                                matchId: message.match.id,
+                                position: message.match.board.playersStartCoordinates[1]
+                            }
+                        });
+
                         // Llenar los datos del host en secondaryUserData
                         setSecondaryUserData({
                             userId: message.match.host,
                             username: message.match.hostUsername, // Si existe un campo para el nombre del host
                             position: positions[0].reverse(),
+                        });
+
+                        usersDispatch({
+                            type: "SET_SECONDARY_USER",
+                            payload: {
+                                ...usersState.secondaryUser,
+                                id: message.match.host,
+                                matchId: message.match.id,
+                                position: message.match.board.playersStartCoordinates[0]
+                            }
                         });
 
                         console.log("Guest data updated:", {

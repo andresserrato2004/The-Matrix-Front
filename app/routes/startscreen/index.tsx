@@ -30,6 +30,13 @@ export default function StartScreen() {
 
                 console.log("handleStartGame - Setting userId:", userId);
                 setUserData(userId);
+                usersDispatch({
+                    type: "SET_MAIN_USER",
+                    payload: {
+                        ...usersState.mainUser,
+                        id: userId,
+                    },
+                });
                 usersDispatch({ type: "SET_MAIN_USER", payload: { ...usersState.mainUser, id: userId } });
 
                 // Navigate to the lobby

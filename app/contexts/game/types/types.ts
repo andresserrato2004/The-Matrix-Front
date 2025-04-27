@@ -27,6 +27,8 @@ export type EnemyMove = {
     direction: "up" | "down" | "left" | "right"; // Dirección en la que se mueve el enemigo (por ejemplo: "up", "down", "left", "right")
 };
 
+export type GameState = "playing" | "paused" | "won" | "lost"; // Estado del juego
+
 export type PlayerMove = {
     playerId: string; // ID del jugador que se mueve
     coordinates: Coordinates; // Nuevas coordenadas del jugador
