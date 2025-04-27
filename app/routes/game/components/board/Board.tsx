@@ -133,7 +133,6 @@ export default function Board() {
 	};
 
 	const renderIceCreams = () => {
-		console.log("icecreams info ", iceCreams);
 		return iceCreams.map((iceCream: UserInformation) => {
 			if (!iceCream.id) return null;
 			const style = getElementsStyles(

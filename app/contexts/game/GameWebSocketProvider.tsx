@@ -122,6 +122,27 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
             });
           }
         }
+        else if (message.id && message.state) {
+          const isHost = message.id === usersState.mainUser.id;
+          if (isHost) {
+            usersDispatch({
+              type: "SET_MAIN_USER",
+              payload: {
+                ...usersState.mainUser,
+                state: message.state,
+              },
+            });
+          }
+          else {
+            usersDispatch({
+              type: "SET_SECONDARY_USER",
+              payload: {
+                ...usersState.secondaryUser,
+                state: message.state,
+              },
+            });
+          }
+        }
       } catch (error) {
         console.error("Error parsing WebSocket message:", error);
       }
