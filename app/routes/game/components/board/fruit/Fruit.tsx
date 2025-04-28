@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
-import { ws } from "~/services/websocket";
-import "./Fruit.css";
 import type { BoardCell } from "../../../../../contexts/game/types/types";
+import "./Fruit.css";
 
 type FruitProps = {
   fruitInformation: BoardCell;
@@ -13,10 +11,8 @@ export default function Fruit({ fruitInformation, subtype }: FruitProps) {
     <div
       className="fruit"
       style={{
-        left: `${fruitInformation.x}px`,
-        top: `${fruitInformation.y}px`,
-        height: "50px",
-        width: "50px",
+        height: "40px",
+        width: "40px",
       }}
     >
       <img src={`/fruits/${subtype}.webp`} alt={`Fruit ${subtype}`} />

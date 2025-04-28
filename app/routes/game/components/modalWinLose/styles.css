@@ -1,0 +1,65 @@
+.modal-overlay{ 
+    @apply fixed top-0 left-0 w-[100%] h-[100%] bg-black bg-opacity-40 flex justify-center
+    items-center z-[1000] backdrop-blur-sm;
+}
+
+.modal-content {
+    @apply p-8 rounded-2xl shadow-xl w-[600px] h-[400px] max-w-3xl text-black items-center
+    flex flex-col justify-between border border-white/20;
+    background-color: rgba(250, 200, 150, 0.95);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 2px 8px rgba(255, 255, 255, 0.1);
+    animation: modalOpen 0.4s ease-out;
+}
+
+.modal-header {
+    @apply flex justify-center items-center mb-2 w-full;
+}
+
+.modal-title {
+    @apply text-4xl font-bold text-white text-center w-full drop-shadow-md;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.modal-body {
+    @apply flex-grow flex flex-col justify-center items-center w-full;
+}
+
+.modal-message {
+    @apply text-3xl mb-6 text-white text-center w-full max-w-md mx-auto;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+.modal-buttons-container {
+    @apply flex flex-col sm:flex-row justify-center gap-10 mt-auto;
+}
+
+.modal-button {
+    @apply px-6 py-3 text-white rounded-xl transition-all duration-300
+    font-semibold text-xl shadow-md hover:shadow-lg transform hover:-translate-y-1
+    flex items-center justify-center min-w-[180px] min-h-[60px];
+}
+
+.modal-button-win {
+    @apply bg-green-500/80 hover:bg-green-600/90 border border-green-300/50;
+    box-shadow: 0 4px 12px rgba(0, 200, 0, 0.2);
+}
+
+.modal-button-lose {
+    @apply bg-red-500/80 hover:bg-red-600/90 border border-red-300/50;
+    box-shadow: 0 4px 12px rgba(200, 0, 0, 0.2);
+}
+
+.modal-button-back {
+    @apply bg-blue-500/80 hover:bg-blue-600/90 border border-blue-300/50;
+    box-shadow: 0 4px 12px rgba(0, 0, 200, 0.2);
+}
+
+@keyframes modalOpen {
+  0% {
+    @apply opacity-0 scale-90;
+    transform: translateY(20px) scale(0.9);
+  }
+  100% {
+    @apply opacity-100 scale-100;
+    transform: translateY(0) scale(1);
+  }
+}

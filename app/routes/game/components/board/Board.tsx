@@ -86,20 +86,22 @@ export default function Board() {
 		return () => {
 			window.removeEventListener("resize", setupCanvas);
 		};
-	}, []);
+	}, [connectWebSocket]);
 
-	const getElementsStyles = (x: number, y: number, size: number) => ({
+	const getElementsStyles = (x: number, y: number, size: number, needsTransition = false) => ({
 		position: "absolute" as const,
 		left: `${x * size}px`,
 		top: `${y * size}px`,
 		width: `${size}px`,
 		height: `${size}px`,
+		transition: needsTransition ? "left 1s ease-out, top 1s ease-out" : "none"
 	});
 
 	const renderFruits = () => {
 		return fruits.map((fruit: BoardCell) => {
 			if (!fruit.item || !fruit.item.id) return null;
 			const style = getElementsStyles(fruit.coordinates.y, fruit.coordinates.x, cellSize);
+
 			return (
 				<div key={fruit.item.id} style={style}>
 					<Fruit fruitInformation={fruit} subtype={fruitBarState.actualFruit} />
@@ -123,7 +125,15 @@ export default function Board() {
 	const renderEnemies = () => {
 		return enemies.map((enemy: BoardCell) => {
 			if (!enemy.character || !enemy.character.id) return null;
-			const style = getElementsStyles(enemy.coordinates.y, enemy.coordinates.x, cellSize);
+			const style = {
+				...getElementsStyles(
+					enemy.coordinates.y,
+					enemy.coordinates.x,
+					cellSize,
+					true
+				)
+			};
+
 			return (
 				<div key={enemy.character.id} style={style}>
 					<Troll trollInformation={enemy} />
@@ -135,11 +145,15 @@ export default function Board() {
 	const renderIceCreams = () => {
 		return iceCreams.map((iceCream: UserInformation) => {
 			if (!iceCream.id) return null;
-			const style = getElementsStyles(
-				iceCream.position.y,
-				iceCream.position.x,
-				cellSize,
-			);
+			const style = {
+				...getElementsStyles(
+					iceCream.position.y,
+					iceCream.position.x,
+					cellSize,
+					true
+				),
+
+			};
 			return (
 				<div key={iceCream.id} style={style}>
 					<IceCream {...iceCream} />
