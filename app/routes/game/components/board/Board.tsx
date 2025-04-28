@@ -172,7 +172,6 @@ export default function Board() {
 					zIndex: 0,
 				}}
 			/>
-			{cellSize > 0 && <IceCreamController />}
 			{cellSize > 0 && renderEnemies()}
 			{cellSize > 0 && renderIceBlocks()}
 			{cellSize > 0 && renderFruits()}

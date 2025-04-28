@@ -86,6 +86,7 @@ function usersReducer(state: UsersState, action: UsersAction): UsersState {
             },
         };
     case "SET_GAME_STATE":
+        console.log("SET_GAME_STATE", action.payload);
         return {
             ...state,
             gameState: action.payload,
