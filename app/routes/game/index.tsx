@@ -6,6 +6,7 @@ import {  useHeader } from "~/contexts/game/Header/HeaderContext";
 import {  useBoard } from "~/contexts/game/Board/BoardContext";
 import { useFruitBar } from "~/contexts/game/FruitBar/FruitBarContext";
 import { useUser } from "~/contexts/user/userContext";
+import IceCreamController from "./components/board/ice-cream/iceCreamController/IceCreamController";
 import "./styles.css";
 import { useUsers } from "~/contexts/UsersContext";
 
@@ -256,6 +257,7 @@ export default function GameScreen() {
 				<Header />
 				<Board />
 				<FruitBar />
+				<IceCreamController />
 			</Suspense>
 		</div>
 	);

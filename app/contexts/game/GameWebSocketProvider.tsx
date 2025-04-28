@@ -105,17 +105,10 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
         }
         else if (message.result) {
           // Manejar el resultado del juego
-          if (message.result === "lose") {
-            usersDispatch({
+          usersDispatch({
               type: "SET_GAME_STATE",
-              payload: "lost",
-            });
-          } else if (message.result === "win") {
-            usersDispatch({
-              type: "SET_GAME_STATE",
-              payload: "won",
-            });
-          }
+              payload: message.result
+          });
         }
         else if (message.id && message.state) {
           const isHost = message.id === usersState.mainUser.id;
