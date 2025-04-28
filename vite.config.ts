@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   
   // Obtiene el puerto desde las variables de entorno o usa 3000 como valor por defecto
-  const port = parseInt(env.PORT || env.VITE_PORT || '3000', 10);
+  const port = parseInt(env.PORT || env.VITE_PORT || '3005', 10);
   
   console.log(`Starting Vite server on port ${port}`);
   

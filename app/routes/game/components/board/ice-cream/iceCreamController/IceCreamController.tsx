@@ -57,7 +57,7 @@ export default function PlayerController() {
       window.removeEventListener("keyup", handleKeyUp);
       if (moveIntervalRef.current) clearInterval(moveIntervalRef.current);
     };
-  }, [isAlive, sendMessage]);
+  }, [isAlive, sendMessage, canMakeMovements]);
 
   return null;
 }

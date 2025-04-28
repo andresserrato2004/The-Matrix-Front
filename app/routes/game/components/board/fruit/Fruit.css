@@ -1,0 +1,16 @@
+/* Animación de salto */
+@keyframes jump {
+	0%,
+	100% {
+		transform: translateY(0) scale(1.3); /* Tamaño normal */
+	}
+	50% {
+		transform: translateY(-5px) scale(1.2); /* Salto hacia arriba y un poco más grande */
+	}
+}
+
+/* Estilo para la fruta */
+.fruit {
+	animation: jump 1.5s ease-in-out infinite; /* Aplica la animación */
+	margin-top: 12px;
+}

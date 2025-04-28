@@ -1,14 +1,16 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect, lazy, Suspense, useCallback } from "react";
 import { useLocation } from "@remix-run/react";
 import LoadingScreen from "~/components/loadingScreen/LoadingScreen";
 import type { BoardCell } from "../../contexts/game/types/types";
-import {  useHeader } from "~/contexts/game/Header/HeaderContext";
-import {  useBoard } from "~/contexts/game/Board/BoardContext";
+import { useHeader } from "~/contexts/game/Header/HeaderContext";
+import { useBoard } from "~/contexts/game/Board/BoardContext";
 import { useFruitBar } from "~/contexts/game/FruitBar/FruitBarContext";
 import { useUser } from "~/contexts/user/userContext";
 import IceCreamController from "./components/board/ice-cream/iceCreamController/IceCreamController";
-import "./styles.css";
 import { useUsers } from "~/contexts/UsersContext";
+import ModalWinLose from "./components/modalWinLose";
+import "./styles.css";
+
 
 const Header = lazy(() => import("./components/header/Header"));
 const Board = lazy(() => import("./components/board/Board"));
@@ -26,6 +28,10 @@ export default function GameScreen() {
 	);
 	const [assetProgress, setAssetProgress] = useState(0);
 	const [componentProgress, setComponentProgress] = useState(0);
+
+	const [showModal, setShowModal] = useState(false);
+	const [modalType, setModalType] = useState<'win' | 'lose'>('lose');
+	const [modalMessage, setModalMessage] = useState("");
 
 	const { state: headerSate, dispatch: headerDispatch } = useHeader();
 	const { state: boardState, dispatch: boardDispatch } = useBoard();
@@ -62,8 +68,8 @@ export default function GameScreen() {
 	const [fruits, setFruits] = useState<string[]>([]);
 
 	// Función para precargar imágenes con seguimiento de progreso
-	const preloadImages = (imageList) => {
-		return new Promise((resolve, reject) => {
+	const preloadImages = useCallback((imageList: string[]): Promise<boolean> => {
+		return new Promise((resolve) => {
 			const totalImages = imageList.length;
 
 			if (totalImages === 0) {
@@ -74,7 +80,7 @@ export default function GameScreen() {
 
 			let loadedImages = 0;
 
-			imageList.forEach((src) => {
+			for (const src of imageList) {
 				const img = new Image();
 
 				img.onload = () => {
@@ -102,9 +108,33 @@ export default function GameScreen() {
 				};
 
 				img.src = src;
-			});
+			}
 		});
-	};
+	}, []);
+
+
+	useEffect(() => {
+		if (usersState.gameState === "win") {
+			setModalType('win');
+			setModalMessage("¡Felicidades! Has ganado el juego.");
+			setShowModal(true);
+		} else if (usersState.gameState === "lose") {
+			setModalType('lose');
+			setModalMessage("Game Over. ¡Inténtalo de nuevo!");
+			setShowModal(true);
+		}
+	}, [usersState.gameState]);
+
+	const handleCloseModal = () => {
+		setShowModal(false);
+		if (modalType === 'win') {
+			// Aquí puedes redirigir a la pantalla de victoria o hacer otra acción
+			console.log("Redirigiendo a la pantalla de victoria...");
+		} else if (modalType === 'lose') {
+			// Aquí puedes redirigir a la pantalla de derrota o hacer otra acción
+			console.log("Redirigiendo a la pantalla de derrota...");
+		}
+	}
 
 	useEffect(() => {
 		console.log("gameData", JSON.stringify(gameData));
@@ -116,7 +146,7 @@ export default function GameScreen() {
 			payload: gameData.match.typeFruits
 		});
 		fruitBarDispatch({ type: "SET_ACTUAL_FRUIT", payload: gameData.match.typeFruits[0] });
-	}, []);
+	}, [boardDispatch, fruitBarDispatch, gameData]);
 
 	// Efecto para precargar componentes React
 	useEffect(() => {
@@ -199,8 +229,6 @@ export default function GameScreen() {
 				setGameData(gameData);
 				setFruits(gameData.match.typeFruits || []);
 
-				// Verificar si podemos finalizar la carga
-				checkLoadingCompletion();
 			} catch (error) {
 				console.error("Error al cargar recursos del juego:", error);
 				// Si hay error, cargar datos básicos de todos modos
@@ -217,22 +245,18 @@ export default function GameScreen() {
 		loadGameResources();
 
 		return () => clearInterval(messageInterval);
-	}, []);
+	}, [gameData, preloadImages]);
 
 	// Efecto para verificar cuándo se han cargado tanto los componentes como los recursos
 	useEffect(() => {
-		checkLoadingCompletion();
-	}, [componentsLoaded, assetProgress]);
-
-	// Función para verificar si se completó la carga
-	const checkLoadingCompletion = () => {
+		// Verificar si se completó la carga
 		if (componentsLoaded && assetProgress >= 95) {
 			// Añadir un pequeño retraso para una transición más suave
 			setTimeout(() => {
 				setIsLoading(false);
 			}, 1000);
 		}
-	};
+	}, [componentsLoaded, assetProgress]);
 
 	// Renderizar pantalla de carga mientras se cargan los recursos
 	if (isLoading || !gameData) {
@@ -258,6 +282,13 @@ export default function GameScreen() {
 				<Board />
 				<FruitBar />
 				<IceCreamController />
+				<ModalWinLose
+					isVisible={showModal}
+					onClose={handleCloseModal}
+					type={modalType}
+					title={modalType === 'win' ? "¡Victoria!" : "Game Over"}
+					message={modalMessage}
+				/>
 			</Suspense>
 		</div>
 	);
