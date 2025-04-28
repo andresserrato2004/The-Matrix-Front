@@ -131,11 +131,11 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
             });
           }
         }
-        else if (message.fruitType && message.fruitsNumber && message.cells && message.currentRound && message.nextFruitType) {
+        else if (message.fruitType && message.fruitsNumber && message.cells && message.currentRound) {
           // Actualizar el estado del tablero y las frutas
           console.log("Nueva ronda de frutas puesta: ", message);
           boardDispatch({ type: "SET_FRUITS", payload: message.cells });
-          fruitBarDispatch({ type: "SET_ACTUAL_FRUIT", payload: message.nextFruitType });
+          fruitBarDispatch({ type: "SET_ACTUAL_FRUIT", payload: message.fruitType });
         }
       } catch (error) {
         console.error("Error parsing WebSocket message:", error);
