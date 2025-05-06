@@ -136,9 +136,47 @@ export default function GameScreen() {
 		}
 	}
 
+
 	useEffect(() => {
 		console.log("gameData", JSON.stringify(gameData));
 		// cargar boardContext
+
+		const coordinates = gameData.match.board.playersStartCoordinates;
+		const hostCoords = coordinates[0];
+		const guestCoords = coordinates[1];
+
+		const isMainUserHost = gameData.match.hostId === usersState.mainUser.id;
+
+
+		usersDispatch({
+			type: "SET_MAIN_USER",
+			payload: {
+				...usersState.mainUser, // Keep existing info
+				position: {
+					// If main user is host, use hostCoords[1] (X=1), else use guestCoords[1] (X=14)
+					x: isMainUserHost ? hostCoords[0] : guestCoords[0],
+					// If main user is host, use hostCoords[0] (Y=9), else use guestCoords[0] (Y=9)
+					y: isMainUserHost ? hostCoords[1] : guestCoords[1]
+				},
+				direction: "down", // Set initial direction
+				state: "alive"     // Set initial state
+			}
+		});
+
+		usersDispatch({
+			type: "SET_SECONDARY_USER",
+			payload: {
+				...usersState.secondaryUser, // Keep existing info
+				position: {
+					// If main user is NOT host, use hostCoords[1] (X=1), else use guestCoords[1] (X=14)
+					x: !isMainUserHost ? hostCoords[0] : guestCoords[0],
+					// If main user is NOT host, use hostCoords[0] (Y=9), else use guestCoords[0] (Y=9)
+					y: !isMainUserHost ? hostCoords[1] : guestCoords[1]
+				},
+				direction: "down", // Set initial direction
+				state: "alive"     // Set initial state
+			}
+		});
 		boardDispatch({ type: "SET_BOARD", payload: gameData.match.board.cells });
 		// cargar fruitBarContext
 		fruitBarDispatch({
@@ -146,6 +184,9 @@ export default function GameScreen() {
 			payload: gameData.match.typeFruits
 		});
 		fruitBarDispatch({ type: "SET_ACTUAL_FRUIT", payload: gameData.match.typeFruits[0] });
+
+
+
 	}, [boardDispatch, fruitBarDispatch, gameData]);
 
 	// Efecto para precargar componentes React

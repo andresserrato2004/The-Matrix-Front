@@ -67,15 +67,15 @@ export default function JoinScreen() {
     const handleCreateLobby = async () => {
 
         const lobbyData = {
-            level: 3,
+            level: 1,
             map: "desert"
         };
 
         try {
-            console.log("askdjhsakd", `http://192.168.50.31:3000/rest/users/${userData?.userId}/matches`);
-            console.log("userData", userData?.userId);
+            //console.log("askdjhsakd", `http://192.168.50.31:3000/rest/users/${userData?.userId}/matches`);
+            //console.log("userData", userData?.userId);
             const response = await api.post(`/rest/users/${userData?.userId}/matches`, lobbyData);
-            console.log("API response:", response.data);
+            //console.log("API response:", response.data);
             navigate(`/createlobby?code=${response.data.code}`);
         } catch (error) {
             console.error("Error in handleCreateLobby:", error);

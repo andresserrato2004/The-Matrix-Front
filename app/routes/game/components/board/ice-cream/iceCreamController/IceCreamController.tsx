@@ -1,9 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useGameWebSocket } from "~/contexts/game/GameWebSocketProvider";
 import { useUsers } from "~/contexts/UsersContext";
-import type { MovementMessage } from "~/contexts/game/types/outputMessage";
 
-const MOVE_INTERVAL = 500; // ms entre movimientos continuos
+// Cooldown period in milliseconds - adjust to match your animation/transition time
+const MOVE_COOLDOWN = 200; // e.g., 200ms cooldown
 
 export default function PlayerController() {
   const { sendMessage } = useGameWebSocket();
@@ -11,75 +11,105 @@ export default function PlayerController() {
 
   const moveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const pressedKeyRef = useRef<string | null>(null);
+  const lastMoveTimeRef = useRef<number>(0); // Track the timestamp of the last sent move
 
   // Helper para saber si el jugador está "vivo"
   const isAlive = usersState.mainUser.state !== "dead";
   const canMakeMovements = usersState.gameState === "playing";
 
+  // Function to send move message, respecting cooldown
+  const trySendMove = useCallback((direction: "up" | "down" | "left" | "right") => {
+    const now = Date.now();
+    if (now - lastMoveTimeRef.current >= MOVE_COOLDOWN) {
+      console.log("Enviando mensaje de movimiento:", direction);
+      sendMessage({ type: "movement", payload: direction });
+      lastMoveTimeRef.current = now; // Update last move time
+      return true; // Indicate that the message was sent
+    }
+    console.log("Movimiento ignorado (cooldown activo)");
+    return false; // Indicate that the message was blocked by cooldown
+  }, [sendMessage]);
+
   useEffect(() => {
-    if (!isAlive || !canMakeMovements) return;
+    if (!isAlive || !canMakeMovements) {
+      // Clear interval if player can no longer move
+      if (moveIntervalRef.current) {
+        clearInterval(moveIntervalRef.current);
+        moveIntervalRef.current = null;
+      }
+      pressedKeyRef.current = null; // Reset pressed key
+      return;
+    }
 
     const handleKeyDown = (e: KeyboardEvent) => {
       const direction = getDirectionFromKey(e.key);
-      if (!direction) return;
+      if (!direction) { return };
 
-      // Si ya está presionada, ignora (evita múltiples intervalos)
-      if (pressedKeyRef.current === direction) return;
-      pressedKeyRef.current = direction;
+      // Prevent re-triggering if the same key is already held down
+      if (pressedKeyRef.current === direction) { return };
 
-      // Envío inmediato para cambio de dirección
-      console.log("Enviando mensaje de movimiento:", direction);
-      sendMessage({ type: "movement", payload: direction });
+      // Attempt to send the first move immediately
+      const sent = trySendMove(direction);
 
-      // Envío repetido para movimiento continuo
-      moveIntervalRef.current = setInterval(() => {
-        console.log("Enviando mensaje de movimiento continuo:", direction);
-        sendMessage({ type: "movement", payload: direction });
-      }, MOVE_INTERVAL);
+      // Only set up interval if the first move was successful
+      if (sent) {
+        pressedKeyRef.current = direction; // Set the currently pressed key
+
+        // Clear any existing interval before starting a new one
+        if (moveIntervalRef.current) {
+          clearInterval(moveIntervalRef.current);
+        }
+
+        // Start interval for continuous movement while key is held
+        moveIntervalRef.current = setInterval(() => {
+          // Inside interval, also respect the cooldown
+          trySendMove(direction);
+        }, MOVE_COOLDOWN); // Interval matches cooldown for smoother continuous move
+      }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
       const direction = getDirectionFromKey(e.key);
-      if (!direction) return;
-
-      pressedKeyRef.current = null;
-      if (moveIntervalRef.current) {
-        clearInterval(moveIntervalRef.current);
-        moveIntervalRef.current = null;
+      // Only clear if the released key is the one currently tracked as pressed
+      if (direction && pressedKeyRef.current === direction) {
+        pressedKeyRef.current = null;
+        if (moveIntervalRef.current) {
+          clearInterval(moveIntervalRef.current);
+          moveIntervalRef.current = null;
+        }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
 
+    // Cleanup function
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
-      if (moveIntervalRef.current) clearInterval(moveIntervalRef.current);
+      if (moveIntervalRef.current) {
+        clearInterval(moveIntervalRef.current);
+      }
     };
-  }, [isAlive, sendMessage, canMakeMovements]);
+  }, [isAlive, canMakeMovements, trySendMove]); // Include trySendMove in dependencies
 
-  return null;
+  return null; // This component doesn't render anything
 }
 
-// Helper para traducir teclas a direcciones
+// Helper function remains the same
 function getDirectionFromKey(key: string): "up" | "down" | "left" | "right" | null {
-  switch (key) {
-    case "ArrowUp":
+  switch (key.toLowerCase()) { // Use toLowerCase for case-insensitivity
+    case "arrowup":
     case "w":
-    case "W":
       return "up";
-    case "ArrowDown":
+    case "arrowdown":
     case "s":
-    case "S":
       return "down";
-    case "ArrowLeft":
+    case "arrowleft":
     case "a":
-    case "A":
       return "left";
-    case "ArrowRight":
+    case "arrowright":
     case "d":
-    case "D":
       return "right";
     default:
       return null;

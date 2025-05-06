@@ -342,7 +342,7 @@ export default function Lobby() {
     const handleFindOpponent = () => {
         try {
             // Construir la URL para el WebSocket
-            const matchDetails = { level: 3, map: "desert" };
+            const matchDetails = { level: 1, map: "desert" };
             const wssURI = `/ws/matchmaking/${roomCode}`;
 
             console.log("Connecting to WebSocket:", wssURI);

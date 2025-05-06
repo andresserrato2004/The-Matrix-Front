@@ -11,8 +11,8 @@ export default function Troll({ trollInformation }: { trollInformation: BoardCel
         {
           left: `${trollInformation.x * 40}px`,
           top: `${trollInformation.y * 40}px`,
-          width: "55px",
-          height: "55px",
+          width: "50px",
+          height: "50px",
         }}>
       <img src={"/game-screen/board/enemy/troll/Trolls_moving_up.webp"} alt={"Troll Enemy"} />
     </div>
