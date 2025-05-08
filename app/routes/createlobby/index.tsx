@@ -381,9 +381,6 @@ export default function Lobby() {
 
     return (
         <div className="lobby-screen">
-            <h1 className="lobby-title">
-                Room Code: <span className="room-code">{roomCode}</span>
-            </h1>
 
             {error && (
                 <div className="error-message">
@@ -395,12 +392,6 @@ export default function Lobby() {
             {playerJoining && !showSecondPlayer && (
                 <div className="player-connecting-status">
                     <p>Player connecting...</p>
-                </div>
-            )}
-
-            {!playerJoining && !showSecondPlayer && (
-                <div className="waiting-for-player">
-                    <p>Waiting for another player to join...</p>
                 </div>
             )}
 
@@ -423,6 +414,13 @@ export default function Lobby() {
 
                 {/* Middle section */}
                 <div className="middle-section">
+                    {/* Mensaje de espera arriba */}
+                    {!playerJoining && !showSecondPlayer && (
+                        <div className="waiting-for-player">
+                            <p>Waiting for another player to join...</p>
+                        </div>
+                    )}
+
                     <div className="room-info">
                         <div className="room-code-display">
                             <h2 className="room-code-label">Room Code</h2>
@@ -433,13 +431,14 @@ export default function Lobby() {
                         {isSearching ? (
                             <div className="matchmaking-status">
                                 <div className="searching-indicator">
-                                    <div className="pulse-dot"></div>
+                                    <div className="pulse-dot" />
                                     <span>Searching for opponent...</span>
                                 </div>
                                 <div className="search-time">Time: {formatSearchTime()}</div>
                                 <button
                                     className="cancel-search-button"
                                     onClick={cancelMatchmaking}
+                                    type="button"
                                 >
                                     Cancel Search
                                 </button>
@@ -449,6 +448,7 @@ export default function Lobby() {
                                 <button
                                     className="find-opponent-button"
                                     onClick={handleFindOpponent}
+                                    type="button"
                                 >
                                     Find Opponent
                                 </button>
@@ -469,6 +469,7 @@ export default function Lobby() {
                                 className="start-now-button"
                                 onClick={handleStartGame}
                                 disabled={gameStarted}
+                                type="button"
                             >
                                 Start Now
                             </button>

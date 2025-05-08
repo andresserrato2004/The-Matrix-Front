@@ -4,6 +4,18 @@ import { useUser } from "../../contexts/user/userContext";
 import api from "../../services/api";
 import "./styles.css";
 import { useUsers } from "~/contexts/UsersContext";
+import Button from "~/components/shared/Button";
+
+interface ApiError {
+    response?: {
+        data?: {
+            message?: string;
+        };
+        statusText?: string;
+    };
+    request?: unknown;
+    message?: string;
+}
 
 export default function StartScreen() {
     const navigate = useNavigate();
@@ -20,9 +32,8 @@ export default function StartScreen() {
                 withCredentials: false,
             });
 
-            if (response.data && response.data.userId) {
-                const userId = response.data.userId;
-
+            const userId = response?.data?.userId;
+            if (userId) {
                 if (typeof setUserData !== 'function') {
                     setError("Internal error: setUserData not available");
                     return;
@@ -37,12 +48,10 @@ export default function StartScreen() {
                         id: userId,
                     },
                 });
-                usersDispatch({ type: "SET_MAIN_USER", payload: { ...usersState.mainUser, id: userId } });
 
                 // Navigate to the lobby
                 navigate("/joinscreen");
                 console.log("hola:", userData?.userId);
-
             } else {
                 console.error("Invalid response data:", response.data);
                 setError("Invalid response from server: Missing userId");
@@ -50,36 +59,45 @@ export default function StartScreen() {
         }
         catch (error) {
             console.error("Error in handleStartGame:", error);
-            const Error = (error as any);
+            const apiError = error as ApiError;
 
-            if (Error.response) {
-                setError(`Server error: ${Error.response.data?.message || Error.response.statusText}`);
-            } else if (Error.request) {
+            if (apiError.response) {
+                setError(`Server error: ${apiError.response.data?.message || apiError.response.statusText}`);
+            } else if (apiError.request) {
                 setError("Network error: Unable to reach the server");
             } else {
-                setError(`Error: ${Error.message}`);
+                setError(`Error: ${apiError.message || 'Unknown error occurred'}`);
             }
         }
     };
 
-
     return (
         <div className="start-screen">
-            <img className="logoImage" src="/Bad_Ice_Cream.webp" alt="Logo" />
+            <img className="logoImage" src="/image.png" alt="Logo" />
             <div className="start-screen__menu">
                 <img className="menuImage" src="/parte_cafe.png" alt="menu" />
                 <div className="start-screen__buttons">
-                    <button
-                        className="start-screen__button"
+                    <Button
+                        variant="primary"
+                        size="large"
                         onClick={handleStartGame}
                     >
                         Start Game
-                    </button>
-                    <button className="start-screen__button" onClick={() => navigate("/help")}>
-                        help
-                    </button>
+                    </Button>
+                    <Button
+                        variant="secondary"
+                        size="large"
+                        onClick={() => navigate("/help")}
+                    >
+                        Help
+                    </Button>
                 </div>
             </div>
+            {error && (
+                <div className="error-message">
+                    {error}
+                </div>
+            )}
         </div>
     );
 }

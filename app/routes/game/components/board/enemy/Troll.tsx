@@ -1,5 +1,3 @@
-import { useState, useEffect } from "react";
-import { ws } from "~/services/websocket";
 import type { Character, BoardCell, Item } from "../../../../../contexts/game/types/types";
 
 export default function Troll({ trollInformation }: { trollInformation: BoardCell }) {
@@ -9,8 +7,6 @@ export default function Troll({ trollInformation }: { trollInformation: BoardCel
       className="troll"
       style={
         {
-          left: `${trollInformation.x * 40}px`,
-          top: `${trollInformation.y * 40}px`,
           width: "50px",
           height: "50px",
         }}>
