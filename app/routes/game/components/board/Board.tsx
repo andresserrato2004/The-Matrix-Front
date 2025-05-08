@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import IceCream from "./ice-cream/IceCream";
-import IceCreamController from "./ice-cream/iceCreamController/IceCreamController";
 import Fruit from "./fruit/Fruit";
 import Troll from "./enemy/Troll";
 import IceBlock from "./ice-block/IceBlock";

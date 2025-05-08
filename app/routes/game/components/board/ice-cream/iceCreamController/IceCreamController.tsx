@@ -2,12 +2,12 @@ import { useEffect, useRef, useCallback } from "react";
 import { useGameWebSocket } from "~/contexts/game/GameWebSocketProvider";
 import { useUsers } from "~/contexts/UsersContext";
 
-// Cooldown period in milliseconds - adjust to match your animation/transition time
-const MOVE_COOLDOWN = 100; // Reduced from 200ms to 100ms for smoother movement
-const KEY_REPEAT_DELAY = 50; // Delay before key repeat starts
-const KEY_REPEAT_INTERVAL = 50; // Interval between repeated key events
+const MOVE_COOLDOWN = 780; // Match the animation duration from IceCream.css
+const KEY_REPEAT_DELAY = 500; // Delay before key repeat starts
+const KEY_REPEAT_INTERVAL = 500; // Interval between repeated key events
 
-export default function PlayerController() {
+
+export default function IceCreamController() {
   const { sendMessage } = useGameWebSocket();
   const { state: usersState } = useUsers();
 
