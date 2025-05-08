@@ -1,4 +1,5 @@
 import ReactModal from "react-modal";
+import Button from "../shared/Button";
 
 interface ModalProps {
     isOpen: boolean;
@@ -36,7 +37,7 @@ export default function Modal({
             justifyContent: 'center'
         },
         content: {
-            position: 'relative' as 'relative',
+            position: 'relative' as const,
             inset: 'auto',
             border: 'none',
             background: 'none',
@@ -67,6 +68,7 @@ export default function Modal({
                 }}
             >
                 {children}
+
             </div>
         </ReactModal>
     );

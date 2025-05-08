@@ -5,6 +5,8 @@ import api from "../../services/api";
 import "./styles.css";
 import { useUsers } from "~/contexts/UsersContext";
 import Button from "~/components/shared/Button";
+import Modal from '~/components/modal/Modal';
+import "~/components/modal/styles.css";
 
 interface ApiError {
     response?: {
@@ -22,6 +24,7 @@ export default function StartScreen() {
     const [error, setError] = useState("");
     const { setUserData, userData } = useUser();
     const { state: usersState, dispatch: usersDispatch } = useUsers();
+    const [showScoreModal, setShowScoreModal] = useState(false);
 
     const handleStartGame = async () => {
         console.log("handleStartGame");
@@ -75,8 +78,7 @@ export default function StartScreen() {
         <div className="start-screen">
             <img className="logoImage" src="/image.png" alt="Logo" />
             <div className="start-screen__menu">
-                <img className="menuImage" src="/parte_cafe.png" alt="menu" />
-                <div className="start-screen__buttons">
+                <div className="button-panel">
                     <Button
                         variant="primary"
                         size="large"
@@ -87,7 +89,7 @@ export default function StartScreen() {
                     <Button
                         variant="secondary"
                         size="large"
-                        onClick={() => navigate("/help")}
+                        onClick={() => setShowScoreModal(true)}
                     >
                         Help
                     </Button>
@@ -98,6 +100,50 @@ export default function StartScreen() {
                     {error}
                 </div>
             )}
+
+            {/* Modal de los helados */}
+            <Modal
+                isOpen={showScoreModal}
+                onClose={() => setShowScoreModal(false)}
+                bgImage=""
+                className="icecream-modal"
+                blurAmount="0px"
+            >
+                <div className="icecream-modal-content">
+                    <h2 style={{
+                        color: "#bfa13a",
+                        fontWeight: "bold",
+                        fontSize: "1.5rem",
+                        marginBottom: "10px",
+                        textShadow: "0 2px 8px #fff6"
+                    }}>
+                        Ice Cream Score
+                    </h2>
+                    <div className="icecream-score-icons">
+                        {Array.from({ length: 10 }).map((_, i) => (
+                            <img
+                                key={`icecream-cone-svg-${i}-${Date.now()}`}
+                                src="/assets/ice-cream-cone.svg"
+                                alt="ice cream"
+                                className="icecream-cone"
+                                style={{ opacity: 0.25 }}
+                            />
+                        ))}
+                    </div>
+                    <div className="icecream-score-bottom">
+                        <img src="/assets/poob.svg" alt="poop" className="icecream-poop left" />
+                        <img src="/assets/poob.svg" alt="poop" className="icecream-poop right" />
+                    </div>
+                    <Button
+                        variant="secondary"
+                        size="large"
+                        onClick={() => setShowScoreModal(false)}
+                        style={{ marginTop: "24px" }}
+                    >
+                        Salir
+                    </Button>
+                </div>
+            </Modal>
         </div>
     );
 }
