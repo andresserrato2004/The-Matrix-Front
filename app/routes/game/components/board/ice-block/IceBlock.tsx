@@ -1,17 +1,27 @@
-import type {Character, BoardCell, Item } from "../../../../../contexts/game/types/types";
+// src/components/IceBlock.tsx
+import { useFreezeFrames } from "~/hooks/useFreezeFrames";
+import type { BoardCell } from "~/contexts/game/types/types";
 import "./IceBlock.css";
 
 export default function IceBlock({ blockInformation }: { blockInformation: BoardCell }) {
+  const { frozen, coordinates } = blockInformation;
+
+  const freezeImage = useFreezeFrames(
+    frozen,
+    "/game-screen/board/ice-block/ice-block.webp"
+  );
+
+  const src = freezeImage ?? "/game-screen/board/ice-block/iceblock-.webp";
 
   return (
     <div
       className="ice-block"
       style={{
-        left: `${blockInformation.coordinates.x * 40}px`,
-        top: `${blockInformation.coordinates.y * 40}px`,
+        left: `${coordinates.x * 40}px`,
+        top: `${coordinates.y * 40}px`,
       }}
     >
-      <img src={"/assets/iceblock-.webp"} alt={"Ice Block"} />
+      <img src={src} alt="Ice Block" />
     </div>
   );
 }

@@ -1,3 +1,5 @@
+// src/components/Fruit.tsx
+import { useFreezeFrames } from "~/hooks/useFreezeFrames";
 import type { BoardCell } from "../../../../../contexts/game/types/types";
 import "./Fruit.css";
 
@@ -7,15 +9,25 @@ type FruitProps = {
 };
 
 export default function Fruit({ fruitInformation, subtype }: FruitProps) {
+
+  const { frozen, coordinates } = fruitInformation;
+
+  const freezeImage = useFreezeFrames(
+    frozen,
+    `/fruits/frozen-${subtype}.webp`
+  );
+
+  const src = freezeImage ?? `/fruits/${subtype}.webp`;
+
   return (
     <div
       className="fruit"
       style={{
-        height: "40px",
-        width: "40px",
+        left: `${coordinates.x * 40}px`,
+        top: `${coordinates.y * 40}px`,
       }}
     >
-      <img src={`/fruits/${subtype}.webp`} alt={`Fruit ${subtype}`} />
+      <img src={src} alt={`Fruit ${subtype}`} />
     </div>
   );
 }
