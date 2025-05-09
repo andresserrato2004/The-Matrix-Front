@@ -42,6 +42,11 @@ export default function PlayerController() {
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code === "Space" || e.key === " " || e.key === "Spacebar") {
+        sendMessage({ type: "exec-power", payload: "power-execution" });
+        return;
+      }
+    
       const direction = getDirectionFromKey(e.key);
       if (!direction) { return };
 
@@ -91,7 +96,7 @@ export default function PlayerController() {
         clearInterval(moveIntervalRef.current);
       }
     };
-  }, [isAlive, canMakeMovements, trySendMove]); // Include trySendMove in dependencies
+  }, [isAlive, canMakeMovements, trySendMove, sendMessage]); // Include trySendMove and sendMessage in dependencies
 
   return null; // This component doesn't render anything
 }

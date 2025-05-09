@@ -13,6 +13,7 @@ export type BoardCell = {
 	coordinates: Coordinates; // Coordenadas de la celda
 	item: Item | null; // El ítem en la celda, puede ser null si no hay ítem
 	character: Character | null; // El personaje en la celda, puede ser null si no hay personaje
+	frozen: boolean; // Indica si la celda está congelada o no
 };
 
 export type Coordinates = {

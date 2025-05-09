@@ -109,36 +109,19 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
             payload: message.payload.result
           });
         }
-        else if (message.payload.id && message.payload.state) {
-          const isHost = message.payload.id === usersState.mainUser.id;
-          if (isHost) {
-            usersDispatch({
-              type: "SET_MAIN_USER",
-              payload: {
-                ...usersState.mainUser,
-                state: message.payload.state,
-              },
-            });
-          }
-          else {
-            usersDispatch({
-              type: "SET_SECONDARY_USER",
-              payload: {
-                ...usersState.secondaryUser,
-                state: message.payload.state,
-              },
-            });
-          }
-        }
         else if (message.type === "update-fruits") {
           // Actualizar el estado del tablero y las frutas
           console.log("Nueva ronda de frutas puesta: ", message);
           boardDispatch({ type: "SET_FRUITS", payload: message.payload.cells });
           fruitBarDispatch({ type: "SET_ACTUAL_FRUIT", payload: message.payload.fruitType });
-
+        }
+        else if (message.type === "update-frozen-cells") {
+          // Actualizar el estado de los bloques de hielo
+          console.log("Bloques de hielo actualizados: ");
+          boardDispatch({ type: "UPDATE_ICE_BLOCKS", payload: message.payload.cells });
         }
       } catch (error) {
-        console.error("Error parsing WebSocket message:", error);
+        console.error("Error parsing WebSocket message:", error, "on message: ", event.data);
       }
     };
     console.log("eventos añadidos a websocket", ws);

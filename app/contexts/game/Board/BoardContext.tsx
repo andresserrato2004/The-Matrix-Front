@@ -15,8 +15,7 @@ type BoardAction =
   | { type: "SET_FRUITS"; payload: BoardCell[] }
   | { type: "DELETE_FRUIT"; payload: string }
   // Bloques de hielo
-  | { type: "DELETE_ICE_BLOCKS"; payload: string[] }
-  | { type: "ADD_ICE_BLOCKS"; payload: BoardCell[] }
+  | { type: "UPDATE_ICE_BLOCKS"; payload: BoardCell[] }
   // Enemigos
   | { type: "MOVE_ENEMY"; payload: EnemyMove };
 
@@ -34,10 +33,8 @@ function boardReducer(state: BoardState, action: BoardAction): BoardState {
       return setFruits(state, action.payload);
     case "DELETE_FRUIT":
       return deleteFruit(state, action.payload);
-    case "DELETE_ICE_BLOCKS":
-      return deleteIceBlocks(state, action.payload); 
-    case "ADD_ICE_BLOCKS":
-      return addIceBlocks(state, action.payload); 
+    case "UPDATE_ICE_BLOCKS":
+      return updateIceBlocks(state, action.payload);
     case "MOVE_ENEMY":
       return updateEnemy(state, action.payload);
     default:
@@ -68,20 +65,42 @@ function setFruits(state: BoardState, newFruits: BoardCell[]): BoardState {
   };
 }
 // BLOQUES DE HIELO
-function deleteIceBlocks(state: BoardState, blockIds: string[]): BoardState {
+function updateIceBlocks(state: BoardState, updatedIceBlocks: BoardCell[]): BoardState {
+  let newFruits = [...state.fruits];
+  let newIceBlocks = [...state.iceBlocks];
+
+  for (const cell of updatedIceBlocks) {
+    // 1. Si item es diferente de null; actualiza la fruta correspondiente
+    if (cell.item) {
+      newFruits = newFruits.map(fruit =>
+        fruit.item?.id === cell.item?.id ? { ...fruit, ...cell } : fruit
+      );
+    }
+    // 2. Si item es null, character es null y frozen es true; añade el cell a iceBlocks si no existe ya
+    else if (!cell.item && !cell.character && cell.frozen) {
+      const exists = newIceBlocks.some(
+        b =>
+          b.coordinates.x === cell.coordinates.x &&
+          b.coordinates.y === cell.coordinates.y
+      );
+      if (!exists) {
+        newIceBlocks.push(cell);
+      }
+    }
+    // 3. Si item es null, character es null y frozen es false; elimina el cell de iceBlocks por posición
+    else if (!cell.item && !cell.character && !cell.frozen) {
+      newIceBlocks = newIceBlocks.filter(
+        b =>
+          !(b.coordinates.x === cell.coordinates.x &&
+            b.coordinates.y === cell.coordinates.y)
+      );
+    }
+  }
+
   return {
     ...state,
-    iceBlocks: state.iceBlocks.filter(cell => cell.item ? !blockIds.includes(cell.item.id) : true),
-  };
-}
-function addIceBlocks(state: BoardState, newIceBlocks: BoardCell[]): BoardState {
-  const existingIds = new Set(state.iceBlocks.map(block => block.item?.id));
-  const filteredNewBlocks = newIceBlocks.filter(
-    block => block.item?.id && !existingIds.has(block.item.id)
-  );
-  return {
-    ...state,
-    iceBlocks: [...state.iceBlocks, ...filteredNewBlocks],
+    fruits: newFruits,
+    iceBlocks: newIceBlocks,
   };
 }
 // ENEMIGOS

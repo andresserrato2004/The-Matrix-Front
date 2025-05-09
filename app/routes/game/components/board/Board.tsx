@@ -112,10 +112,9 @@ export default function Board() {
 
 	const renderIceBlocks = () => {
 		return iceBlocks.map((block: BoardCell) => {
-			if (!block.item || block.item.id) return null;
 			const style = getElementsStyles(block.coordinates.y, block.coordinates.x, cellSize);
 			return (
-				<div key={block.item.id} style={style}>
+				<div key={`${block.coordinates.x}-${block.coordinates.y}`} style={style}>
 					<IceBlock blockInformation={block} />
 				</div>
 			);

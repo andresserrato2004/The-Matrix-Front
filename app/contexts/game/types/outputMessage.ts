@@ -15,6 +15,7 @@ export type SetColorMessage = {
 
 export type ExecPowerMessage = {
     type: 'exec-power';
+    payload: string;
 };
 
 export type OutputMessage =
