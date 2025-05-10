@@ -1,6 +1,6 @@
 // src/components/IceBlock.tsx
 import { useFreezeFrames } from "~/hooks/useFreezeFrames";
-import type { BoardCell } from "~/contexts/game/types/types";
+import type { BoardCell } from "~/types/types/types";
 import "./IceBlock.css";
 
 export default function IceBlock({ blockInformation }: { blockInformation: BoardCell }) {

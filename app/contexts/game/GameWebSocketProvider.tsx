@@ -5,7 +5,7 @@ import { useBoard } from "./Board/BoardContext";
 import { useFruitBar } from "./FruitBar/FruitBarContext";
 import { useUsers } from "~/contexts/UsersContext";
 import { useUser } from "~/contexts/user/userContext";
-import type { OutputMessage } from "~/contexts/game/types/outputMessage";
+import type { OutputMessage } from "~/types/types/outputMessage";
 
 const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL || "ws://localhost:3000";
 
