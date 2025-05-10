@@ -1,28 +1,94 @@
 .start-screen {
-  @apply relative flex items-center justify-center h-screen w-screen bg-blue-100;
+	@apply relative flex items-center justify-center h-screen w-screen;
+	background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
 }
 
 .start-screen__background {
-  @apply absolute inset-0 w-full h-full object-cover;
+	@apply absolute inset-0 w-full h-full object-cover;
 }
 
 .start-screen__menu {
-  @apply absolute bottom-20 flex flex-col items-center;
+	@apply absolute bottom-20 flex flex-col items-center;
 }
 
 .start-screen__buttons {
-  @apply absolute bottom-[8rem] flex flex-col gap-7 border-none;
+	@apply absolute bottom-[4rem] flex flex-col gap-5;
+	width: 180px;
 }
 
-.start-screen__button {
-  @apply px-6 py-2 border-none text-lg font-bold text-black rounded-lg shadow-lg hover:bg-yellow-500 transition-all duration-300 ease-in-out; 
-} 
+.start-screen__buttons .global-button {
+	width: 100%;
+	height: 40px;
+	padding: 0;
+	font-size: 1rem;
+}
 
 .logoImage {
-  @apply items-center inset-0 w-[950] h-[950px] object-cover  ;
+	@apply items-center inset-0 w-[1500px] h-[950px] object-cover;
 }
 
 .menuImage {
-  @apply rounded-2xl relative -top-20 object-cover; 
+	@apply rounded-2xl relative -top-8 object-cover;
+	width: 420px;
+	height: 220px;
+}
 
+.error-message {
+	@apply absolute bottom-4 text-red-500 font-bold text-center;
+	width: 100%;
+}
+
+.button-panel {
+	background: linear-gradient(
+		135deg,
+		rgba(26, 42, 108, 1) 0%,
+		rgba(178, 31, 31, 0.95) 60%,
+		rgba(253, 187, 45, 0.7) 100%
+	);
+	border: 3px solid #ffd700;
+	border-radius: 18px;
+	box-shadow: 0 8px 32px rgba(26, 42, 108, 0.18), 0 2px 8px
+		rgba(255, 255, 255, 0.08) inset;
+	padding: 32px 36px;
+	min-width: 420px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 0 auto;
+	margin-top: 40px;
+	gap: 24px;
+	backdrop-filter: blur(4px);
+}
+
+.icecream-modal-content {
+	background: linear-gradient(
+		135deg,
+		rgba(253, 187, 45, 0.85) 0%,
+		rgba(255, 246, 214, 0.92) 100%
+	);
+	border: 3px solid #b21f1f;
+	border-radius: 18px;
+	box-shadow: 0 8px 32px rgba(178, 31, 31, 0.18), 0 2px 8px
+		rgba(255, 255, 255, 0.08) inset;
+	padding: 24px 36px 36px 36px;
+	min-width: 340px;
+	min-height: 120px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	position: relative;
+	animation: borderGlow 3s linear infinite;
+	backdrop-filter: blur(6px);
+}
+
+@keyframes borderGlow {
+	0% {
+		box-shadow: 0 0 12px 2px #ffd70055, 0 8px 32px rgba(218, 165, 32, 0.18);
+	}
+	50% {
+		box-shadow: 0 0 24px 6px #ffd700cc, 0 8px 32px rgba(218, 165, 32, 0.18);
+	}
+	100% {
+		box-shadow: 0 0 12px 2px #ffd70055, 0 8px 32px rgba(218, 165, 32, 0.18);
+	}
 }

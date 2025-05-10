@@ -1,54 +1,97 @@
 :root {
-    --fruit-bar-container-height: 90px; /* Ajustable */
-    --fruit-item-width: calc((var(--fruit-bar-container-height) - 20px)); /* Ejemplo */
-    --fruit-item-height: calc((var(--fruit-bar-container-height) - 20px)); /* Ajustado proporcionalmente */
-  }
+	--fruit-bar-container-height: 90px; /* Ajustable */
+	--fruit-item-width: calc((var(--fruit-bar-container-height) - 20px)); /* Ejemplo */
+	--fruit-item-height: calc((var(--fruit-bar-container-height) - 20px)); /* Ajustado proporcionalmente */
+}
 
 .fruit-bar {
-    position: relative;
-    width: 100%;
-    height: 70px;
-    margin: 0 auto;
-    background-color: transparent;
-  }
-  
-  .fruit-bar-container {
-    position: relative;
-    width: 100%;
-    height: var(--fruit-bar-container-height); /* Ajustar según el tamaño de tu imagen */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .fruit-bar-image {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    object-fit: contain; /* Esto asegura que la imagen mantiene su proporción */
-    top: 0;
-    left: 0;
-  }
-  
-  .fruit-items-container {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    padding: 0; /* Espacio para los bordes laterales de la barra */
-    z-index: 1; /* Para que las frutas aparezcan encima de la imagen */
-    /* Ajustes para centrar verticalmente */
-    top: -8px; /* Offset negativo para ajustar hacia arriba */
-    margin-top: -2px; /* Ajuste adicional si es necesario */
-  }
-  
-  .fruit-item {
-    margin: 0 5px; /* Espacio entre frutas */
-    height: var(--fruit-item-height);
-    width: var(--fruit-item-width);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 70px;
+	margin: 0;
+	background: rgba(255, 255, 255, 0.1);
+	backdrop-filter: blur(10px);
+	border-top: 2px solid rgba(255, 255, 255, 0.2);
+	z-index: 100;
+}
+
+.fruit-bar-container {
+	position: relative;
+	width: 100%;
+	height: var(--fruit-bar-container-height);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(
+		90deg,
+		rgba(255, 255, 255, 0.1) 0%,
+		rgba(255, 255, 255, 0.2) 50%,
+		rgba(255, 255, 255, 0.1) 100%
+	);
+	box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.fruit-bar-image {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	object-fit: contain; /* Esto asegura que la imagen mantiene su proporción */
+	top: 0;
+	left: 0;
+	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.fruit-items-container {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	padding: 0; /* Espacio para los bordes laterales de la barra */
+	z-index: 1; /* Para que las frutas aparezcan encima de la imagen */
+	/* Ajustes para centrar verticalmente */
+	top: -8px; /* Offset negativo para ajustar hacia arriba */
+	margin-top: -2px; /* Ajuste adicional si es necesario */
+}
+
+.fruit-item {
+	margin: 0 5px; /* Espacio entre frutas */
+	height: var(--fruit-item-height);
+	width: var(--fruit-item-width);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.fruit-item:hover {
+	transform: scale(1.1);
+	filter: brightness(1.2) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.fruit-item img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+	transition: transform 0.3s ease;
+}
+
+.fruit-item.active {
+	animation: fruitPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes fruitPulse {
+	0%,
+	100% {
+		transform: scale(1);
+		filter: brightness(1) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+	}
+	50% {
+		transform: scale(1.1);
+		filter: brightness(1.2) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+	}
+}

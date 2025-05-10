@@ -2,16 +2,19 @@ import { useEffect, useRef, useCallback } from "react";
 import { useGameWebSocket } from "~/contexts/game/GameWebSocketProvider";
 import { useUsers } from "~/contexts/UsersContext";
 
-// Cooldown period in milliseconds - adjust to match your animation/transition time
-const MOVE_COOLDOWN = 200; // e.g., 200ms cooldown
+const MOVE_COOLDOWN = 780; // Match the animation duration from IceCream.css
+const KEY_REPEAT_DELAY = 500; // Delay before key repeat starts
+const KEY_REPEAT_INTERVAL = 500; // Interval between repeated key events
 
-export default function PlayerController() {
+
+export default function IceCreamController() {
   const { sendMessage } = useGameWebSocket();
   const { state: usersState } = useUsers();
 
   const moveIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const pressedKeyRef = useRef<string | null>(null);
-  const lastMoveTimeRef = useRef<number>(0); // Track the timestamp of the last sent move
+  const lastMoveTimeRef = useRef<number>(0);
+  const keyRepeatTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Helper para saber si el jugador está "vivo"
   const isAlive = usersState.mainUser.state !== "dead";
@@ -21,84 +24,92 @@ export default function PlayerController() {
   const trySendMove = useCallback((direction: "up" | "down" | "left" | "right") => {
     const now = Date.now();
     if (now - lastMoveTimeRef.current >= MOVE_COOLDOWN) {
-      console.log("Enviando mensaje de movimiento:", direction);
       sendMessage({ type: "movement", payload: direction });
-      lastMoveTimeRef.current = now; // Update last move time
-      return true; // Indicate that the message was sent
+      lastMoveTimeRef.current = now;
+      return true;
     }
-    console.log("Movimiento ignorado (cooldown activo)");
-    return false; // Indicate that the message was blocked by cooldown
+    return false;
   }, [sendMessage]);
 
-  useEffect(() => {
-    if (!isAlive || !canMakeMovements) {
-      // Clear interval if player can no longer move
-      if (moveIntervalRef.current) {
-        clearInterval(moveIntervalRef.current);
-        moveIntervalRef.current = null;
-      }
-      pressedKeyRef.current = null; // Reset pressed key
-      return;
+  // Handle key repeat
+  const handleKeyRepeat = useCallback(() => {
+    if (!pressedKeyRef.current || !isAlive || !canMakeMovements) return;
+    
+    const direction = pressedKeyRef.current as "up" | "down" | "left" | "right";
+    if (trySendMove(direction)) {
+      keyRepeatTimeoutRef.current = setTimeout(handleKeyRepeat, KEY_REPEAT_INTERVAL);
+    }
+  }, [isAlive, canMakeMovements, trySendMove]);
+
+  // Handle key down
+  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+    if (!isAlive || !canMakeMovements) return;
+    
+    const key = event.key.toLowerCase();
+    let direction: "up" | "down" | "left" | "right" | null = null;
+
+    switch (key) {
+      case "arrowup":
+      case "w":
+        direction = "up";
+        break;
+      case "arrowdown":
+      case "s":
+        direction = "down";
+        break;
+      case "arrowleft":
+      case "a":
+        direction = "left";
+        break;
+      case "arrowright":
+      case "d":
+        direction = "right";
+        break;
     }
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === "Space" || e.key === " " || e.key === "Spacebar") {
-        sendMessage({ type: "exec-power", payload: "power-execution" });
-        return;
+    if (direction && direction !== pressedKeyRef.current) {
+      pressedKeyRef.current = direction;
+      trySendMove(direction);
+
+      // Start key repeat after delay
+      if (keyRepeatTimeoutRef.current) {
+        clearTimeout(keyRepeatTimeoutRef.current);
       }
-    
-      const direction = getDirectionFromKey(e.key);
-      if (!direction) { return };
+      keyRepeatTimeoutRef.current = setTimeout(handleKeyRepeat, KEY_REPEAT_DELAY);
+    }
+  }, [isAlive, canMakeMovements, trySendMove, handleKeyRepeat]);
 
-      // Prevent re-triggering if the same key is already held down
-      if (pressedKeyRef.current === direction) { return };
-
-      // Attempt to send the first move immediately
-      const sent = trySendMove(direction);
-
-      // Only set up interval if the first move was successful
-      if (sent) {
-        pressedKeyRef.current = direction; // Set the currently pressed key
-
-        // Clear any existing interval before starting a new one
-        if (moveIntervalRef.current) {
-          clearInterval(moveIntervalRef.current);
-        }
-
-        // Start interval for continuous movement while key is held
-        moveIntervalRef.current = setInterval(() => {
-          // Inside interval, also respect the cooldown
-          trySendMove(direction);
-        }, MOVE_COOLDOWN); // Interval matches cooldown for smoother continuous move
+  // Handle key up
+  const handleKeyUp = useCallback((event: KeyboardEvent) => {
+    const key = event.key.toLowerCase();
+    if (
+      (key === "arrowup" || key === "w") && pressedKeyRef.current === "up" ||
+      (key === "arrowdown" || key === "s") && pressedKeyRef.current === "down" ||
+      (key === "arrowleft" || key === "a") && pressedKeyRef.current === "left" ||
+      (key === "arrowright" || key === "d") && pressedKeyRef.current === "right"
+    ) {
+      pressedKeyRef.current = null;
+      if (keyRepeatTimeoutRef.current) {
+        clearTimeout(keyRepeatTimeoutRef.current);
+        keyRepeatTimeoutRef.current = null;
       }
-    };
+    }
+  }, []);
 
-    const handleKeyUp = (e: KeyboardEvent) => {
-      const direction = getDirectionFromKey(e.key);
-      // Only clear if the released key is the one currently tracked as pressed
-      if (direction && pressedKeyRef.current === direction) {
-        pressedKeyRef.current = null;
-        if (moveIntervalRef.current) {
-          clearInterval(moveIntervalRef.current);
-          moveIntervalRef.current = null;
-        }
-      }
-    };
-
+  useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
 
-    // Cleanup function
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
-      if (moveIntervalRef.current) {
-        clearInterval(moveIntervalRef.current);
+      if (keyRepeatTimeoutRef.current) {
+        clearTimeout(keyRepeatTimeoutRef.current);
       }
     };
-  }, [isAlive, canMakeMovements, trySendMove, sendMessage]); // Include trySendMove and sendMessage in dependencies
+  }, [handleKeyDown, handleKeyUp]);
 
-  return null; // This component doesn't render anything
+  return null;
 }
 
 // Helper function remains the same

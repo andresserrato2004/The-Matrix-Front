@@ -221,11 +221,16 @@ export default function Board() {
 			className="board"
 			style={{
 				position: "relative",
-				width: "90vw", // O un valor fijo como "700px"
-				height: "90vw", // O usa "min(90vw, 70vh)" para cuadrado responsivo
+				width: "90vw",
+				height: "90vw",
 				maxWidth: "700px",
 				maxHeight: "700px",
-				margin: "0 auto",
+				margin: "50px auto 80px",
+				display: "flex",
+				justifyContent: "center",
+				alignItems: "center",
+				padding: "20px",
+				boxSizing: "border-box"
 			}}
 		>
 			<canvas

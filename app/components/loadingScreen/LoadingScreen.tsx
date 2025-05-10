@@ -20,26 +20,37 @@ export default function LoadingScreen({
     const [totalProgress, setTotalProgress] = useState(0);
     const [currentMessage, setCurrentMessage] = useState(message);
     const [assetsLoaded, setAssetsLoaded] = useState(false);
+    const [isComplete, setIsComplete] = useState(false);
 
     // Calcular progreso total combinando progreso de assets y componentes
     useEffect(() => {
         // Ponderamos 60% para assets y 40% para componentes
         const combined = (assetProgress * 0.6) + (componentProgress * 0.4);
-        setTotalProgress(Math.round(combined));
+        const newProgress = Math.round(combined);
+        setTotalProgress(newProgress);
 
         // Actualizar mensaje basado en el progreso
-        if (totalProgress < 25) {
+
+        if (newProgress < 25) {
             setCurrentMessage("Preparando el campo de juego...");
-        } else if (totalProgress < 50) {
+        } else if (newProgress < 50) {
             setCurrentMessage("Cargando personajes y enemigos...");
-        } else if (totalProgress < 75) {
+        } else if (newProgress < 75) {
             setCurrentMessage("Organizando frutas y bloques...");
-        } else if (totalProgress < 95) {
+        } else if (newProgress < 95) {
             setCurrentMessage("Inicializando controles...");
         } else {
             setCurrentMessage("¡Todo listo! Preparando para comenzar...");
         }
-    }, [assetProgress, componentProgress]);
+
+        // Verificar si podemos completar
+        if (newProgress >= 100 && !isComplete) {
+            setIsComplete(true);
+            if (onComplete) {
+                setTimeout(() => onComplete(), 1000); // Dar un segundo extra para mostrar 100%
+            }
+        }
+    }, [assetProgress, componentProgress, isComplete, onComplete]);
 
     // Precargar las imágenes basadas en datos del tablero
     useEffect(() => {
@@ -102,11 +113,6 @@ export default function LoadingScreen({
 
             if (loadedCount === totalAssets) {
                 setAssetsLoaded(true);
-
-                // Solo completamos si el componente no especificó su propio callback
-                if (onComplete && totalProgress >= 95) {
-                    setTimeout(() => onComplete(), 500);
-                }
             }
         };
 
@@ -118,17 +124,17 @@ export default function LoadingScreen({
             img.src = src;
         });
 
-        // Si no hay imágenes para cargar o fallan todas, asegurar que el juego empiece
+        // Failsafe más largo y que respete el progreso
         const failsafe = setTimeout(() => {
-            if (!assetsLoaded && onComplete) {
+            if (!assetsLoaded) {
                 console.log("Failsafe activado: algunas imágenes no se cargaron correctamente");
                 setAssetsLoaded(true);
-                onComplete();
+                setAssetProgress(100); // Forzar al 100% en caso de fallo
             }
-        }, 8000); // 8 segundos máximo de espera
+        }, 10000); // 10 segundos máximo de espera
 
         return () => clearTimeout(failsafe);
-    }, [boardData, onComplete]);
+    }, [boardData]);
 
     // Efecto para aplicar el progreso externo
     useEffect(() => {
