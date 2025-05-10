@@ -2,14 +2,14 @@ import { useState, useEffect, useRef } from "react";
 import IceCream from "./ice-cream/IceCream";
 import Fruit from "./fruit/Fruit";
 import IceBlock from "./ice-block/IceBlock";
-import type { BoardCell, UserInformation } from "~/types/types/types";
+import type { BoardCell, UserInformation } from "~/types/types";
 import { useBoard } from "~/contexts/game/Board/BoardContext";
 import { useFruitBar } from "~/contexts/game/FruitBar/FruitBarContext";
 import { useUsers } from "~/contexts/UsersContext";
 import { useGameWebSocket } from "~/contexts/game/GameWebSocketProvider";
 import { closeWebSocket } from "~/services/websocket";
 import "./Board.css";
-import GifEnemy from "./enemies/gif/GifEnemy";
+import EnemyFactory from "./enemies/enemyFactory/enemyFactory";
 
 export const ICE_BLOCK_ANIMATION_INTERVAL = 100; // ms
 
@@ -190,7 +190,7 @@ export default function Board() {
 
 			return (
 				<div key={enemy.character.id} style={style}>
-					<GifEnemy enemyInformation={enemy} styles={style} />
+					<EnemyFactory enemyInformation={enemy} styles={style} />
 				</div>
 			);
 		});

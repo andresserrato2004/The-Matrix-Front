@@ -1,5 +1,5 @@
 import "./IceCream.css";
-import type { UserInformation } from "~/types/types/types";
+import type { UserInformation } from "~/types/types";
 
 export default function IceCream(props: UserInformation) {
   const imgPath = props.state === "alive" ? `/ice-creams/${props.flavour}/${props.direction}.png`: `/ice-creams/${props.flavour}/dead.png`;

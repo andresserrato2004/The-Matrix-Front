@@ -1,6 +1,6 @@
 import { createContext, useReducer, useContext } from "react";
 import type { ReactNode, Dispatch } from "react";
-import type { PlayerMove, UserInformation, GameState } from "../types/types/types";
+import type { PlayerMove, UserInformation, GameState } from "../types/types";
 
 export interface UsersState {
     mainUser: UserInformation;
