@@ -99,13 +99,13 @@ export default function Board() {
 		return a.coordinates.x === b.coordinates.x && a.coordinates.y === b.coordinates.y;
 	  }
 	
-	  function findBlockToAdd(current: BoardCell[], target: BoardCell[]) {
+	  function blockIsNotPresent(current: BoardCell[], target: BoardCell[]) {
 		return target.find(
 		  t => !current.some(c => areBlocksEqual(c, t))
 		);
 	  }
 	
-	  function findBlockToRemove(current: BoardCell[], target: BoardCell[]) {
+	  function blockIsPresent(current: BoardCell[], target: BoardCell[]) {
 		return current.find(
 		  c => !target.some(t => areBlocksEqual(c, t))
 		);
@@ -114,7 +114,7 @@ export default function Board() {
 	  function animateIceBlocks() {
 		// Agregar bloques que faltan
 		if (visibleIceBlocks.length < iceBlocks.length) {
-		  const blockToAdd = findBlockToAdd(visibleIceBlocks, iceBlocks);
+		  const blockToAdd = blockIsNotPresent(visibleIceBlocks, iceBlocks);
 		  if (blockToAdd) {
 			setVisibleIceBlocks(prev => [...prev, blockToAdd]);
 			timeout = setTimeout(animateIceBlocks, ICE_BLOCK_ANIMATION_INTERVAL);
@@ -122,7 +122,7 @@ export default function Board() {
 		}
 		// Eliminar bloques que sobran
 		else if (visibleIceBlocks.length > iceBlocks.length) {
-		  const blockToRemove = findBlockToRemove(visibleIceBlocks, iceBlocks);
+		  const blockToRemove = blockIsPresent(visibleIceBlocks, iceBlocks);
 		  if (blockToRemove) {
 			setVisibleIceBlocks(prev =>
 			  prev.filter(

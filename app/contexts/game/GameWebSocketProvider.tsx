@@ -17,7 +17,7 @@ const GameWebSocketContext = createContext<{
 export function GameWebSocketProvider({ children }: { children: ReactNode }) {
   const { dispatch: headerDispatch } = useHeader();
   const { dispatch: boardDispatch } = useBoard();
-  const { dispatch: fruitBarDispatch } = useFruitBar();
+  const { state: fruitBarState, dispatch: fruitBarDispatch } = useFruitBar();
   const { state: usersState, dispatch: usersDispatch } = useUsers();
   const [ws, setWs] = useState<WebSocket | null>(null);
 
@@ -118,7 +118,13 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
         else if (message.type === "update-frozen-cells") {
           // Actualizar el estado de los bloques de hielo
           console.log("Bloques de hielo actualizados: ");
-          boardDispatch({ type: "UPDATE_ICE_BLOCKS", payload: message.payload.cells });
+          boardDispatch({ 
+            type: "UPDATE_ICE_BLOCKS", 
+            payload: {
+              cells: message.payload.cells,
+              actualFruit: fruitBarState.actualFruit,
+            }
+        });
         }
       } catch (error) {
         console.error("Error parsing WebSocket message:", error, "on message: ", event.data);

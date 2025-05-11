@@ -19,6 +19,8 @@ export default function Fruit({ fruitInformation, subtype }: FruitProps) {
 
   const src = freezeImage ?? `/fruits/${subtype}.webp`;
 
+  if (fruitInformation.frozen) return null;
+
   return (
     <div
       className="fruit"

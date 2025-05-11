@@ -5,13 +5,14 @@ import "./IceBlock.css";
 
 export default function IceBlock({ blockInformation }: { blockInformation: BoardCell }) {
   const { frozen, coordinates } = blockInformation;
+  const path = blockInformation.item? `/fruits/frozen-${blockInformation.item.type}.webp` : "/game-screen/board/ice-block/ice-block.webp";
 
   const freezeImage = useFreezeFrames(
     frozen,
-    "/game-screen/board/ice-block/ice-block.webp"
+    path
   );
 
-  const src = freezeImage ?? "/game-screen/board/ice-block/iceblock-.webp";
+  const src = freezeImage ?? path;
 
   return (
     <div
