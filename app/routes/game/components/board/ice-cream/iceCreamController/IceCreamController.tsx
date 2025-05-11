@@ -44,7 +44,11 @@ export default function IceCreamController() {
   // Handle key down
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     if (!isAlive || !canMakeMovements) return;
-    
+
+    if (event.code === "Space" || event.key === " " || event.key === "Spacebar") {
+        sendMessage({ type: "exec-power", payload: "power-execution" });
+        return;
+      }
     const key = event.key.toLowerCase();
     let direction: "up" | "down" | "left" | "right" | null = null;
 
@@ -77,7 +81,7 @@ export default function IceCreamController() {
       }
       keyRepeatTimeoutRef.current = setTimeout(handleKeyRepeat, KEY_REPEAT_DELAY);
     }
-  }, [isAlive, canMakeMovements, trySendMove, handleKeyRepeat]);
+  }, [isAlive, canMakeMovements, trySendMove, handleKeyRepeat, sendMessage]);
 
   // Handle key up
   const handleKeyUp = useCallback((event: KeyboardEvent) => {
