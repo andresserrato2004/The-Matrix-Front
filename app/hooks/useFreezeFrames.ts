@@ -6,7 +6,7 @@ export function useFreezeFrames(
 ): string | null {
   const frameCount = 8;
   const frameDuration = 250; // ms
-  const framePath = (i: number) => `/game-screen/board/ice-block/frames/freeze-${i}.webp`;
+  const framePath = (i: number) => `/game-screen/board/ice-block/frames/ice-block-${i}.webp`;
 
   const [frameIndex, setFrameIndex] = useState(0);
   const [done, setDone] = useState(false);

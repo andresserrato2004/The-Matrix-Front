@@ -113,7 +113,7 @@ function updateIceBlocks(state: BoardState, updatedIceBlock: BoardCell, actualFr
         newIceBlocks.push(newCell);
       }
     }
-    // 3. Si item es null, character es null y frozen es false; elimina el cell de iceBlocks por posición
+    // 3. frozen es false; elimina el cell de iceBlocks por posición
     else {
       newIceBlocks = newIceBlocks.filter(
         b =>

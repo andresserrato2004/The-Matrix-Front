@@ -116,9 +116,12 @@ export default function Board() {
 		if (visibleIceBlocks.length < iceBlocks.length) {
 		  const blockToAdd = blockIsNotPresent(visibleIceBlocks, iceBlocks);
 		  if (blockToAdd) {
-			setVisibleIceBlocks(prev => [...prev, blockToAdd]);
+			setVisibleIceBlocks(prev => {
+			if (prev.some(b => areBlocksEqual(b, blockToAdd))) return prev; // Ya existe, no lo agregues
+			return [...prev, blockToAdd];
+			});
 			timeout = setTimeout(animateIceBlocks, ICE_BLOCK_ANIMATION_INTERVAL);
-		  }
+		}
 		}
 		// Eliminar bloques que sobran
 		else if (visibleIceBlocks.length > iceBlocks.length) {
@@ -170,7 +173,7 @@ export default function Board() {
 			const style = getElementsStyles(block.coordinates.y, block.coordinates.x, cellSize);
 			return (
 				<div key={`${block.coordinates.x}-${block.coordinates.y}`} style={style}>
-					<IceBlock blockInformation={block} />
+					<IceBlock blockInformation={block} styles={style} cellSize={cellSize}/>
 				</div>
 			);
 		});
