@@ -162,38 +162,56 @@ export default function Board() {
 	};
 
 	return (
-		<div
-			className="board"
-			style={{
-				position: "relative",
-				width: "90vw",
-				height: "90vw",
-				maxWidth: "700px",
-				maxHeight: "700px",
-				margin: "50px auto 80px",
-				display: "flex",
-				justifyContent: "center",
-				alignItems: "center",
-				padding: "20px",
-				boxSizing: "border-box"
-			}}
-		>
-			<canvas
-				ref={canvasRef}
-				className={`board-canvas ${isBackgroundLoaded ? "loaded" : "loading"}`}
+		<div className="board-wrapper" style={{
+			position: "relative",
+			display: "flex",
+			justifyContent: "center",
+			alignItems: "center",
+			width: "calc(90vw + 72px)", // 36px a cada lado
+			height: "calc(90vw + 72px)",
+			maxWidth: "calc(700px + 72px)",
+			maxHeight: "calc(700px + 72px)",
+			margin: "25px auto 95px",
+			boxSizing: "content-box"
+		}}>
+			{/* Bordes */}
+			<div className="board-border board-border-top" />
+			<div className="board-border board-border-bottom" />
+			<div className="board-border board-border-left" />
+			<div className="board-border board-border-right" />
+
+			<div
+				className="board"
 				style={{
-					position: "absolute",
-					top: 0,
-					left: 0,
-					width: "100%",
-					height: "100%",
-					zIndex: 0,
+					position: "relative",
+					width: "90vw",
+					height: "90vw",
+					maxWidth: "700px",
+					maxHeight: "700px",
+					display: "flex",
+					justifyContent: "center",
+					alignItems: "center",
+					padding: "0",
+					boxSizing: "border-box"
 				}}
-			/>
-			{cellSize > 0 && renderEnemies()}
-			{cellSize > 0 && renderIceBlocks()}
-			{cellSize > 0 && renderFruits()}
-			{cellSize > 0 && renderIceCreams()}
+			>
+				<canvas
+					ref={canvasRef}
+					className={`board-canvas ${isBackgroundLoaded ? "loaded" : "loading"}`}
+					style={{
+						position: "absolute",
+						top: 0,
+						left: 0,
+						width: "100%",
+						height: "100%",
+						zIndex: 0,
+					}}
+				/>
+				{cellSize > 0 && renderEnemies()}
+				{cellSize > 0 && renderIceBlocks()}
+				{cellSize > 0 && renderFruits()}
+				{cellSize > 0 && renderIceCreams()}
+			</div>
 		</div>
 	);
 }
