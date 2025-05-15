@@ -1,6 +1,6 @@
 import { createContext, useReducer, useContext, useEffect, useRef } from "react";
 import type { ReactNode, Dispatch } from "react";
-import type { BoardCell, EnemyMove, PlayerMove } from "../../../types/types"; 
+import type { BoardCell, EnemyMove, EspecialFruitInformation, PlayerMove } from "../../../types/types"; 
 
 interface BoardState {
   fruits: BoardCell[];
@@ -8,6 +8,7 @@ interface BoardState {
   iceBlocks: BoardCell[];
   pendingIceBlockUpdates?: BoardCell[];
   actualFruit?: string;
+  especialFruit: EspecialFruitInformation;
 }
 
 type BoardAction =
@@ -21,7 +22,8 @@ type BoardAction =
   // Enemigos
   | { type: "MOVE_ENEMY"; payload: EnemyMove }
   | { type: "START_ICE_BLOCKS_ANIMATION"; payload: { cells: BoardCell[], actualFruit: string } }
-| { type: "STEP_ICE_BLOCKS_ANIMATION" };
+  | { type: "STEP_ICE_BLOCKS_ANIMATION" }
+  | { type: "SET_ESPECIAL_FRUIT"; payload: EspecialFruitInformation }
 
 const initialState: BoardState = {
   fruits: [],
@@ -29,6 +31,7 @@ const initialState: BoardState = {
   iceBlocks: [],
   pendingIceBlockUpdates: [],
   actualFruit: "",
+  especialFruit: null,
 };
 
 function boardReducer(state: BoardState, action: BoardAction): BoardState {
@@ -63,6 +66,11 @@ function boardReducer(state: BoardState, action: BoardAction): BoardState {
         pendingIceBlockUpdates: rest,
       };
     }
+    case "SET_ESPECIAL_FRUIT":
+      return {
+        ...state,
+        especialFruit: action.payload
+        };
     default:
       return state;
   }
@@ -75,6 +83,7 @@ function setBoard(payload: BoardCell[]): BoardState {
     fruits: payload.filter(cell => cell.item?.type === "fruit"),
     enemies: payload.filter(cell => cell.character?.type === "troll"),
     iceBlocks: payload.filter(cell => cell.item?.type === "iceBlock"),
+    especialFruit: null,
   }
 }
 // FRUTAS

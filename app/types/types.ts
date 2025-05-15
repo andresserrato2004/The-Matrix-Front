@@ -51,3 +51,7 @@ export type UsersBoardInformation = {
 	position: Coordinates;
 	direction: "up" | "down" | "left" | "right";
 };
+
+export type EspecialFruitInformation = {
+	coordinates: Coordinates;
+} | null;

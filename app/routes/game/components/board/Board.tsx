@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import IceCream from "./ice-cream/IceCream";
 import Fruit from "./fruit/Fruit";
+import EspecialFruit from "./fruit/EspecialFruit";
 import IceBlock from "./ice-block/IceBlock";
 import type { BoardCell, UserInformation } from "~/types/types";
 import { useBoard } from "~/contexts/game/Board/BoardContext";
@@ -24,6 +25,7 @@ export default function Board() {
 	const enemies = boardState.enemies;
 	const iceBlocks = boardState.iceBlocks;
 	const [visibleIceBlocks, setVisibleIceBlocks] = useState<BoardCell[]>([]);
+	const { especialFruit } = boardState.especialFruit;
 	// Variables de estado de los usuarios
 	const { state: usersState } = useUsers();
 	const iceCreams = [usersState.mainUser, usersState.secondaryUser];
@@ -217,6 +219,24 @@ export default function Board() {
 				</div>
 			);
 		});
+	};
+
+	const renderEspecialFruit = () => {
+		if (!especialFruit) return null;
+		const style = {
+			...getElementsStyles(
+				especialFruit.position.y,
+				especialFruit.position.x,
+				cellSize,
+				true
+				),
+		};
+		return (
+			<EspecialFruit
+				key={especialFruit.id}
+				fruitInformation={especialFruit}
+			/>
+		);
 	};
 
 	return (
