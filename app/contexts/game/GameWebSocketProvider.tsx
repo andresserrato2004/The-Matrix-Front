@@ -36,7 +36,8 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
     const socket = new WebSocket(`${WS_BASE_URL}/ws/game/${userData.userId}/${userData.matchId}`);
     setWs(socket);
     console.log(ws);
-  }, [userData?.userId, userData?.matchId, ws]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userData?.userId, userData?.matchId]);
 
   // Función para enviar mensajes
   const sendMessage = useCallback((msg: OutputMessage) => {
@@ -74,67 +75,63 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
       try {
         const message = JSON.parse(event.data);
         console.log("Received message from gameWebSocket: ", message);
-
-        switch (message.type) {
-          case "update-time":
-            headerDispatch({ type: "SET_MINUTES", payload: message.payload.minutesLeft });
-            headerDispatch({ type: "SET_SECONDS", payload: message.payload.secondsLeft });
-            break;
-
-          case "update-move":
-            usersDispatch({
-              type: "MOVE_USER",
-              payload: {
-                playerId: message.payload.id,
-                coordinates: message.payload.coordinates,
-                direction: message.payload.direction,
-                state: message.payload.state,
-              }
-            });
-            if (message.payload.idItemConsumed) {
-              console.log("Removing fruit with ID:", message.payload.idItemConsumed);
-              headerDispatch({ type: "INCREMENT_SCORE" });
-              boardDispatch({ type: "DELETE_FRUIT", payload: message.payload.idItemConsumed });
+        // MENSAJES PARA EL HEADER
+        if (message.type === "update-time") {
+          headerDispatch({ type: "SET_MINUTES", payload: message.payload.minutesLeft });
+          headerDispatch({ type: "SET_SECONDS", payload: message.payload.secondsLeft });
+        }
+        else if (message.type === "update-move") {
+          usersDispatch({
+            type: "MOVE_USER",
+            payload: {
+              playerId: message.payload.id,
+              coordinates: message.payload.coordinates,
+              direction: message.payload.direction,
+              state: message.payload.state,
             }
-            break;
-
-            case "update-enemy":
-            boardDispatch({ type: "MOVE_ENEMY", payload: message.payload });
-            break;
-
-          case "end":
-            usersDispatch({
-              type: "SET_GAME_STATE",
-              payload: message.payload.result
-            });
-            break;
-
-          case "update-fruits":
-            console.log("Nueva ronda de frutas puesta: ", message);
-            boardDispatch({ type: "SET_FRUITS", payload: message.payload.cells });
-            fruitBarDispatch({ type: "SET_ACTUAL_FRUIT", payload: message.payload.fruitType });
-            break;
-
-          case "update-frozen-cells":
-            console.log("Bloques de hielo actualizados: ");
-            boardDispatch({
-              type: "UPDATE_ICE_BLOCKS",
-              payload: {
-                cells: message.payload.cells,
-                actualFruit: fruitBarState.actualFruit,
-              }
-            });
-            break;
-
-          default:
-            console.warn("Tipo de mensaje desconocido:", message.type, message);
+          });
+          if (message.payload.idItemConsumed) {
+            // Manejar el consumo de una fruta
+            console.log("Removing fruit with ID:", message.payload.idItemConsumed);
+            headerDispatch({ type: "INCREMENT_SCORE" });
+            boardDispatch({ type: "DELETE_FRUIT", payload: message.payload.idItemConsumed });
+          }
+        }
+        // MENSAJES PARA EL TABLERO Y HEADER 
+        else if (message.type === "update-enemy") {
+          // Manejar el movimiento de un enemigo
+          boardDispatch({ type: "MOVE_ENEMY", payload: message.payload });
+        }
+        else if (message.type === "end") {
+          // Manejar el resultado del juego
+          usersDispatch({
+            type: "SET_GAME_STATE",
+            payload: message.payload.result
+          });
+        }
+        else if (message.type === "update-fruits") {
+          // Actualizar el estado del tablero y las frutas
+          console.log("Nueva ronda de frutas puesta: ", message);
+          boardDispatch({ type: "SET_FRUITS", payload: message.payload.cells });
+          fruitBarDispatch({ type: "SET_ACTUAL_FRUIT", payload: message.payload.fruitType });
+        }
+        else if (message.type === "update-frozen-cells") {
+          // Actualizar el estado de los bloques de hielo
+          console.log("Bloques de hielo actualizados: ");
+          boardDispatch({ 
+            type: "UPDATE_ICE_BLOCKS", 
+            payload: {
+              cells: message.payload.cells,
+              actualFruit: fruitBarState.actualFruit,
+            }
+        });
         }
       } catch (error) {
         console.error("Error parsing WebSocket message:", error, "on message: ", event.data);
       }
     };
     console.log("eventos añadidos a websocket", ws);
-  }, [ws, boardDispatch, fruitBarState.actualFruit, usersDispatch, fruitBarDispatch, headerDispatch]);
+  }, [ws]);
 
   // Puedes exponer sendMessage por contexto si lo necesitas en los hijos
   return (
