@@ -25,7 +25,7 @@ export default function Board() {
 	const enemies = boardState.enemies;
 	const iceBlocks = boardState.iceBlocks;
 	const [visibleIceBlocks, setVisibleIceBlocks] = useState<BoardCell[]>([]);
-	const { especialFruit } = boardState.especialFruit;
+	const especialFruit = boardState.especialFruit;
 	// Variables de estado de los usuarios
 	const { state: usersState } = useUsers();
 	const iceCreams = [usersState.mainUser, usersState.secondaryUser];
@@ -272,6 +272,7 @@ export default function Board() {
 			{cellSize > 0 && renderIceBlocks()}
 			{cellSize > 0 && renderFruits()}
 			{cellSize > 0 && renderIceCreams()}
+			{cellSize > 0 && renderEspecialFruit()}
 		</div>
 	);
 }

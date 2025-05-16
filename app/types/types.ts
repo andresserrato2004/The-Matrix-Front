@@ -4,6 +4,15 @@ export type Character = {
 	id: string; // Identificador único del personaje
 };
 
+export type Enemey = {
+	type: string; // Tipo del enemigo (por ejemplo: "troll")
+	orientation: string; // Orientación del enemigo (por ejemplo: "down")
+	id: string; // Identificador único del enemigo
+	enemyStatus: EnemyStatus; // Estado del enemigo (por ejemplo: "alive" o "dead")
+};
+
+export type EnemyStatus = "walking" | "rolling" | "stopped"; // Estado del enemigo (por ejemplo: "alive" o "dead")
+
 export type Item = {
 	type: string; // Tipo del ítem (por ejemplo: "fruit")
 	id: string; // Identificador único del ítem
@@ -50,7 +59,7 @@ export type UsersBoardInformation = {
 	id: string;
 	position: Coordinates;
 	direction: "up" | "down" | "left" | "right";
-};
+};	
 
 export type EspecialFruitInformation = {
 	coordinates: Coordinates;

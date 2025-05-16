@@ -23,7 +23,7 @@ type BoardAction =
   | { type: "MOVE_ENEMY"; payload: EnemyMove }
   | { type: "START_ICE_BLOCKS_ANIMATION"; payload: { cells: BoardCell[], actualFruit: string } }
   | { type: "STEP_ICE_BLOCKS_ANIMATION" }
-  | { type: "SET_ESPECIAL_FRUIT"; payload: EspecialFruitInformation }
+  | { type: "UPDATE_SPECIAL_FRUIT"; payload: EspecialFruitInformation }
 
 const initialState: BoardState = {
   fruits: [],
@@ -66,7 +66,7 @@ function boardReducer(state: BoardState, action: BoardAction): BoardState {
         pendingIceBlockUpdates: rest,
       };
     }
-    case "SET_ESPECIAL_FRUIT":
+    case "UPDATE_SPECIAL_FRUIT":
       return {
         ...state,
         especialFruit: action.payload
