@@ -76,9 +76,6 @@ export default defineConfig({
 				"app/config/**",
 				"app/config/index.ts",
 				// Game types and components
-				"app/contexts/game/types/**",
-				"app/contexts/game/types/outputMessage.ts",
-				"app/contexts/game/types/types.ts",
 				"app/routes/game/**",
 				"app/routes/game/index.tsx",
 				"app/routes/game/meta.ts",
@@ -90,6 +87,8 @@ export default defineConfig({
 				"app/routes/game/components/board/ice-block/IceBlock.tsx",
 				"app/routes/game/components/board/ice-cream/**",
 				"app/routes/game/components/board/ice-cream/IceCream.tsx",
+				// Contexts
+				"app/contexts/game/types/**",
 			],
 			all: true,
 			thresholds: {

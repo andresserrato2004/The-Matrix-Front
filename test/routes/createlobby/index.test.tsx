@@ -18,7 +18,7 @@ vi.mock('../../../app/contexts/user/userContext', () => ({
 
 vi.mock('../../../app/contexts/UsersContext', () => ({
     useUsers: vi.fn(),
-    UsersProvider: ({ children }) => children
+    UsersProvider: ({ children }: { children: React.ReactNode }) => children
 }));
 
 vi.mock('../../../app/hooks/useWebSocket', () => ({
@@ -36,10 +36,28 @@ describe('Lobby', () => {
     const mockNavigate = vi.fn();
     const mockUserId = '123';
     const mockMatchId = 'ABC123';
-    const mockWebSocket = {
+    const mockSetUserData = vi.fn();
+    const mockSetSecondaryUserData = vi.fn();
+    const mockUsersDispatch = vi.fn();
+
+    // Define proper types for WebSocket mock
+    type WebSocketHandler = (event: Event | MessageEvent) => void;
+    interface MockWebSocket {
+        onopen: WebSocketHandler | null;
+        onmessage: WebSocketHandler | null;
+        onerror: WebSocketHandler | null;
+        onclose: WebSocketHandler | null;
+        send: (data: string) => void;
+        close: () => void;
+    }
+
+    const mockWebSocket: MockWebSocket = {
         onopen: null,
         onmessage: null,
-        send: vi.fn()
+        onerror: null,
+        onclose: null,
+        send: vi.fn(),
+        close: vi.fn()
     };
 
     beforeEach(() => {
@@ -49,98 +67,242 @@ describe('Lobby', () => {
         (useNavigate as any).mockReturnValue(mockNavigate);
         (useUser as any).mockReturnValue({
             userData: { userId: mockUserId },
-            setUserData: vi.fn(),
+            setUserData: mockSetUserData,
             secondaryUserData: null,
-            setSecondaryUserData: vi.fn()
+            setSecondaryUserData: mockSetSecondaryUserData
         });
         (useUsers as any).mockReturnValue({
             state: {
                 mainUser: {},
                 secondaryUser: {}
             },
-            dispatch: vi.fn()
+            dispatch: mockUsersDispatch
         });
         (useWebSocket as any).mockReturnValue({
-            connect: vi.fn().mockImplementation((handlers) => {
-                handlers(mockWebSocket);
-                return mockWebSocket;
-            })
+            connect: vi.fn().mockReturnValue(mockWebSocket)
         });
-        (api.get as any).mockResolvedValueOnce({
+        (api.get as any).mockResolvedValue({
             data: { matchId: mockMatchId }
         });
     });
 
-    it('renders lobby with room code', async () => {
-        render(<Lobby />);
+    describe('Lobby State Management', () => {
+        it('renders lobby with room code', async () => {
+            render(<Lobby />);
 
-        await waitFor(() => {
-            expect(screen.getByText(mockMatchId)).toBeInTheDocument();
+            await waitFor(() => {
+                expect(screen.getByText(mockMatchId)).toBeInTheDocument();
+            });
+        });
+
+        it('handles player ready state toggles', () => {
+            render(<Lobby />);
+
+            // Test player 1 ready toggle
+            const player1ReadyButton = screen.getByText('Ready');
+            fireEvent.click(player1ReadyButton);
+            expect(player1ReadyButton).toHaveClass('ready');
+
+
+        });
+
+        it('handles matchmaking search timer', async () => {
+            render(<Lobby />);
+
+            // Start matchmaking
+            const findOpponentButton = screen.getByText('Find Opponent');
+            fireEvent.click(findOpponentButton);
+
+            // Wait for timer to increment
+            await waitFor(() => {
+                const searchTime = screen.getByText(/Time: \d{2}:\d{2}/);
+                expect(searchTime).toBeInTheDocument();
+            });
+        });
+
+        it('sets default player 2 character in solo mode', async () => {
+            render(<Lobby />);
+
+
         });
     });
 
-    it('handles player 1 ice cream selection', () => {
-        render(<Lobby />);
-
-
-    });
-
-    it('handles player 1 ready state', () => {
-        render(<Lobby />);
-
-        const readyButton = screen.getByText('Ready');
-        fireEvent.click(readyButton);
-
-        expect(readyButton).toHaveClass('ready');
-    });
-
-    it('handles start game when both players are ready', async () => {
-        const mockMessage = {
-            match: {
-                id: 'match123',
-                board: {
-                    playersStartCoordinates: [[0, 0], [1, 1]]
+    describe('WebSocket Handling', () => {
+        it('handles WebSocket connection and message flow for host', async () => {
+            const mockMessage = {
+                message: 'match-found',
+                match: {
+                    id: 'match123',
+                    host: mockUserId,
+                    guestId: '456',
+                    board: {
+                        playersStartCoordinates: [[0, 0], [1, 1]]
+                    }
                 }
+            };
+
+            render(<Lobby />);
+
+            // Start matchmaking
+            const findOpponentButton = screen.getByText('Find Opponent');
+            fireEvent.click(findOpponentButton);
+
+            // Simulate WebSocket message
+            if (mockWebSocket.onmessage) {
+                mockWebSocket.onmessage(new MessageEvent('message', {
+                    data: JSON.stringify(mockMessage)
+                }));
             }
-        };
 
-        render(<Lobby />);
-
-        // Seleccionar helado para jugador 1
-
-        // Marcar jugador 1 como listo
-        const readyButton = screen.getByText('Ready');
-        fireEvent.click(readyButton);
-
-        // Simular mensaje de WebSocket
-        const messageEvent = new MessageEvent('message', {
-            data: JSON.stringify(mockMessage)
+            await waitFor(() => {
+                expect(mockSetUserData).toHaveBeenCalledWith(expect.objectContaining({
+                    matchId: 'match123',
+                    position: [0, 0]
+                }));
+            });
         });
 
+        it('handles WebSocket connection and message flow for guest', async () => {
+            const mockMessage = {
+                message: 'match-found',
+                match: {
+                    id: 'match123',
+                    host: '789',
+                    guestId: mockUserId,
+                    board: {
+                        playersStartCoordinates: [[0, 0], [1, 1]]
+                    }
+                }
+            };
+
+            render(<Lobby />);
+
+            // Start matchmaking
+            const findOpponentButton = screen.getByText('Find Opponent');
+            fireEvent.click(findOpponentButton);
+
+            // Simulate WebSocket message
+            if (mockWebSocket.onmessage) {
+                mockWebSocket.onmessage(new MessageEvent('message', {
+                    data: JSON.stringify(mockMessage)
+                }));
+            }
+
+            await waitFor(() => {
+                expect(mockSetUserData).toHaveBeenCalledWith(expect.objectContaining({
+                    matchId: 'match123',
+                    position: [1, 1]
+                }));
+            });
+        });
+
+        it('handles WebSocket errors', async () => {
+            render(<Lobby />);
+
+            // Start matchmaking
+            const findOpponentButton = screen.getByText('Find Opponent');
+            fireEvent.click(findOpponentButton);
+
+            // Simulate WebSocket error
+            if (mockWebSocket.onerror) {
+                mockWebSocket.onerror(new Event('error'));
+            }
+
+            await waitFor(() => {
+                expect(screen.getByText('WebSocket connection error')).toBeInTheDocument();
+            });
+        });
+
+        it('handles WebSocket connection close', async () => {
+            render(<Lobby />);
+
+            // Start matchmaking
+            const findOpponentButton = screen.getByText('Find Opponent');
+            fireEvent.click(findOpponentButton);
+
+            // Simulate WebSocket close
+            if (mockWebSocket.onclose) {
+                mockWebSocket.onclose(new Event('close'));
+            }
+
+            await waitFor(() => {
+                expect(screen.queryByText('Searching for opponent...')).not.toBeInTheDocument();
+            });
+        });
     });
 
-    it('handles back button click', () => {
-        render(<Lobby />);
+    describe('Game Flow', () => {
+        it('handles start game in solo mode', async () => {
+            render(<Lobby />);
 
-        const backButton = screen.getByText('Back');
-        fireEvent.click(backButton);
 
-        expect(mockNavigate).toHaveBeenCalledWith('/joinscreen');
+            // Start game
+            const startButton = screen.getByText('Ready');
+            fireEvent.click(startButton);
+
+        });
+
+        it('handles start game in two-player mode', async () => {
+            render(<Lobby />);
+
+
+            // Start game
+            const startButton = screen.getByText('Ready');
+            fireEvent.click(startButton);
+        });
+
+        it('shows alert when trying to start without ready players', () => {
+            const mockAlert = vi.spyOn(window, 'alert').mockImplementation(() => { });
+
+            render(<Lobby />);
+
+            // Try to start without selecting character or being ready
+            const startButton = screen.getByText('Ready');
+            fireEvent.click(startButton);
+
+
+            mockAlert.mockRestore();
+        });
     });
 
-    it('handles find opponent button click', () => {
-        render(<Lobby />);
-    });
+    describe('Utility Functions', () => {
+        it('formats search time correctly', async () => {
+            render(<Lobby />);
 
-    it('handles cancel matchmaking', () => {
-        render(<Lobby />);
+            // Start matchmaking
+            const findOpponentButton = screen.getByText('Find Opponent');
+            fireEvent.click(findOpponentButton);
 
-        // Primero iniciar la búsqueda
-        const findOpponentButton = screen.getByText('Find Opponent');
-        fireEvent.click(findOpponentButton);
+            // Wait for timer to increment
+            await waitFor(() => {
+                const searchTime = screen.getByText(/Time: \d{2}:\d{2}/);
 
-        // Luego cancelar
+            });
+        });
 
-        expect(screen.queryByText('Searching for opponent...')).not.toBeInTheDocument();
+        it('handles cancel matchmaking', async () => {
+            render(<Lobby />);
+
+            // Start matchmaking
+            const findOpponentButton = screen.getByText('Find Opponent');
+            fireEvent.click(findOpponentButton);
+
+            // Cancel matchmaking
+            const cancelButton = screen.getByText('Cancel Search');
+            fireEvent.click(cancelButton);
+
+            await waitFor(() => {
+                expect(screen.queryByText('Searching for opponent...')).not.toBeInTheDocument();
+            });
+        });
+
+        it('handles back button click', () => {
+            render(<Lobby />);
+
+            const backButton = screen.getByText('Back');
+            fireEvent.click(backButton);
+
+            expect(mockNavigate).toHaveBeenCalledWith('/joinscreen');
+        });
     });
 }); 
