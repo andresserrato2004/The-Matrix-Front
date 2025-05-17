@@ -2,10 +2,18 @@ import ScoreCounter from "./score-counter/ScoreCounter";
 import Timer from "./timer/Timer";
 import "./Header.css";
 import { useHeader } from "~/contexts/game/Header/HeaderContext";
+import { useGameWebSocket } from "~/contexts/game/GameWebSocketProvider";
+
 
 export default function Header() {
 
   const { state, dispatch } = useHeader();
+  const { sendMessage } = useGameWebSocket();
+
+  const togglePause = () => {
+    dispatch.bind(null, { type: "SET_IS_RUNNING", payload: !state.isRunning })
+    sendMessage({ type: state.isRunning ? "pause" : "resume", payload: "" });
+  };
 
   return (
     <div className="header">
@@ -23,7 +31,7 @@ export default function Header() {
         <button
           type="button"
           aria-label={state.isRunning ? "Pausar" : "Reanudar"}
-          onClick={dispatch.bind(null, { type: "SET_IS_RUNNING", payload: !state.isRunning })}
+          onClick={togglePause}
         >
           <img
             src={state.isRunning

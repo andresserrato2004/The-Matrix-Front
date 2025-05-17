@@ -66,7 +66,7 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
       } else {
         usersDispatch({
             type: "SET_GAME_STATE",
-            payload: "lose-connection"
+            payload: "lost-connection"
           });
         if (reconnectAttempts.current < 10) { // 10 intentos * 2 segundos = 20 segundos
           reconnectAttempts.current += 1;
@@ -179,6 +179,13 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
           // Actualizar el estado de la fruta especial
           console.log("Fruta especial actualizada: ", message);
           boardDispatch({ type: "UPDATE_SPECIAL_FRUIT", payload: message.payload });
+        }
+        else if (message.type === "paused") {
+          usersDispatch({
+            type: "SET_GAME_STATE",
+            payload: message.payload === true ? "paused" : "playing"
+          });
+          headerDispatch({ type: "SET_IS_RUNNING", payload: !message.payload });
         }
         else {
           console.warn("Mensaje no reconocido:", message);

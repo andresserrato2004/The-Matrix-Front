@@ -36,7 +36,7 @@ export type EnemyMove = {
 	direction: "up" | "down" | "left" | "right"; // Dirección en la que se mueve el enemigo (por ejemplo: "up", "down", "left", "right")
 };
 
-export type GameState = "playing" | "paused" | "win" | "lose" | "lose-connection"; // Estado del juego
+export type GameState = "playing" | "paused" | "win" | "lose" | "lost-connection"; // Estado del juego
 
 export type PlayerMove = {
 	playerId: string; // ID del jugador que se mueve

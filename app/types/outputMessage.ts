@@ -18,9 +18,14 @@ export type ExecPowerMessage = {
     payload: string;
 };
 
-export type UpdateAll = {
+export type UpdateAllMessage = {
     type: 'update-all',
     payload: string | null;
+};
+
+export type PauseResumeMessage = {
+    type: "pause" | "resume";
+    payload: string;
 };
 
 export type OutputMessage =
@@ -28,5 +33,6 @@ export type OutputMessage =
     | ChangeDirectionMessage
     | SetColorMessage
     | ExecPowerMessage
-    | UpdateAll;
+    | UpdateAllMessage
+    | PauseResumeMessage;
 
