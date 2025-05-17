@@ -92,3 +92,14 @@
 		box-shadow: 0 0 12px 2px #ffd70055, 0 8px 32px rgba(218, 165, 32, 0.18);
 	}
 }
+
+.microsoft-login-btn {
+	transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.18s;
+	will-change: transform, box-shadow;
+}
+
+.microsoft-login-btn:hover {
+	transform: translateY(-2px) scale(1.04) rotate(-2deg);
+	box-shadow: 0 8px 32px 0 rgba(31, 41, 55, 0.18), 0 2px 8px #ffd70099;
+	filter: brightness(1.08);
+}

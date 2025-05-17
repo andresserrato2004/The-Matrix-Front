@@ -31,19 +31,6 @@ export function createWebSocketConnection(path = ""): WebSocket {
 		console.log("WebSocket cerrado:", event);
 	};
 
-	// wsConnection.onmessage = (event) => {
-	//     try {
-	//         const message = JSON.parse(event.data);
-	//         console.log("Received message:", message);
-
-	//         if (message.message === 'match-found' && message.match && message.match.id) {
-	//             console.log("Match found ID:", message.match.id);
-	//         }
-	//     } catch (error) {
-	//         console.error("Error parsing WebSocket message:", error);
-	//     }
-	// };
-
 	wsConnection.onerror = (error) => {
 		console.error("Error en WebSocket:", error);
 	};

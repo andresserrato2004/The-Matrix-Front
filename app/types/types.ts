@@ -62,5 +62,5 @@ export type UsersBoardInformation = {
 };	
 
 export type EspecialFruitInformation = {
-	coordinates: Coordinates;
-} | null;
+  coordinates: Coordinates;
+};
