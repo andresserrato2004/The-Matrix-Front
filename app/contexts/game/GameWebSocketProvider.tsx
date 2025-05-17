@@ -1,4 +1,4 @@
-import { useEffect, createContext, useContext, useCallback, useState } from "react";
+import { useEffect, createContext, useContext, useCallback, useState, useRef } from "react";
 import type { ReactNode } from "react";
 import { useHeader } from "./Header/HeaderContext";
 import { useBoard } from "./Board/BoardContext";
@@ -22,6 +22,10 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
   const [ws, setWs] = useState<WebSocket | null>(null);
 
   const { userData, secondaryUserData, setSecondaryUserData } = useUser();
+  // intentos de reconexión
+  const reconnectAttempts = useRef(0);
+  const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
+
 
   const connectWebSocket = useCallback(() => {
     if (!userData?.userId || !userData?.matchId) {
@@ -60,17 +64,26 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
       if (event.wasClean) {
         console.log(`WebSocket cerrado limpiamente, código=${event.code}, razón=${event.reason}`);
       } else {
-        console.warn("WebSocket cerrado inesperadamente.");
+        usersDispatch({
+            type: "SET_GAME_STATE",
+            payload: "lose-connection"
+          });
+        if (reconnectAttempts.current < 10) { // 10 intentos * 2 segundos = 20 segundos
+          reconnectAttempts.current += 1;
+          console.warn(`WebSocket cerrado inesperadamente. Intentando reconectar (Intento ${reconnectAttempts.current}/10)`);
+          reconnectTimeout.current = setTimeout(() => {
+            connectWebSocket();
+            sendMessage({type: "update-all", payload: ""}); // Enviar mensaje de reconexión
+          }, 2000); // 2 segundos
+        } else {
+          console.error("No se pudo reconectar después de 1 minuto.");
+        }
       }
     };
 
     ws.onerror = (event) => {
       console.error("WebSocket error:", event);
     };
-    console.log("añadirle el onmessage al websocket", ws);
-    //if (!usersState.mainUser.id || !usersState.secondaryUser.id || !usersState.mainUser.matchId || !usersState.secondaryUser.matchId) return;
-    // Crea la conexión SOLO aquí
-    // Configurar el manejador de mensajes del WebSocket
     ws.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
@@ -102,6 +115,7 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
           // Manejar el movimiento de un enemigo
           boardDispatch({ type: "MOVE_ENEMY", payload: message.payload });
         }
+        // MENSAJE DE ESTADO DEL JUEGO
         else if (message.type === "end") {
           // Manejar el resultado del juego
           usersDispatch({
@@ -109,14 +123,14 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
             payload: message.payload.result
           });
         }
+        // MENSAJE DE FRUTAS
         else if (message.type === "update-fruits") {
-          // Actualizar el estado del tablero y las frutas
           console.log("Nueva ronda de frutas puesta: ", message);
           boardDispatch({ type: "SET_FRUITS", payload: message.payload.cells });
           fruitBarDispatch({ type: "SET_ACTUAL_FRUIT", payload: message.payload.fruitType });
         }
+        // MENSAJE DE BLOQUES DE HIELO
         else if (message.type === "update-frozen-cells") {
-          // Actualizar el estado de los bloques de hielo
           console.log("Bloques de hielo actualizados: ");
           boardDispatch({ 
             type: "UPDATE_ICE_BLOCKS", 
@@ -125,6 +139,49 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
               actualFruit: fruitBarState.actualFruit,
             }
         });
+        }
+        // MENSAJE DE RECONEXIÓN
+        else if (message.type === "update-all") {
+          // Actualizar el tiempo
+          headerDispatch({ type: "SET_MINUTES", payload: message.payload.time.minutesLeft });
+          headerDispatch({ type: "SET_SECONDS", payload: message.payload.time.secondsLeft });
+          // Actualizar el estado de los jugadores
+          const host = message.payload.players[0];
+          const guest = message.payload.players[1];
+          const isMainUserHost = host.id === usersState.mainUser.id;
+          usersDispatch({
+            type: "SET_MAIN_USER",
+            payload: {
+              ...usersState.mainUser,
+              state: isMainUserHost ? host.state : guest.state,
+              flavour: isMainUserHost ? host.color : guest.color,
+            }
+          });
+          usersDispatch({
+            type: "SET_SECONDARY_USER",
+            payload: {
+              ...usersState.secondaryUser,
+              state: !isMainUserHost ? host.state : guest.state,
+              flavour: !isMainUserHost ? host.color : guest.color,
+            }
+          });
+          // Actualizar la fruta actual
+          // Actualizar el estado del tablero
+          boardDispatch({ type: "SET_BOARD", payload: message.payload.cells });
+          // Actualizar el estado de la partida
+          usersDispatch({
+            type: "SET_GAME_STATE",
+            payload: "playing"
+          });
+        }
+        // MENSAJE DE FRUTA ESPECIAL
+        else if (message.type === "update-special-fruit") {
+          // Actualizar el estado de la fruta especial
+          console.log("Fruta especial actualizada: ", message);
+          boardDispatch({ type: "UPDATE_SPECIAL_FRUIT", payload: message.payload });
+        }
+        else {
+          console.warn("Mensaje no reconocido:", message);
         }
       } catch (error) {
         console.error("Error parsing WebSocket message:", error, "on message: ", event.data);

@@ -18,9 +18,15 @@ export type ExecPowerMessage = {
     payload: string;
 };
 
+export type UpdateAll = {
+    type: 'update-all',
+    payload: string | null;
+};
+
 export type OutputMessage =
     | MovementMessage
     | ChangeDirectionMessage
     | SetColorMessage
-    | ExecPowerMessage;
+    | ExecPowerMessage
+    | UpdateAll;
 

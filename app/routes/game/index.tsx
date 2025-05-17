@@ -147,7 +147,6 @@ export default function GameScreen() {
 
 		const isMainUserHost = gameData.match.hostId === usersState.mainUser.id;
 
-
 		usersDispatch({
 			type: "SET_MAIN_USER",
 			payload: {

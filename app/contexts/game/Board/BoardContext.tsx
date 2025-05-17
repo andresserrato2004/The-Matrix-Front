@@ -1,6 +1,6 @@
 import { createContext, useReducer, useContext, useEffect, useRef } from "react";
 import type { ReactNode, Dispatch } from "react";
-import type { BoardCell, EnemyMove, EspecialFruitInformation, PlayerMove } from "../../../types/types"; 
+import type { BoardCell, EnemyMove, EspecialFruitInformation } from "../../../types/types"; 
 
 interface BoardState {
   fruits: BoardCell[];
@@ -23,6 +23,7 @@ type BoardAction =
   | { type: "MOVE_ENEMY"; payload: EnemyMove }
   | { type: "START_ICE_BLOCKS_ANIMATION"; payload: { cells: BoardCell[], actualFruit: string } }
   | { type: "STEP_ICE_BLOCKS_ANIMATION" }
+  // Fruta especial
   | { type: "UPDATE_SPECIAL_FRUIT"; payload: EspecialFruitInformation }
 
 const initialState: BoardState = {
