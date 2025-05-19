@@ -1,0 +1,88 @@
+.global-button {
+	border: 2px solid #eab308;
+	background-color: #f3ead0;
+	color: black;
+	font-weight: bold;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: all 0.3s ease-in-out;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px
+		rgba(0, 0, 0, 0.06);
+}
+
+.global-button:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	animation: pulse 1.5s infinite;
+}
+
+/* Variants */
+.global-button.primary {
+	background-color: #f3ead0;
+	border-color: #eab308;
+}
+
+.global-button.primary:hover:not(:disabled) {
+	background-color: #eab308;
+}
+
+.global-button.secondary {
+	background-color: #f3ead0;
+	border-color: #eab308;
+}
+
+.global-button.secondary:hover:not(:disabled) {
+	background-color: #eab308;
+}
+
+.global-button.danger {
+	background-color: #f3ead0;
+	border-color: #eab308;
+}
+
+.global-button.danger:hover:not(:disabled) {
+	background-color: #ef4444;
+}
+
+/* Sizes */
+.global-button.small {
+	padding: 0.75rem 1.5rem;
+	font-size: 1rem;
+	height: 2.5rem;
+	min-width: 5rem;
+}
+
+.global-button.medium {
+	padding: 0.75rem 1.5rem;
+	font-size: 1.125rem;
+	height: 3.2rem;
+	min-width: 7rem;
+}
+
+.global-button.large {
+	padding: 1.5rem 3.5rem;
+	font-size: 1.125rem;
+	height: 4rem;
+	min-width: 10rem;
+}
+
+/* Full width */
+.global-button.full-width {
+	width: 100%;
+}
+
+@keyframes pulse {
+	0% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+	100% {
+		opacity: 1;
+	}
+}

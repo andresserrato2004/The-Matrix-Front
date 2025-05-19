@@ -1,7 +1,7 @@
 import { useState, useEffect, lazy, Suspense, useCallback } from "react";
 import { useLocation } from "@remix-run/react";
 import LoadingScreen from "~/components/loadingScreen/LoadingScreen";
-import type { BoardCell } from "../../contexts/game/types/types";
+import type { BoardCell } from "../../types/types";
 import { useHeader } from "~/contexts/game/Header/HeaderContext";
 import { useBoard } from "~/contexts/game/Board/BoardContext";
 import { useFruitBar } from "~/contexts/game/FruitBar/FruitBarContext";
@@ -146,7 +146,6 @@ export default function GameScreen() {
 		const guestCoords = coordinates[1];
 
 		const isMainUserHost = gameData.match.hostId === usersState.mainUser.id;
-
 
 		usersDispatch({
 			type: "SET_MAIN_USER",

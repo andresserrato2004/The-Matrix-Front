@@ -1,16 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import IceCream from "./ice-cream/IceCream";
-import IceCreamController from "./ice-cream/iceCreamController/IceCreamController";
 import Fruit from "./fruit/Fruit";
-import Troll from "./enemy/Troll";
+import EspecialFruit from "./fruit/EspecialFruit";
 import IceBlock from "./ice-block/IceBlock";
-import type { BoardCell, UserInformation } from "~/contexts/game/types/types";
+import type { BoardCell, UserInformation } from "~/types/types";
 import { useBoard } from "~/contexts/game/Board/BoardContext";
 import { useFruitBar } from "~/contexts/game/FruitBar/FruitBarContext";
 import { useUsers } from "~/contexts/UsersContext";
 import { useGameWebSocket } from "~/contexts/game/GameWebSocketProvider";
 import { closeWebSocket } from "~/services/websocket";
 import "./Board.css";
+import EnemyFactory from "./enemies/enemyFactory/enemyFactory";
+
+export const ICE_BLOCK_ANIMATION_INTERVAL = 100; // ms
 
 export default function Board() {
 	// Variables de canvas y tamaño de celda
@@ -20,8 +22,10 @@ export default function Board() {
 	// Variables de estado del juego
 	const { state: boardState } = useBoard();
 	const fruits = boardState.fruits;
-	const iceBlocks = boardState.iceBlocks;
 	const enemies = boardState.enemies;
+	const iceBlocks = boardState.iceBlocks;
+	const [visibleIceBlocks, setVisibleIceBlocks] = useState<BoardCell[]>([]);
+	const especialFruit = boardState.especialFruit;
 	// Variables de estado de los usuarios
 	const { state: usersState } = useUsers();
 	const iceCreams = [usersState.mainUser, usersState.secondaryUser];
@@ -88,6 +92,62 @@ export default function Board() {
 		};
 	}, [connectWebSocket]);
 
+	useEffect(() => {
+	  if (!iceBlocks) return;
+	
+	  let timeout: NodeJS.Timeout;
+	
+	  function areBlocksEqual(a: BoardCell, b: BoardCell) {
+		return a.coordinates.x === b.coordinates.x && a.coordinates.y === b.coordinates.y;
+	  }
+	
+	  function blockIsNotPresent(current: BoardCell[], target: BoardCell[]) {
+		return target.find(
+		  t => !current.some(c => areBlocksEqual(c, t))
+		);
+	  }
+	
+	  function blockIsPresent(current: BoardCell[], target: BoardCell[]) {
+		return current.find(
+		  c => !target.some(t => areBlocksEqual(c, t))
+		);
+	  }
+	
+	  function animateIceBlocks() {
+		// Agregar bloques que faltan
+		if (visibleIceBlocks.length < iceBlocks.length) {
+		  const blockToAdd = blockIsNotPresent(visibleIceBlocks, iceBlocks);
+		  if (blockToAdd) {
+			setVisibleIceBlocks(prev => {
+			if (prev.some(b => areBlocksEqual(b, blockToAdd))) return prev; // Ya existe, no lo agregues
+			return [...prev, blockToAdd];
+			});
+			timeout = setTimeout(animateIceBlocks, ICE_BLOCK_ANIMATION_INTERVAL);
+		}
+		}
+		// Eliminar bloques que sobran
+		else if (visibleIceBlocks.length > iceBlocks.length) {
+		  const blockToRemove = blockIsPresent(visibleIceBlocks, iceBlocks);
+		  if (blockToRemove) {
+			setVisibleIceBlocks(prev =>
+			  prev.filter(
+				b => !areBlocksEqual(b, blockToRemove)
+			  )
+			);
+			timeout = setTimeout(animateIceBlocks, ICE_BLOCK_ANIMATION_INTERVAL);
+		  }
+		}
+		// Si son iguales, termina la animación
+	  }
+	
+	  if (visibleIceBlocks.length !== iceBlocks.length) {
+		timeout = setTimeout(animateIceBlocks, ICE_BLOCK_ANIMATION_INTERVAL);
+	  }
+	
+	  return () => clearTimeout(timeout);
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [iceBlocks, visibleIceBlocks]);
+
 	const getElementsStyles = (x: number, y: number, size: number, needsTransition = false) => ({
 		position: "absolute" as const,
 		left: `${x * size}px`,
@@ -111,12 +171,11 @@ export default function Board() {
 	};
 
 	const renderIceBlocks = () => {
-		return iceBlocks.map((block: BoardCell) => {
-			if (!block.item || block.item.id) return null;
+		return visibleIceBlocks.map((block: BoardCell) => {
 			const style = getElementsStyles(block.coordinates.y, block.coordinates.x, cellSize);
 			return (
-				<div key={block.item.id} style={style}>
-					<IceBlock blockInformation={block} />
+				<div key={`${block.coordinates.x}-${block.coordinates.y}`} style={style}>
+					<IceBlock blockInformation={block} styles={style} cellSize={cellSize}/>
 				</div>
 			);
 		});
@@ -136,7 +195,7 @@ export default function Board() {
 
 			return (
 				<div key={enemy.character.id} style={style}>
-					<Troll trollInformation={enemy} />
+					<EnemyFactory enemyInformation={enemy} styles={style} />
 				</div>
 			);
 		});
@@ -162,34 +221,75 @@ export default function Board() {
 		});
 	};
 
-	return (
-		<div
-			className="board"
-			style={{
-				position: "relative",
-				width: "90vw", // O un valor fijo como "700px"
-				height: "90vw", // O usa "min(90vw, 70vh)" para cuadrado responsivo
-				maxWidth: "700px",
-				maxHeight: "700px",
-				margin: "0 auto",
-			}}
-		>
-			<canvas
-				ref={canvasRef}
-				className={`board-canvas ${isBackgroundLoaded ? "loaded" : "loading"}`}
-				style={{
-					position: "absolute",
-					top: 0,
-					left: 0,
-					width: "100%",
-					height: "100%",
-					zIndex: 0,
-				}}
+	const renderEspecialFruit = () => {
+		if (!especialFruit) return null;
+		const style = {
+			...getElementsStyles(
+				especialFruit.coordinates.y,
+				especialFruit.coordinates.x,
+				cellSize,
+				true
+				),
+		};
+		return (
+			<EspecialFruit
+				fruitInformation={especialFruit}
 			/>
-			{cellSize > 0 && renderEnemies()}
-			{cellSize > 0 && renderIceBlocks()}
-			{cellSize > 0 && renderFruits()}
-			{cellSize > 0 && renderIceCreams()}
+		);
+	};
+
+	return (
+		<div className="board-wrapper" style={{
+			position: "relative",
+			display: "flex",
+			justifyContent: "center",
+			alignItems: "center",
+			width: "calc(90vw + 72px)", // 36px a cada lado
+			height: "calc(90vw + 72px)",
+			maxWidth: "calc(700px + 72px)",
+			maxHeight: "calc(700px + 72px)",
+			margin: "25px auto 95px",
+			boxSizing: "content-box"
+		}}>
+			{/* Bordes */}
+			<div className="board-border board-border-top" />
+			<div className="board-border board-border-bottom" />
+			<div className="board-border board-border-left" />
+			<div className="board-border board-border-right" />
+
+			<div
+				className="board"
+				style={{
+					position: "relative",
+					width: "90vw",
+					height: "90vw",
+					maxWidth: "700px",
+					maxHeight: "700px",
+					display: "flex",
+					justifyContent: "center",
+					alignItems: "center",
+					padding: "0",
+					boxSizing: "border-box"
+				}}
+			>
+				<canvas
+					ref={canvasRef}
+					className={`board-canvas ${isBackgroundLoaded ? "loaded" : "loading"}`}
+					style={{
+						position: "absolute",
+						top: 0,
+						left: 0,
+						width: "100%",
+						height: "100%",
+						zIndex: 0,
+					}}
+				/>
+				{cellSize > 0 && renderEnemies()}
+				{cellSize > 0 && renderIceBlocks()}
+				{cellSize > 0 && renderFruits()}
+				{cellSize > 0 && renderIceCreams()}
+				{cellSize > 0 && renderEspecialFruit()}
+			</div>
 		</div>
 	);
 }

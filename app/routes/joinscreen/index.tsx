@@ -3,6 +3,7 @@ import { useUser } from "../../contexts/user/userContext";
 import { useState } from "react";
 import Modal from "~/components/modal/Modal";
 import api from "~/services/api";
+import Button from "~/components/shared/Button";
 import "./styles.css";
 
 export default function JoinScreen() {
@@ -79,13 +80,13 @@ export default function JoinScreen() {
             navigate(`/createlobby?code=${response.data.code}`);
         } catch (error) {
             console.error("Error in handleCreateLobby:", error);
-            const Error = (error as any);
-            if (Error.response) {
-                console.error(`Server error: ${Error.response.data?.message || Error.response.statusText}`);
-            } else if (Error.request) {
+            const err = (error as Error | { response?: { data?: { message?: string }, statusText?: string }, request?: unknown });
+            if ('response' in err && err.response) {
+                console.error(`Server error: ${err.response.data?.message || err.response.statusText}`);
+            } else if ('request' in err && err.request) {
                 console.error("Network error: Unable to reach the server");
             } else {
-                console.error(`Error: ${Error.message}`);
+                console.error(`Error: ${error}`);
             }
         }
     }
@@ -99,12 +100,20 @@ export default function JoinScreen() {
                 <img className="iceCream" src="/image 8-picaai.png" alt="iceCream" />
             </div>
             <div className="join-screen__buttons">
-                <button className="join-screen__button" onClick={openModal}>
+                <Button
+                    variant="primary"
+                    size="large"
+                    onClick={openModal}
+                >
                     Join Lobby
-                </button>
-                <button className="join-screen__button" onClick={handleCreateLobby}>
+                </Button>
+                <Button
+                    variant="secondary"
+                    size="large"
+                    onClick={handleCreateLobby}
+                >
                     Create Lobby
-                </button>
+                </Button>
             </div>
 
             <Modal
@@ -121,7 +130,6 @@ export default function JoinScreen() {
                             className={`join-modal-input ${joinError ? 'input-error' : ''}`}
                             value={roomCode}
                             onChange={handleRoomCodeChange}
-                            // Automatically convert to uppercase
                             style={{ textTransform: 'uppercase' }}
                             maxLength={6}
                         />
@@ -133,20 +141,22 @@ export default function JoinScreen() {
                         )}
 
                         <div className="join-modal-buttons">
-                            <button
-                                className="join-modal-button-cancel"
+                            <Button
+                                variant="secondary"
+                                size="medium"
                                 onClick={closeModal}
                                 disabled={isJoining}
                             >
                                 Cancel
-                            </button>
-                            <button
-                                className="join-modal-button-join"
+                            </Button>
+                            <Button
+                                variant="primary"
+                                size="medium"
                                 onClick={handleJoinLobby}
                                 disabled={isJoining || !roomCode.trim()}
                             >
                                 {isJoining ? 'Joining...' : 'Join'}
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>

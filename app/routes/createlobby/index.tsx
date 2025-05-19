@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import LvlSelector from "./components/LvlSelector";
 import { useWebSocket } from "~/hooks/useWebSocket";
 import { useNavigate } from "@remix-run/react";
 import { useUser } from "~/contexts/user/userContext";
+import Button from "~/components/shared/Button";
 import IceCreamSelector from "./components/IceCreamSelector";
 import GameControls from "./components/GameControls";
 import api from "~/services/api";
@@ -53,6 +55,21 @@ export default function Lobby() {
     const [gameStarted, setGameStarted] = useState(false);
     const [message, setMessage] = useState(null);
 
+    // Estado para mostrar/ocultar el selector
+    const [showLvlSelector, setShowLvlSelector] = useState(false);
+
+    // Callback cuando se selecciona un nivel
+    const handleSelectLevel = (level: number) => {
+        // Aquí puedes guardar el nivel seleccionado o hacer lo que necesites
+        console.log("Nivel seleccionado:", level);
+        setShowLvlSelector(false); // Oculta el selector después de seleccionar
+    };
+
+    // Callback para volver atrás
+    const handleBack = () => {
+        setShowLvlSelector(false);
+    };
+
     // Efecto para mostrar al segundo jugador después de 10 segundos
     // useEffect(() => {
     //     // Primero mostramos la animación de "uniendo" a los 8 segundos
@@ -74,6 +91,8 @@ export default function Lobby() {
     // }, []);
 
     // Cargar el código de sala cuando el componente se monte
+
+
     useEffect(() => {
         const loadRoomCode = async () => {
             try {
@@ -381,9 +400,6 @@ export default function Lobby() {
 
     return (
         <div className="lobby-screen">
-            <h1 className="lobby-title">
-                Room Code: <span className="room-code">{roomCode}</span>
-            </h1>
 
             {error && (
                 <div className="error-message">
@@ -395,12 +411,6 @@ export default function Lobby() {
             {playerJoining && !showSecondPlayer && (
                 <div className="player-connecting-status">
                     <p>Player connecting...</p>
-                </div>
-            )}
-
-            {!playerJoining && !showSecondPlayer && (
-                <div className="waiting-for-player">
-                    <p>Waiting for another player to join...</p>
                 </div>
             )}
 
@@ -423,6 +433,13 @@ export default function Lobby() {
 
                 {/* Middle section */}
                 <div className="middle-section">
+                    {/* Mensaje de espera arriba */}
+                    {!playerJoining && !showSecondPlayer && (
+                        <div className="waiting-for-player">
+                            <p>Waiting for another player to join...</p>
+                        </div>
+                    )}
+
                     <div className="room-info">
                         <div className="room-code-display">
                             <h2 className="room-code-label">Room Code</h2>
@@ -433,13 +450,14 @@ export default function Lobby() {
                         {isSearching ? (
                             <div className="matchmaking-status">
                                 <div className="searching-indicator">
-                                    <div className="pulse-dot"></div>
+                                    <div className="pulse-dot" />
                                     <span>Searching for opponent...</span>
                                 </div>
                                 <div className="search-time">Time: {formatSearchTime()}</div>
                                 <button
                                     className="cancel-search-button"
                                     onClick={cancelMatchmaking}
+                                    type="button"
                                 >
                                     Cancel Search
                                 </button>
@@ -449,6 +467,7 @@ export default function Lobby() {
                                 <button
                                     className="find-opponent-button"
                                     onClick={handleFindOpponent}
+                                    type="button"
                                 >
                                     Find Opponent
                                 </button>
@@ -458,6 +477,18 @@ export default function Lobby() {
                                         : "Select character and mark as Ready to find opponents"}
                                 </p>
                             </div>
+                        )}
+
+                        {/* Botón "Selector Level" */}
+                        {!showLvlSelector ? (
+                            <Button onClick={() => setShowLvlSelector(true)} type="button">
+                                Selector Level
+                            </Button>
+                        ) : (
+                            <LvlSelector
+                                onSelect={handleSelectLevel}
+                                onBack={handleBack}
+                            />
                         )}
                     </div>
 
@@ -469,6 +500,7 @@ export default function Lobby() {
                                 className="start-now-button"
                                 onClick={handleStartGame}
                                 disabled={gameStarted}
+                                type="button"
                             >
                                 Start Now
                             </button>
@@ -482,6 +514,8 @@ export default function Lobby() {
                             disabled={!player1IceCream || !player1Ready || gameStarted}
                         />
                     )}
+
+
                 </div>
 
                 {/* Contenedor para el segundo jugador */}

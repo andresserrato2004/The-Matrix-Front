@@ -1,11 +1,14 @@
-import { createContext, useReducer, useContext } from "react";
+import { createContext, useReducer, useContext, useEffect, useRef } from "react";
 import type { ReactNode, Dispatch } from "react";
-import type { BoardCell, EnemyMove, PlayerMove } from "../types/types"; 
+import type { BoardCell, EnemyMove, EspecialFruitInformation } from "../../../types/types"; 
 
 interface BoardState {
   fruits: BoardCell[];
   enemies: BoardCell[];
   iceBlocks: BoardCell[];
+  pendingIceBlockUpdates?: BoardCell[];
+  actualFruit?: string;
+  especialFruit: EspecialFruitInformation;
 }
 
 type BoardAction =
@@ -15,15 +18,21 @@ type BoardAction =
   | { type: "SET_FRUITS"; payload: BoardCell[] }
   | { type: "DELETE_FRUIT"; payload: string }
   // Bloques de hielo
-  | { type: "DELETE_ICE_BLOCKS"; payload: string[] }
-  | { type: "ADD_ICE_BLOCKS"; payload: BoardCell[] }
+  | { type: "UPDATE_ICE_BLOCKS"; payload: {cells: BoardCell[], actualFruit: string} }
   // Enemigos
-  | { type: "MOVE_ENEMY"; payload: EnemyMove };
+  | { type: "MOVE_ENEMY"; payload: EnemyMove }
+  | { type: "START_ICE_BLOCKS_ANIMATION"; payload: { cells: BoardCell[], actualFruit: string } }
+  | { type: "STEP_ICE_BLOCKS_ANIMATION" }
+  // Fruta especial
+  | { type: "UPDATE_SPECIAL_FRUIT"; payload: EspecialFruitInformation }
 
 const initialState: BoardState = {
   fruits: [],
   enemies: [],
   iceBlocks: [],
+  pendingIceBlockUpdates: [],
+  actualFruit: "",
+  especialFruit: null,
 };
 
 function boardReducer(state: BoardState, action: BoardAction): BoardState {
@@ -34,12 +43,35 @@ function boardReducer(state: BoardState, action: BoardAction): BoardState {
       return setFruits(state, action.payload);
     case "DELETE_FRUIT":
       return deleteFruit(state, action.payload);
-    case "DELETE_ICE_BLOCKS":
-      return deleteIceBlocks(state, action.payload); 
-    case "ADD_ICE_BLOCKS":
-      return addIceBlocks(state, action.payload); 
+    case "UPDATE_ICE_BLOCKS":
+      return {
+        ...state,
+        pendingIceBlockUpdates: action.payload.cells,
+        actualFruit: action.payload.actualFruit
+      };
     case "MOVE_ENEMY":
       return updateEnemy(state, action.payload);
+    case "START_ICE_BLOCKS_ANIMATION":
+      return {
+        ...state,
+        pendingIceBlockUpdates: [...action.payload.cells],
+        actualFruit: action.payload.actualFruit,
+      };
+    case "STEP_ICE_BLOCKS_ANIMATION": {
+      if (!state.pendingIceBlockUpdates || state.pendingIceBlockUpdates.length === 0) return state;
+      const [nextCell, ...rest] = state.pendingIceBlockUpdates;
+      // Aplica la lógica de updateIceBlocks SOLO a esa celda
+      const updatedState = updateIceBlocks(state, nextCell, state.actualFruit || "");
+      return {
+        ...updatedState,
+        pendingIceBlockUpdates: rest,
+      };
+    }
+    case "UPDATE_SPECIAL_FRUIT":
+      return {
+        ...state,
+        especialFruit: action.payload
+        };
     default:
       return state;
   }
@@ -52,6 +84,7 @@ function setBoard(payload: BoardCell[]): BoardState {
     fruits: payload.filter(cell => cell.item?.type === "fruit"),
     enemies: payload.filter(cell => cell.character?.type === "troll"),
     iceBlocks: payload.filter(cell => cell.item?.type === "iceBlock"),
+    especialFruit: null,
   }
 }
 // FRUTAS
@@ -68,20 +101,55 @@ function setFruits(state: BoardState, newFruits: BoardCell[]): BoardState {
   };
 }
 // BLOQUES DE HIELO
-function deleteIceBlocks(state: BoardState, blockIds: string[]): BoardState {
+function updateIceBlocks(state: BoardState, updatedIceBlock: BoardCell, actualFruit: string): BoardState {
+  const newFruits = [...state.fruits];
+  let newIceBlocks = [...state.iceBlocks];
+    // 1. Si item es diferente de null; actualiza la fruta correspondiente
+    // 2. Si item es null, character es null y frozen es true; añade el cell a iceBlocks si no existe ya
+    if (updatedIceBlock.frozen) {
+      const exists = newIceBlocks.some(
+        b =>
+          b.coordinates.x === updatedIceBlock.coordinates.x &&
+          b.coordinates.y === updatedIceBlock.coordinates.y
+      );
+      const newCell = updatedIceBlock.item ? {
+        ...updatedIceBlock,
+        item: {
+          ...updatedIceBlock.item,
+          type: actualFruit,
+        }
+      } : updatedIceBlock;
+      if (!exists) {
+        newIceBlocks.push(newCell);
+      }
+    }
+    // 3. frozen es false; elimina el cell de iceBlocks por posición
+    else {
+      newIceBlocks = newIceBlocks.filter(
+        b =>
+          !(b.coordinates.x === updatedIceBlock.coordinates.x &&
+            b.coordinates.y === updatedIceBlock.coordinates.y)
+      );
+    }
+    if (updatedIceBlock.item && updatedIceBlock.item.type === "fruit") {
+      const fruitIndex = newFruits.findIndex(fruit => fruit.item?.id === updatedIceBlock.item?.id);
+      if (fruitIndex !== -1) {
+        newFruits[fruitIndex] = {
+          ...newFruits[fruitIndex],
+          frozen: updatedIceBlock.frozen,
+        item: {
+          ...newFruits[fruitIndex].item,
+          id: newFruits[fruitIndex].item?.id || "", // Ensure id is always a string
+          type: actualFruit,
+        },
+        };
+      }
+    }
+
   return {
     ...state,
-    iceBlocks: state.iceBlocks.filter(cell => cell.item ? !blockIds.includes(cell.item.id) : true),
-  };
-}
-function addIceBlocks(state: BoardState, newIceBlocks: BoardCell[]): BoardState {
-  const existingIds = new Set(state.iceBlocks.map(block => block.item?.id));
-  const filteredNewBlocks = newIceBlocks.filter(
-    block => block.item?.id && !existingIds.has(block.item.id)
-  );
-  return {
-    ...state,
-    iceBlocks: [...state.iceBlocks, ...filteredNewBlocks],
+    fruits: newFruits,
+    iceBlocks: newIceBlocks,
   };
 }
 // ENEMIGOS
@@ -115,6 +183,21 @@ const BoardContext = createContext<BoardContextProps | undefined>(undefined);
 
 export const BoardProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(boardReducer, initialState);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (state.pendingIceBlockUpdates && state.pendingIceBlockUpdates.length > 0) {
+      timerRef.current = setTimeout(() => {
+        dispatch({ type: "STEP_ICE_BLOCKS_ANIMATION" });
+      }, 100);
+    } else if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [state.pendingIceBlockUpdates]);
+
   return (
     <BoardContext.Provider value={{ state, dispatch }}>
       {children}

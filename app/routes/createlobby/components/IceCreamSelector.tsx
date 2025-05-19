@@ -50,6 +50,7 @@ export default function IceCreamSelector({
             <div className="character-selection">
                 {iceCreams.map((iceCream) => (
                     <button
+                        type="button"
                         key={iceCream.id}
                         className={`character-button ${selectedIceCream?.id === iceCream.id ? "selected" : ""}`}
                         onClick={() => !isDisabled && onIceCreamSelect(iceCream)}
@@ -93,6 +94,7 @@ export default function IceCreamSelector({
 
                     {!isDisabled && (
                         <button
+                        type="button"
                             className={`player-ready-button ${isReady ? 'ready' : ''}`}
                             onClick={onReadyToggle}
                             disabled={isDisabled}

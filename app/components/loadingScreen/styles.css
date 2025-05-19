@@ -1,94 +1,162 @@
 .loading-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #1a2634 0%, #0f1922 100%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 9999;
+	overflow: hidden;
+}
+
+.loading-screen::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: url("/game-screen/background.webp") center / cover;
+	opacity: 0.1;
+	animation: pulse 4s ease-in-out infinite;
 }
 
 .loading-container {
-  text-align: center;
-  width: 80%;
-  max-width: 500px;
+	text-align: center;
+	width: 80%;
+	max-width: 500px;
+	background: rgba(255, 255, 255, 0.9);
+	padding: 2rem;
+	border-radius: 1rem;
+	box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+	backdrop-filter: blur(10px);
+	border: 2px solid rgba(255, 255, 255, 0.8);
 }
 
 .loading-title {
-  color: #fff;
-  font-size: 36px;
-  margin-bottom: 30px;
-  font-family: 'Arial', sans-serif;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+	color: #fff;
+	font-size: 42px;
+	margin-bottom: 30px;
+	font-family: "Arial", sans-serif;
+	text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+	background: linear-gradient(45deg, #ffd700, #87ceeb);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	animation: titleGlow 2s ease-in-out infinite;
 }
 
 .loading-animation {
-  margin-bottom: 30px;
+	margin-bottom: 30px;
+	position: relative;
 }
 
 .ice-cream-loader {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: 6px solid rgba(255, 255, 255, 0.2);
-  border-top-color: #ff5e7d;
-  border-bottom-color: #3affbc;
-  animation: spin 1.5s linear infinite, changeColors 3s ease-in-out infinite;
-  margin: 0 auto;
+	width: 100px;
+	height: 100px;
+	border-radius: 50%;
+	border: 8px solid rgba(135, 206, 235, 0.2);
+	border-top-color: #ffd700;
+	border-bottom-color: #87ceeb;
+	animation: spin 1.5s linear infinite, changeColors 3s ease-in-out infinite;
+	margin: 0 auto;
+	position: relative;
+}
+
+.ice-cream-loader::after {
+	content: "";
+	position: absolute;
+	top: -4px;
+	left: -4px;
+	right: -4px;
+	bottom: -4px;
+	border-radius: 50%;
+	background: linear-gradient(45deg, #ffd700, #87ceeb);
+	opacity: 0.2;
+	animation: pulse 2s ease-in-out infinite;
 }
 
 .loading-message {
-  color: white;
-  font-size: 18px;
-  font-family: 'Arial', sans-serif;
-  margin-bottom: 20px;
-  min-height: 27px;
+	color: #4a4a4a;
+	font-size: 20px;
+	font-family: "Arial", sans-serif;
+	margin-bottom: 20px;
+	min-height: 27px;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .progress-bar-container {
-  width: 100%;
-  height: 20px;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  overflow: hidden;
-  margin-bottom: 10px;
+	width: 100%;
+	height: 24px;
+	background-color: rgba(135, 206, 235, 0.2);
+	border-radius: 12px;
+	overflow: hidden;
+	margin-bottom: 10px;
+	box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .progress-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #3affbc 0%, #45d9fd 50%, #ff5e7d 100%);
-  border-radius: 10px;
-  transition: width 0.3s ease;
+	height: 100%;
+	background: linear-gradient(90deg, #ffd700 0%, #87ceeb 50%, #ffd700 100%);
+	border-radius: 12px;
+	transition: width 0.3s ease;
+	box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
 }
 
 .loading-percentage {
-  color: white;
-  font-size: 16px;
+	color: #4a4a4a;
+	font-size: 18px;
+	font-weight: bold;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
 }
 
 @keyframes changeColors {
-  0%, 100% { 
-    border-top-color: #ff5e7d;
-    border-bottom-color: #3affbc; 
-  }
-  25% { 
-    border-top-color: #3affbc;
-    border-bottom-color: #45d9fd; 
-  }
-  50% { 
-    border-top-color: #45d9fd;
-    border-bottom-color: #ffdb4a; 
-  }
-  75% { 
-    border-top-color: #ffdb4a;
-    border-bottom-color: #ff5e7d; 
-  }
+	0%,
+	100% {
+		border-top-color: #ffd700;
+		border-bottom-color: #87ceeb;
+	}
+	25% {
+		border-top-color: #87ceeb;
+		border-bottom-color: #ffd700;
+	}
+	50% {
+		border-top-color: #ffd700;
+		border-bottom-color: #87ceeb;
+	}
+	75% {
+		border-top-color: #87ceeb;
+		border-bottom-color: #ffd700;
+	}
+}
+
+@keyframes pulse {
+	0%,
+	100% {
+		opacity: 0.1;
+	}
+	50% {
+		opacity: 0.2;
+	}
+}
+
+@keyframes titleGlow {
+	0%,
+	100% {
+		filter: brightness(1);
+	}
+	50% {
+		filter: brightness(1.2);
+	}
 }
