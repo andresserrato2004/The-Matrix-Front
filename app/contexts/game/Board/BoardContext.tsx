@@ -163,7 +163,8 @@ function updateEnemy(state: BoardState, enemyMove: EnemyMove): BoardState {
             coordinates: enemyMove.coordinates,
             character: {
               ...enemy.character,
-              orientation: enemyMove.direction
+              orientation: enemyMove.direction,
+              enemyStatus: enemyMove.enemyStatus,
             }
           }
         : enemy
@@ -173,7 +174,6 @@ function updateEnemy(state: BoardState, enemyMove: EnemyMove): BoardState {
 
 
 // --- Contexto y provider ---
-
 interface BoardContextProps {
   state: BoardState;
   dispatch: Dispatch<BoardAction>;

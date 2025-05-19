@@ -1,5 +1,4 @@
-import { useFreezeFrames } from "~/hooks/useFreezeFrames";
-import type { BoardCell, EspecialFruitInformation } from "../../../../../types/types";
+import type { BoardCell, EspecialFruitInformation } from "~/types/types";
 import "./Fruit.css";
 
 type FruitProps = {
@@ -8,10 +7,12 @@ type FruitProps = {
 
 export default function EspecialFruit({ fruitInformation }: FruitProps) {
 
-  const { coordinates } = fruitInformation;
-
+  if (!fruitInformation || !fruitInformation.coordinates ) {
+    return null;
+  };
 
   const src = "/fruits/especial.webp";
+  const { coordinates } = fruitInformation;
 
   return (
     <div
