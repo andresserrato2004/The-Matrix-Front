@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import LvlSelector from "./components/LvlSelector";
 import { useWebSocket } from "~/hooks/useWebSocket";
 import { useNavigate } from "@remix-run/react";
 import { useUser } from "~/contexts/user/userContext";
+import Button from "~/components/shared/Button";
 import IceCreamSelector from "./components/IceCreamSelector";
 import GameControls from "./components/GameControls";
 import api from "~/services/api";
@@ -53,6 +55,21 @@ export default function Lobby() {
     const [gameStarted, setGameStarted] = useState(false);
     const [message, setMessage] = useState(null);
 
+    // Estado para mostrar/ocultar el selector
+    const [showLvlSelector, setShowLvlSelector] = useState(false);
+
+    // Callback cuando se selecciona un nivel
+    const handleSelectLevel = (level: number) => {
+        // Aquí puedes guardar el nivel seleccionado o hacer lo que necesites
+        console.log("Nivel seleccionado:", level);
+        setShowLvlSelector(false); // Oculta el selector después de seleccionar
+    };
+
+    // Callback para volver atrás
+    const handleBack = () => {
+        setShowLvlSelector(false);
+    };
+
     // Efecto para mostrar al segundo jugador después de 10 segundos
     // useEffect(() => {
     //     // Primero mostramos la animación de "uniendo" a los 8 segundos
@@ -74,6 +91,8 @@ export default function Lobby() {
     // }, []);
 
     // Cargar el código de sala cuando el componente se monte
+
+
     useEffect(() => {
         const loadRoomCode = async () => {
             try {
@@ -459,6 +478,18 @@ export default function Lobby() {
                                 </p>
                             </div>
                         )}
+
+                        {/* Botón "Selector Level" */}
+                        {!showLvlSelector ? (
+                            <Button onClick={() => setShowLvlSelector(true)} type="button">
+                                Selector Level
+                            </Button>
+                        ) : (
+                            <LvlSelector
+                                onSelect={handleSelectLevel}
+                                onBack={handleBack}
+                            />
+                        )}
                     </div>
 
                     {isGameReady && (
@@ -483,6 +514,8 @@ export default function Lobby() {
                             disabled={!player1IceCream || !player1Ready || gameStarted}
                         />
                     )}
+
+
                 </div>
 
                 {/* Contenedor para el segundo jugador */}
