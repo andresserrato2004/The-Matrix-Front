@@ -9,7 +9,8 @@ type ModalWinLoseProps = {
     message?: string;
     isVisible?: boolean;
     onClose?: () => void;
-    type: 'win' | 'lose';
+    type: 'win' | 'lose' | 'pause' | 'reconnecting';
+    onResume?: () => void;
 }
 
 export default function ModalWinLose({
@@ -17,13 +18,13 @@ export default function ModalWinLose({
     message = "try again",
     isVisible,
     onClose,
-    type = 'lose'
+    type = 'lose',
+    onResume
 }: ModalWinLoseProps) {
 
     const navigate = useNavigate();
     const { userData } = useUser();
     const [isCreatingLobby, setIsCreatingLobby] = useState(false);
-
     const [showModalInternal, setShowModalInternal] = useState(true);
 
     const showModal = isVisible !== undefined ? isVisible : showModalInternal;
@@ -88,70 +89,122 @@ export default function ModalWinLose({
         }
     }
 
+    const getModalContent = () => {
+        switch (type) {
+            case 'win':
+                return {
+                    title: "¡Victoria!",
+                    message: "¡Felicidades! Has ganado la partida.",
+                    buttons: (
+                        <>
+                            <button
+                                type="button"
+                                className="modal-button modal-button-win"
+                                onClick={playAgain}
+                                disabled={isCreatingLobby}
+                            >
+                                {isCreatingLobby ? 'Creating...' : 'Play again'}
+                            </button>
+                            <button
+                                type="button"
+                                className="modal-button modal-button-back"
+                                onClick={goToLobby}
+                                disabled={isCreatingLobby}
+                            >
+                                Volver al lobby
+                            </button>
+                        </>
+                    )
+                };
+            case 'lose':
+                return {
+                    title: "Game Over",
+                    message: "¡Inténtalo de nuevo!",
+                    buttons: (
+                        <>
+                            <button
+                                type="button"
+                                className="modal-button modal-button-lose"
+                                onClick={playAgain}
+                                disabled={isCreatingLobby}
+                            >
+                                {isCreatingLobby ? 'Creating...' : 'Play again'}
+                            </button>
+                            <button
+                                type="button"
+                                className="modal-button modal-button-back"
+                                onClick={goToLobby}
+                                disabled={isCreatingLobby}
+                            >
+                                Volver al lobby
+                            </button>
+                        </>
+                    )
+                };
+            case 'pause':
+                return {
+                    title: "Pausa",
+                    message: "El juego está en pausa",
+                    buttons: (
+                        <>
+                            <button
+                                type="button"
+                                className="modal-button modal-button-resume"
+                                onClick={onResume}
+                            >
+                                Continuar
+                            </button>
+                            <button
+                                type="button"
+                                className="modal-button modal-button-back"
+                                onClick={goToLobby}
+                            >
+                                Salir
+                            </button>
+                        </>
+                    )
+                };
+            case 'reconnecting':
+                return {
+                    title: "Reconectando",
+                    message: "Intentando reconectar al servidor...",
+                    buttons: (
+                        <div className="reconnecting-spinner">
+                            <div className="spinner"></div>
+                            <p>Por favor, espera...</p>
+                        </div>
+                    )
+                };
+        }
+    };
+
+    const modalContent = getModalContent();
+
     return (
         <>
             {showModal && (
                 <div
                     className="modal-overlay"
-                    onClick={closeModal}
-                    onKeyDown={(e) => e.key === 'Escape' && closeModal()}
+                    onClick={type === 'pause' ? closeModal : undefined}
+                    onKeyDown={(e) => e.key === 'Escape' && type === 'pause' && closeModal()}
                     aria-modal="true"
                     tabIndex={-1}
                 >
                     <div
-                        className="modal-content"
+                        className={`modal-content ${type}`}
                         onClick={(e) => e.stopPropagation()}
                         onKeyDown={(e) => e.stopPropagation()}
                     >
                         <div className="modal-header">
-                            <h2 className="modal-title">{title}</h2>
+                            <h2 className="modal-title">{modalContent.title}</h2>
                         </div>
 
                         <div className="modal-body">
-                            <p className="modal-message">{message}</p>
+                            <p className="modal-message">{modalContent.message}</p>
                         </div>
 
                         <div className="modal-buttons-container">
-                            {type === 'win' ? (
-                                <>
-                                    <button
-                                        type="button"
-                                        className="modal-button modal-button-win"
-                                        onClick={playAgain}
-                                        disabled={isCreatingLobby}
-                                    >
-                                        {isCreatingLobby ? 'Creating...' : 'Play again'}
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        className="modal-button modal-button-back"
-                                        onClick={goToLobby}
-                                        disabled={isCreatingLobby}
-                                    >
-                                        Volver al lobby
-                                    </button>
-                                </>
-                            ) : (
-                                <>
-                                    <button
-                                        type="button"
-                                        className="modal-button modal-button-lose"
-                                        onClick={playAgain}
-                                        disabled={isCreatingLobby}
-                                    >
-                                        {isCreatingLobby ? 'Creating...' : 'Play again'}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="modal-button modal-button-back"
-                                        onClick={goToLobby}
-                                        disabled={isCreatingLobby}
-                                    >
-                                        Volver al lobby
-                                    </button>
-                                </>
-                            )}
+                            {modalContent.buttons}
                         </div>
                     </div>
                 </div>
