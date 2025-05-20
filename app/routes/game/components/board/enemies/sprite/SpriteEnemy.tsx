@@ -3,7 +3,7 @@ import type { SpriteSheetInfo, Frame } from "~/types/animation";
 import type { BoardCell } from "~/types/types";
 import { loadSprite } from "~/utils/spriteLoader";
 
-export default function SpriteEnemy({ enemyInformation }: { enemyInformation: BoardCell, styles: any }) {
+export default function SpriteEnemy({ enemyInformation, styles }: { enemyInformation: BoardCell, styles: any }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [tick, setTick] = useState(0);
   const [spriteData, setSpriteData] = useState<SpriteSheetInfo | null>(null);
@@ -58,8 +58,8 @@ export default function SpriteEnemy({ enemyInformation }: { enemyInformation: Bo
       height={frame.h}
       style={{
         position: "absolute",
-        left: `${enemyInformation.coordinates.x * frame.w}px`,
-        top: `${enemyInformation.coordinates.y * frame.h}px`,
+        left: `${enemyInformation.coordinates.x * styles.left}px`,
+        top: `${enemyInformation.coordinates.y * styles.top}px`,
         imageRendering: "pixelated"
       }}
     />
