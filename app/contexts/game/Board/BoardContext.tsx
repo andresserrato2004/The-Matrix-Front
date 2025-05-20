@@ -9,6 +9,7 @@ interface BoardState {
   iceBlocks: BoardCell[];
   pendingIceBlockUpdates?: BoardCell[];
   actualFruit?: string;
+  staticElements: BoardCell[];
 }
 
 type BoardAction =
@@ -32,6 +33,7 @@ const initialState: BoardState = {
   iceBlocks: [],
   pendingIceBlockUpdates: [],
   actualFruit: "",
+  staticElements: []
 };
 
 function boardReducer(state: BoardState, action: BoardAction): BoardState {
@@ -91,6 +93,7 @@ function setBoard(payload: BoardCell[]): BoardState {
         }
       })),
     iceBlocks: payload.filter(cell => cell.item?.type === "iceBlock"),
+    staticElements: payload.filter(cell => cell.item?.type === "rock"),
   }
 }
 // FRUTAS

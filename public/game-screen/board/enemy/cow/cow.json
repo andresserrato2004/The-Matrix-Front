@@ -1,5 +1,5 @@
 {
-  "imageUrl": "/game-screen/board/enemy/cow/Cow_spritesheet.png",
+  "imageUrl": "/game-screen/board/enemy/cow/cow.png",
   "animations": {
     "left": {
         "fps": 8,

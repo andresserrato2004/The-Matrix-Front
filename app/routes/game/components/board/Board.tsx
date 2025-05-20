@@ -10,6 +10,7 @@ import { useGameWebSocket } from "~/contexts/game/GameWebSocketProvider";
 import { closeWebSocket } from "~/services/websocket";
 import "./Board.css";
 import EnemyFactory from "./enemies/enemyFactory/enemyFactory";
+import Rock from "./staticElements/Rock";
 
 export const ICE_BLOCK_ANIMATION_INTERVAL = 75; // ms
 
@@ -24,7 +25,6 @@ export default function Board() {
 	const enemies = boardState.enemies;
 	const iceBlocks = boardState.iceBlocks;
 	const [visibleIceBlocks, setVisibleIceBlocks] = useState<BoardCell[]>([]);
-	const especialFruit = boardState.especialFruit;
 	// Variables de estado de los usuarios
 	const { state: usersState } = useUsers();
 	const iceCreams = [usersState.mainUser, usersState.secondaryUser];
@@ -219,6 +219,22 @@ export default function Board() {
 			);
 		});
 	};
+	
+	const renderStaticElements = () => {
+		return boardState.staticElements.map((element: BoardCell) => {
+			const style = getElementsStyles(element.coordinates.y, element.coordinates.x, cellSize);
+			return (
+				<div key={element.item?.id} style={style}>
+					<Rock
+						blockInformation={element}
+						styles={style}
+						cellSize={cellSize}
+					/>
+				</div>
+			);
+		}
+		);
+	};
 
 	return (
 		<div className="board-wrapper" style={{
@@ -270,6 +286,7 @@ export default function Board() {
 				{cellSize > 0 && renderIceBlocks()}
 				{cellSize > 0 && renderFruits()}
 				{cellSize > 0 && renderIceCreams()}
+				{cellSize > 0 && renderStaticElements()}
 			</div>
 		</div>
 	);

@@ -8,8 +8,10 @@ export default function SpriteEnemy({ enemyInformation }: { enemyInformation: Bo
   const [tick, setTick] = useState(0);
   const [spriteData, setSpriteData] = useState<SpriteSheetInfo | null>(null);
 
+  const enemy = enemyInformation.character;
+  if (!enemy) return null;
   const type = enemyInformation.character?.type?.toLowerCase();
-  const animKey = enemyInformation.character?.orientation || "down";
+  const animKey = enemy.enemyState !== "walking" ? enemy.enemyState : enemy.orientation;
 
   // Carga el sprite JSON (una sola vez por tipo gracias a la caché)
   useEffect(() => {
