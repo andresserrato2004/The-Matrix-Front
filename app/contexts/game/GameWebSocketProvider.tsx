@@ -113,7 +113,7 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
         // MENSAJES PARA EL TABLERO Y HEADER 
         else if (message.type === "update-enemy") {
           // Manejar el movimiento de un enemigo
-          boardDispatch({ type: "MOVE_ENEMY", payload: message.payload });
+          boardDispatch({ type: "UPDATE_ENEMY", payload: message.payload });
         }
         // MENSAJE DE ESTADO DEL JUEGO
         else if (message.type === "end") {

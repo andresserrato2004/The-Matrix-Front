@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import IceCream from "./ice-cream/IceCream";
-import Fruit from "./fruit/Fruit";
-import EspecialFruit from "./fruit/EspecialFruit";
+import FruitFactory from "./fruit/FruitFactory";
 import IceBlock from "./ice-block/IceBlock";
 import type { BoardCell, UserInformation } from "~/types/types";
 import { useBoard } from "~/contexts/game/Board/BoardContext";
@@ -12,7 +11,7 @@ import { closeWebSocket } from "~/services/websocket";
 import "./Board.css";
 import EnemyFactory from "./enemies/enemyFactory/enemyFactory";
 
-export const ICE_BLOCK_ANIMATION_INTERVAL = 100; // ms
+export const ICE_BLOCK_ANIMATION_INTERVAL = 75; // ms
 
 export default function Board() {
 	// Variables de canvas y tamaño de celda
@@ -164,7 +163,7 @@ export default function Board() {
 
 			return (
 				<div key={fruit.item.id} style={style}>
-					<Fruit fruitInformation={fruit} subtype={fruitBarState.actualFruit} />
+					<FruitFactory fruitInformation={fruit} subtype={fruitBarState.actualFruit} />
 				</div>
 			);
 		});
@@ -221,23 +220,6 @@ export default function Board() {
 		});
 	};
 
-	const renderEspecialFruit = () => {
-		if (!especialFruit) return null;
-		const style = {
-			...getElementsStyles(
-				especialFruit.coordinates.y,
-				especialFruit.coordinates.x,
-				cellSize,
-				true
-				),
-		};
-		return (
-			<EspecialFruit
-				fruitInformation={especialFruit}
-			/>
-		);
-	};
-
 	return (
 		<div className="board-wrapper" style={{
 			position: "relative",
@@ -288,7 +270,6 @@ export default function Board() {
 				{cellSize > 0 && renderIceBlocks()}
 				{cellSize > 0 && renderFruits()}
 				{cellSize > 0 && renderIceCreams()}
-				{cellSize > 0 && renderEspecialFruit()}
 			</div>
 		</div>
 	);

@@ -1,6 +1,7 @@
 import { createContext, useReducer, useContext, useEffect, useRef } from "react";
 import type { ReactNode, Dispatch } from "react";
-import type { BoardCell, EnemyMove, EspecialFruitInformation } from "../../../types/types"; 
+import type { BoardCell, EnemyMove } from "../../../types/types";
+import { possibleEnemies } from "../../../types/enemyTypes";
 
 interface BoardState {
   fruits: BoardCell[];
@@ -8,7 +9,6 @@ interface BoardState {
   iceBlocks: BoardCell[];
   pendingIceBlockUpdates?: BoardCell[];
   actualFruit?: string;
-  especialFruit: EspecialFruitInformation;
 }
 
 type BoardAction =
@@ -20,11 +20,11 @@ type BoardAction =
   // Bloques de hielo
   | { type: "UPDATE_ICE_BLOCKS"; payload: {cells: BoardCell[], actualFruit: string} }
   // Enemigos
-  | { type: "MOVE_ENEMY"; payload: EnemyMove }
+  | { type: "UPDATE_ENEMY"; payload: EnemyMove }
   | { type: "START_ICE_BLOCKS_ANIMATION"; payload: { cells: BoardCell[], actualFruit: string } }
   | { type: "STEP_ICE_BLOCKS_ANIMATION" }
   // Fruta especial
-  | { type: "UPDATE_SPECIAL_FRUIT"; payload: EspecialFruitInformation }
+  | { type: "UPDATE_SPECIAL_FRUIT"; payload: BoardCell }
 
 const initialState: BoardState = {
   fruits: [],
@@ -32,7 +32,6 @@ const initialState: BoardState = {
   iceBlocks: [],
   pendingIceBlockUpdates: [],
   actualFruit: "",
-  especialFruit: null,
 };
 
 function boardReducer(state: BoardState, action: BoardAction): BoardState {
@@ -49,7 +48,7 @@ function boardReducer(state: BoardState, action: BoardAction): BoardState {
         pendingIceBlockUpdates: action.payload.cells,
         actualFruit: action.payload.actualFruit
       };
-    case "MOVE_ENEMY":
+    case "UPDATE_ENEMY":
       return updateEnemy(state, action.payload);
     case "START_ICE_BLOCKS_ANIMATION":
       return {
@@ -68,10 +67,7 @@ function boardReducer(state: BoardState, action: BoardAction): BoardState {
       };
     }
     case "UPDATE_SPECIAL_FRUIT":
-      return {
-        ...state,
-        especialFruit: action.payload
-        };
+      return addFruit(state, action.payload);
     default:
       return state;
   }
@@ -82,9 +78,19 @@ function boardReducer(state: BoardState, action: BoardAction): BoardState {
 function setBoard(payload: BoardCell[]): BoardState {
   return {
     fruits: payload.filter(cell => cell.item?.type === "fruit"),
-    enemies: payload.filter(cell => cell.character?.type === "troll"),
+      enemies: payload
+      .filter(cell => cell.character?.type && possibleEnemies.includes(cell.character.type))
+      .map(cell => ({
+        ...cell,
+        character: {
+          ...cell.character,
+          type: cell.character?.type ?? "troll",
+          enemyState: cell.character?.enemyState ?? "walking", // Usa el valor original si existe
+          orientation: cell.character?.orientation ?? "down",
+          id: cell.character?.id ?? "",
+        }
+      })),
     iceBlocks: payload.filter(cell => cell.item?.type === "iceBlock"),
-    especialFruit: null,
   }
 }
 // FRUTAS
@@ -98,6 +104,12 @@ function setFruits(state: BoardState, newFruits: BoardCell[]): BoardState {
   return {
     ...state,
     fruits: [...newFruits],
+  };
+}
+function addFruit(state: BoardState, newFruit: BoardCell): BoardState {
+  return {
+    ...state,
+    fruits: [...state.fruits, newFruit],
   };
 }
 // BLOQUES DE HIELO
@@ -164,7 +176,7 @@ function updateEnemy(state: BoardState, enemyMove: EnemyMove): BoardState {
             character: {
               ...enemy.character,
               orientation: enemyMove.direction,
-              enemyStatus: enemyMove.enemyStatus,
+              enemyState: enemyMove.enemyState ?? enemy.character.enemyState ?? "walking"
             }
           }
         : enemy
