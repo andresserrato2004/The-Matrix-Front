@@ -78,6 +78,7 @@ function boardReducer(state: BoardState, action: BoardAction): BoardState {
 // --- Funciones auxiliares para el reducer ---
 // TABLERO
 function setBoard(payload: BoardCell[]): BoardState {
+  
   return {
     fruits: payload.filter(cell => cell.item?.type === "fruit"),
       enemies: payload
@@ -92,7 +93,7 @@ function setBoard(payload: BoardCell[]): BoardState {
           id: cell.character?.id ?? "",
         }
       })),
-    iceBlocks: payload.filter(cell => cell.item?.type === "iceBlock"),
+    iceBlocks: payload.filter(cell => cell.frozen === true),
     staticElements: payload.filter(cell => cell.item?.type === "rock"),
   }
 }
