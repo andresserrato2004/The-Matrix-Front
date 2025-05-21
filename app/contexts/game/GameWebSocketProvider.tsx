@@ -196,6 +196,12 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
           });
           headerDispatch({ type: "SET_IS_RUNNING", payload: !message.payload });
         }
+        else if (message.type === "update-state") {
+          usersDispatch({
+            type: "UPDATE_STATE",
+            payload: message.payload
+          });
+        }
         else {
           console.warn("Mensaje no reconocido:", message);
         }

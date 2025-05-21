@@ -54,4 +54,10 @@ export type UsersBoardInformation = {
 	id: string;
 	position: Coordinates;
 	direction: "up" | "down" | "left" | "right";
-};	
+};
+
+export type UpdateState = {
+  id: string;
+  state: 'dead' | 'alive';
+  color?: string;
+}

@@ -35,7 +35,7 @@ export default function Board() {
 	useEffect(() => {
 		console.log(JSON.stringify(iceCreams));
 	}
-	, []);
+	, [iceCreams]);
 
 	useEffect(() => {
 		const setupCanvas = () => {
@@ -207,7 +207,7 @@ export default function Board() {
 
 	const renderIceCreams = () => {
 		return iceCreams.map((iceCream: UserInformation) => {
-			if (!iceCream.id) return null;
+        	if (!iceCream.id || !iceCream.position.x || !iceCream.position.y ) return null;
 			const style = {
 				...getElementsStyles(
 					iceCream.position.y,
