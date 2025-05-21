@@ -8,7 +8,7 @@ import {
 import type { LinksFunction } from "@remix-run/node";
 import { MsalProvider } from "@azure/msal-react";
 import { PublicClientApplication } from "@azure/msal-browser";
-import { msalConfig } from "./msalConfig";
+//import { msalConfig } from "./msalConfig";
 
 import "./tailwind.css";
 import { UserProvider } from "./contexts/user/userContext";
@@ -18,7 +18,7 @@ import { HeaderProvider } from "./contexts/game/Header/HeaderContext";
 import { BoardProvider } from "./contexts/game/Board/BoardContext";
 import { FruitBarProvider } from "./contexts/game/FruitBar/FruitBarContext";
 
-const msalInstance = new PublicClientApplication(msalConfig);
+//const msalInstance = new PublicClientApplication(msalConfig);
 
 export const links: LinksFunction = () => [
 	{ rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -35,32 +35,32 @@ export const links: LinksFunction = () => [
 
 export default function App() {
 	return (
-		<MsalProvider instance={msalInstance}>
-			<html lang="en">
-				<head>
-					<meta charSet="utf-8" />
-					<meta name="viewport" content="width=device-width, initial-scale=1" />
-					<Meta />
-					<Links />
-				</head>
-				<body style={{}}>
-					<UserProvider>
-						<UsersProvider>
-							<HeaderProvider>
-								<BoardProvider>
-									<FruitBarProvider>
-										<GameWebSocketProvider>
-											<Outlet />
-										</GameWebSocketProvider>
-									</FruitBarProvider>
-								</BoardProvider>
-							</HeaderProvider>
-						</UsersProvider>
-					</UserProvider>
-					<ScrollRestoration />
-					<Scripts />
-				</body>
-			</html>
-		</MsalProvider>
+		//<MsalProvider instance={msalInstance}>
+		<html lang="en">
+			<head>
+				<meta charSet="utf-8" />
+				<meta name="viewport" content="width=device-width, initial-scale=1" />
+				<Meta />
+				<Links />
+			</head>
+			<body style={{}}>
+				<UserProvider>
+					<UsersProvider>
+						<HeaderProvider>
+							<BoardProvider>
+								<FruitBarProvider>
+									<GameWebSocketProvider>
+										<Outlet />
+									</GameWebSocketProvider>
+								</FruitBarProvider>
+							</BoardProvider>
+						</HeaderProvider>
+					</UsersProvider>
+				</UserProvider>
+				<ScrollRestoration />
+				<Scripts />
+			</body>
+		</html>
+		//</MsalProvider>
 	);
 }
