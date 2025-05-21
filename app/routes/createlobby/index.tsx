@@ -59,10 +59,32 @@ export default function Lobby() {
     const [showLvlSelector, setShowLvlSelector] = useState(false);
 
     // Callback cuando se selecciona un nivel
-    const handleSelectLevel = (level: number) => {
-        // Aquí puedes guardar el nivel seleccionado o hacer lo que necesites
-        console.log("Nivel seleccionado:", level);
-        setShowLvlSelector(false); // Oculta el selector después de seleccionar
+    const handleSelectLevel = async (level: number) => {
+        if (!userData?.userId || !roomCode) {
+            console.error("Missing userId or roomCode");
+            return;
+        }
+
+        const lobbyData = {
+            level: level,
+            map: "desert"
+        };
+
+        try {
+            const response = await api.put(`/rest/users/${userData.userId}/matches/${roomCode}`, lobbyData);
+            console.log("Level updated successfully:", response.data);
+            setShowLvlSelector(false); // Oculta el selector después de seleccionar
+        } catch (error) {
+            console.error("Error updating level:", error);
+            const err = (error as Error | { response?: { data?: { message?: string }, statusText?: string }, request?: unknown });
+            if ('response' in err && err.response) {
+                console.error(`Server error: ${err.response.data?.message || err.response.statusText}`);
+            } else if ('request' in err && err.request) {
+                console.error("Network error: Unable to reach the server");
+            } else {
+                console.error(`Error: ${error}`);
+            }
+        }
     };
 
     // Callback para volver atrás
@@ -388,6 +410,11 @@ export default function Lobby() {
     const cancelMatchmaking = () => {
         setIsSearching(false);
         setSearchTime(0);
+        // Cerrar la conexión WebSocket
+        const ws = connect(`/ws/matchmaking/${roomCode}`);
+        if (ws) {
+            ws.close();
+        }
     };
 
     // Format search time as MM:SS
