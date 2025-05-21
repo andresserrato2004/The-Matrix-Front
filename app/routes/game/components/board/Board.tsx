@@ -33,6 +33,11 @@ export default function Board() {
 	const { connectWebSocket } = useGameWebSocket();
 
 	useEffect(() => {
+		console.log(JSON.stringify(iceCreams));
+	}
+	, []);
+
+	useEffect(() => {
 		const setupCanvas = () => {
 			const canvas = canvasRef.current;
 			if (!canvas) return;
@@ -214,7 +219,7 @@ export default function Board() {
 			};
 			return (
 				<div key={iceCream.id} style={style}>
-					<IceCream {...iceCream} />
+					<IceCream iceCreamInformation={iceCream} styles={style} />
 				</div>
 			);
 		});

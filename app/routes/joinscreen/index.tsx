@@ -68,7 +68,7 @@ export default function JoinScreen() {
     const handleCreateLobby = async () => {
 
         const lobbyData = {
-            level: 2,
+            level: 1,
             map: "desert"
         };
 

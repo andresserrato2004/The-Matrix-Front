@@ -1,5 +1,5 @@
 {
-  "imageUrl": "/game-screen/board/enemy/squid-blue/squid-green.png",
+  "imageUrl": "/game-screen/board/enemy/squid-green/squid-green.png",
   "animations": {
     "left": {
         "fps": 11,
@@ -50,6 +50,22 @@
         ]
     },
     "down": {
+        "fps": 11,
+        "frames": [
+            {"x": 1, "y": 145, "w": 20, "h": 47},
+            {"x": 22, "y": 145, "w": 20, "h": 47},
+            {"x": 43, "y": 145, "w": 20, "h": 47},
+            {"x": 64, "y": 145, "w": 20, "h": 47},
+            {"x": 85, "y": 145, "w": 20, "h": 47},
+            {"x": 106, "y": 145, "w": 20, "h": 47},
+            {"x": 127, "y": 145, "w": 20, "h": 47},
+            {"x": 148, "y": 145, "w": 20, "h": 47},
+            {"x": 169, "y": 145, "w": 20, "h": 47},
+            {"x": 190, "y": 145, "w": 20, "h": 47},
+            {"x": 211, "y": 145, "w": 20, "h": 47}
+        ]
+    },
+    "stopped": {
         "fps": 11,
         "frames": [
             {"x": 1, "y": 145, "w": 20, "h": 47},

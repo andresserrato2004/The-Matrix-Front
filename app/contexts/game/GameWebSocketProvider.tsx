@@ -118,10 +118,19 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
         // MENSAJE DE ESTADO DEL JUEGO
         else if (message.type === "end") {
           // Manejar el resultado del juego
-          usersDispatch({
-            type: "SET_GAME_STATE",
-            payload: message.payload.result
-          });
+          if (message.payload.result === "win" || message.payload.result === "lose") {
+            setTimeout(() => {
+              usersDispatch({
+          type: "SET_GAME_STATE",
+          payload: message.payload.result
+              });
+            }, 2000);
+          } else {
+            usersDispatch({
+              type: "SET_GAME_STATE",
+              payload: message.payload.result
+            });
+          }
         }
         // MENSAJE DE FRUTAS
         else if (message.type === "update-fruits") {
