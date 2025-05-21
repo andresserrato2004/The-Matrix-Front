@@ -6,9 +6,8 @@ export function MicrosoftLoginButton() {
     const { instance, accounts } = useMsal();
 
     const handleLogin = () => {
-        instance.loginPopup({
-            scopes: ["User.Read"],
-        });
+        const loginUrl = `${import.meta.env.VITE_API_BASE_URL}/rest/login`;
+        window.location.href = loginUrl;
     };
 
     return (

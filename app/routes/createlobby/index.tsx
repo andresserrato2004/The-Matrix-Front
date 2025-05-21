@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import LvlSelector from "./components/LvlSelector";
 import { useWebSocket } from "~/hooks/useWebSocket";
-import { useNavigate } from "@remix-run/react";
+import { useNavigate, useLocation } from "@remix-run/react";
 import { useUser } from "~/contexts/user/userContext";
 import Button from "~/components/shared/Button";
 import IceCreamSelector from "./components/IceCreamSelector";
@@ -25,6 +25,7 @@ const iceCreams = [
 
 export default function Lobby() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { state: usersState, dispatch: usersDispatch } = useUsers();
     const { userData, setUserData, secondaryUserData, setSecondaryUserData } = useUser();
 
@@ -123,6 +124,16 @@ export default function Lobby() {
                 const response = await api.get(`/rest/users/${userData?.userId}/matches`);
                 console.log("API response:", response.data.matchId);
                 setRoomCode(response.data.matchId);
+
+                // Solo mostrar el segundo jugador si viene del estado de navegación
+                const state = location.state as { showSecondPlayer?: boolean };
+
+                if (state?.showSecondPlayer) {
+                    setPlayerJoining(true);
+                    setShowSecondPlayer(true);
+                    setIsSoloPlayer(false);
+                }
+
             } catch (error) {
                 console.error("Error loading room code:", error);
                 setRoomCode("ERROR");
@@ -130,7 +141,7 @@ export default function Lobby() {
         };
 
         loadRoomCode();
-    }, [userData?.userId]);
+    }, [userData?.userId, location.state]);
 
     const togglePlayer1Ready = () => setPlayer1Ready(prev => !prev);
     const togglePlayer2Ready = () => setPlayer2Ready(prev => !prev);
@@ -217,15 +228,15 @@ export default function Lobby() {
             try {
                 const message = JSON.parse(event.data);
                 console.log("Received message in createlobby:", message);
-                console.log("Message positions:", message.match.board.playersStartCoordinates);
-
-                const positions = message.match.board.playersStartCoordinates;
 
                 if (message.message === 'match-found') {
+                    const positions = message.match.board.playersStartCoordinates;
                     console.log("Match found ID:", message.match?.id);
-                    setMessage(message); // Guardar el mensaje en el estado
+                    setMessage(message);
 
-                    // Guardar matchId en userData
+                    // Mostrar inmediatamente el segundo jugador
+                    setPlayerJoining(true);
+                    setShowSecondPlayer(true);
 
                     if (message.match.host === userData?.userId) {
                         // Si eres el host
@@ -251,7 +262,7 @@ export default function Lobby() {
                         // Llenar los datos del guest en secondaryUserData
                         setSecondaryUserData({
                             userId: message.match.guestId,
-                            username: message.match.guestUsername, // Si existe un campo para el nombre del guest
+                            username: message.match.guestUsername,
                             position: positions[1].reverse(),
                         });
 
@@ -299,7 +310,7 @@ export default function Lobby() {
                         // Llenar los datos del host en secondaryUserData
                         setSecondaryUserData({
                             userId: message.match.hostId,
-                            username: message.match.hostUsername, // Si existe un campo para el nombre del host
+                            username: message.match.hostUsername,
                             position: positions[0].reverse(),
                         });
 
@@ -327,13 +338,8 @@ export default function Lobby() {
                     console.log("userData updated with matchId:", userData);
 
                     console.log("Match found, navigating to game screen");
-                    setPlayer1Ready(true);
                     setIsSoloPlayer(true);
-                    websocket.close(); // Close the WebSocket connection
                 }
-
-
-
 
             } catch (error) {
                 console.error("Error parsing WebSocket message:", error);
@@ -424,6 +430,23 @@ export default function Lobby() {
         return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     };
 
+    const handleEnableRoom = () => {
+        try {
+            // Create WebSocket connection for publishing matches
+            const wssURI = `/ws/publish-match/${userData?.userId}/${roomCode}`;
+            const newWs = connect(wssURI);
+
+            if (newWs) {
+                console.log("WebSocket connection established");
+                setWebSocketHandlers(newWs);
+            } else {
+                setError("Failed to create WebSocket connection");
+            }
+        } catch (error) {
+            console.error("Error enabling room:", error);
+            setError("Error enabling room. Please try again.");
+        }
+    };
 
     return (
         <div className="lobby-screen">
@@ -473,6 +496,15 @@ export default function Lobby() {
                             <div className="room-code-value">{roomCode}</div>
                             <p className="room-code-help">Share this code with another player to join your game.</p>
                         </div>
+
+                        <Button
+                            variant="primary"
+                            size="large"
+                            onClick={handleEnableRoom}
+                            className="enable-room-button"
+                        >
+                            Enable Room
+                        </Button>
 
                         {isSearching ? (
                             <div className="matchmaking-status">
