@@ -1,458 +1,594 @@
 /* Layout principal */
 .lobby-screen {
-  @apply relative flex flex-col items-center justify-center h-screen w-screen overflow-hidden bg-blue-200/100;
+	@apply relative flex flex-col items-center justify-center h-screen w-screen overflow-hidden;
+	background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
 }
 
 .lobby-title {
-  @apply text-3xl font-bold text-yellow-800 z-10 absolute top-4 left-0 right-0 text-center;
+	@apply text-3xl font-bold text-white z-10 absolute top-4 left-0 right-0 text-center;
+	text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 /* Contenedor de selectores */
 .selectors-container {
-  @apply flex justify-between items-center w-full h-screen relative overflow-x-hidden;
+	@apply flex justify-between items-center w-full h-screen relative overflow-x-hidden;
 }
 
 /* Modo de un solo jugador */
 .selectors-container.single-player-mode {
-  @apply justify-center;
+	@apply justify-center;
 }
 
 /* Contenedor para player1 */
 .player1-container {
-  @apply w-1/3 h-full transition-all duration-1000 ease-in-out;
+	@apply w-1/3 h-full transition-all duration-1000 ease-in-out;
 }
 
 /* Sección central */
 .middle-section {
-  @apply w-1/3 h-full flex flex-col items-center justify-center bg-blue-100 transition-all duration-1000 ease-in-out;
+	@apply w-1/3 h-full flex flex-col items-center justify-center;
+	background: rgba(255, 255, 255, 0.1);
+	backdrop-filter: blur(10px);
 }
 
 /* Contenedor para player2 */
 .player2-container {
-  @apply w-1/3 h-full transition-all duration-1000 ease-in-out  ;
+	@apply w-1/3 h-full transition-all duration-1000 ease-in-out;
 }
 
 /* Player2 oculto */
 .single-player-mode .player2-container {
-  @apply opacity-0 pointer-events-none absolute top-0 -right-1/3;
+	@apply opacity-0 pointer-events-none absolute top-0 -right-1/3;
 }
 
 /* Player2 conectándose */
 .player-joining .player2-container {
-  @apply opacity-40 top-0 ;
-  animation: playerJoiningAnimation 2s ;
+	@apply opacity-40 top-0;
+	animation: playerJoiningAnimation 2s;
 }
 
 /* Selector de helados */
 .ice-cream-selector {
-  @apply flex flex-col items-center p-6 bg-blue-100 backdrop-blur-sm shadow-lg w-full h-full;
+	@apply flex flex-col items-center p-6 shadow-lg w-full h-full;
+	background: rgba(255, 255, 255, 0.15);
+	backdrop-filter: blur(10px);
+	border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Variantes de selectores */
 .left-selector {
-  @apply bg-blue-200/100;
+	background: rgba(26, 42, 108, 0.3);
 }
 
 .right-selector {
-  @apply bg-blue-200/100;
+	background: rgba(178, 31, 31, 0.3);
 }
 
 /* Mensajes de estado */
 .player-connecting-status {
-  @apply text-center my-2 px-4 py-2 rounded-lg z-20;
+	@apply text-center my-2 px-4 py-2 rounded-lg z-20;
 }
 
 .player-connecting-status p {
-  @apply text-green-500 animate-pulse text-center mt-2;
+	@apply text-green-500 animate-pulse text-center mt-2;
 }
 
 .waiting-for-player {
-  @apply text-center my-2 px-4 rounded-lg z-20 top-16;
+	@apply text-center my-2 px-4 rounded-lg z-20 top-16;
 }
 
 .waiting-for-player p {
-  @apply text-amber-500 text-3xl animate-pulse text-center mt-16 ;
+	@apply text-amber-500 text-3xl animate-pulse text-center mt-16;
 }
 
 /* Título del jugador */
 .player-title {
-  @apply text-2xl font-bold text-yellow-700 mb-2;
+	@apply text-2xl font-bold mb-2;
+	color: #fff;
+	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* Selección de personajes */
 .character-selection {
-  @apply grid grid-cols-2 w-full max-h-[50vh] overflow-y-auto gap-4 justify-items-center m-0 p-4;
+	@apply grid grid-cols-2 w-full max-h-[50vh] overflow-y-auto gap-4 justify-items-center m-0 p-4;
 }
 
 /* Botón de personaje */
 .character-button {
-  @apply flex flex-col items-center justify-center p-2 bg-[#F3EAD0] border-2 border-yellow-500 rounded-lg transition-all duration-300 hover:bg-yellow-500 w-48;
+	@apply flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-300 w-48;
+	background: rgba(255, 255, 255, 0.2);
+	border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.character-button:hover {
+	background: rgba(255, 255, 255, 0.3);
+	transform: translateY(-2px);
 }
 
 .character-button.selected {
-  @apply border-4 border-yellow-500 bg-yellow-200 scale-105;
+	@apply scale-105;
+	background: rgba(253, 187, 45, 0.4);
+	border: 2px solid #fdbb2d;
 }
 
 .character-image {
-  @apply w-16 h-16 object-contain mb-2;
+	@apply w-16 h-16 object-contain mb-2;
 }
 
 .character-name {
-  @apply font-bold text-gray-800 text-sm;
+	@apply font-bold text-sm;
+	color: #fff;
+	text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Personaje seleccionado */
 .selected-character-display {
-  @apply flex flex-col items-center mt-6 bg-blue-200/100 p-4 rounded-xl w-[81%] relative;
+	@apply flex flex-col items-center mt-6 p-4 rounded-xl w-[81%] relative;
+	background: rgba(255, 255, 255, 0.15);
+	border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .selected-character-image {
-  @apply w-32 h-32 object-contain mt-2;
+	@apply w-32 h-32 object-contain mt-2;
 }
 
 /* Controles del lobby */
 .lobby-controls {
-  @apply flex flex-col gap-4 items-center;
+	@apply flex flex-col gap-4 items-center;
 }
 
 .start-button {
-  @apply px-8 py-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg shadow-lg transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed;
+	@apply px-8 py-4 text-white font-bold rounded-lg shadow-lg transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed;
+	background: rgba(34, 197, 94, 0.8);
+	border: 2px solid rgba(34, 197, 94, 0.3);
+}
+
+.start-button:hover:not(:disabled) {
+	background: rgba(34, 197, 94, 0.9);
+	transform: translateY(-2px);
 }
 
 .back-button {
-  @apply px-8 py-4 bg-gray-500 hover:bg-gray-600 text-white font-bold rounded-lg shadow-lg transition-all duration-300;
+	@apply px-8 py-4 text-white font-bold rounded-lg shadow-lg transition-all duration-300;
+	background: rgba(107, 114, 128, 0.8);
+	border: 2px solid rgba(107, 114, 128, 0.3);
+}
+
+.back-button:hover {
+	background: rgba(107, 114, 128, 0.9);
+	transform: translateY(-2px);
 }
 
 /* Botón de listo */
 .player-ready-button {
-  @apply mt-4 px-6 py-3 font-bold rounded-lg shadow-md transition-all duration-300 bg-blue-500 text-white hover:bg-blue-600;
+	@apply mt-4 px-6 py-3 font-bold rounded-lg shadow-md transition-all duration-300 text-white;
+	background: rgba(59, 130, 246, 0.8);
+	border: 2px solid rgba(59, 130, 246, 0.3);
+}
+
+.player-ready-button:hover {
+	background: rgba(59, 130, 246, 0.9);
+	transform: translateY(-2px);
 }
 
 .player-ready-button.ready {
-  @apply bg-red-500 hover:bg-red-600 text-lg shadow-md;
+	background: rgba(239, 68, 68, 0.8);
+	border: 2px solid rgba(239, 68, 68, 0.3);
+}
+
+.player-ready-button.ready:hover {
+	background: rgba(239, 68, 68, 0.9);
 }
 
 /* Input de nombre del jugador */
-.player-name-input-container {
-  @apply w-full mt-4 mb-3;
-}
-
-.player-name-label {
-  @apply block text-sm font-medium text-gray-700 mb-1;
-}
-
 .player-name-input {
-  @apply w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500;
+	@apply w-full px-3 py-2 rounded-md shadow-sm focus:outline-none;
+	background: rgba(255, 255, 255, 0.2);
+	border: 2px solid rgba(255, 255, 255, 0.3);
+	color: #fff;
+}
+
+.player-name-input:focus {
+	border-color: #fdbb2d;
+	box-shadow: 0 0 0 3px rgba(253, 187, 45, 0.3);
+}
+
+.player-name-input::placeholder {
+	color: rgba(255, 255, 255, 0.6);
 }
 
 /* Indicador de listo */
 .ready-indicator {
-  @apply mt-2 px-5 py-2 bg-green-500 text-white font-bold rounded-full text-center text-lg tracking-wider shadow-md;
+	@apply mt-2 px-5 py-2 text-white font-bold rounded-full text-center text-lg tracking-wider shadow-md;
+	background: rgba(34, 197, 94, 0.8);
+	border: 2px solid rgba(34, 197, 94, 0.3);
 }
 
 /* Selector de jugador listo */
 .ice-cream-selector.player-ready {
-  @apply border-green-500 border-4 shadow-lg;
+	border: 2px solid rgba(34, 197, 94, 0.5);
+	box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
 }
 
 .ice-cream-selector.player-ready.left-selector,
 .ice-cream-selector.player-ready.right-selector {
-  @apply bg-green-100/30;
+	background: rgba(34, 197, 94, 0.2);
 }
 
 .ice-cream-selector.player-ready .selected-character-display::before {
-  content: "✓";
-  position: absolute;
-  top: -15px;
-  right: -15px;
-  width: 40px;
-  height: 40px;
-  background-color: #22c55e;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 1.5rem;
-  font-weight: bold;
-  border: 3px solid white;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+	content: "✓";
+	position: absolute;
+	top: -15px;
+	right: -15px;
+	width: 40px;
+	height: 40px;
+	background-color: #22c55e;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: white;
+	font-size: 1.5rem;
+	font-weight: bold;
+	border: 3px solid white;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
 .ice-cream-selector.player-ready::before {
-  @apply absolute text-center font-bold text-green-500 text-6xl tracking-wider;
-  content: "READY!";
-  top: 23rem;
-  left: 0;
-  right: 0;
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+	@apply absolute text-center font-bold text-green-500 text-6xl tracking-wider;
+	content: "READY!";
+	top: 23rem;
+	left: 0;
+	right: 0;
+	text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
 }
 
 /* Jugador listo - estilos adicionales */
 .player-ready .character-button:not(.selected) {
-  @apply opacity-50 cursor-not-allowed;
+	@apply opacity-50 cursor-not-allowed;
 }
 
 .player-ready .player-name-input {
-  @apply bg-gray-100 cursor-not-allowed text-black;
+	@apply bg-gray-100 cursor-not-allowed text-black;
 }
 
 /* Mensaje de todos listos */
 .all-ready-message {
-  @apply bg-green-100 border-l-4 border-green-500 text-green-700 p-4 absolute top-16 left-0 right-0 mx-auto w-3/4 max-w-2xl text-center z-30;
+	@apply p-4 absolute top-16 left-0 right-0 mx-auto w-3/4 max-w-2xl text-center z-30;
+	background: rgba(34, 197, 94, 0.2);
+	border-left: 4px solid rgba(34, 197, 94, 0.8);
+	color: #fff;
+	text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Botón de iniciar juego */
 .start-game-button {
-  @apply px-10 py-5 bg-green-600 hover:bg-green-700 text-white text-xl font-bold rounded-lg shadow-xl transition-all duration-300 animate-pulse;
+	@apply px-10 py-5 text-white text-xl font-bold rounded-lg shadow-xl transition-all duration-300;
+	background: rgba(34, 197, 94, 0.8);
+	border: 2px solid rgba(34, 197, 94, 0.3);
+}
+
+.start-game-button:hover {
+	background: rgba(34, 197, 94, 0.9);
+	transform: translateY(-2px);
 }
 
 /* Fondo del lobby */
 .lobby-background {
-  @apply absolute inset-0 z-0;
+	@apply absolute inset-0 z-0;
 }
 
 .background-image {
-  @apply w-full h-full object-cover opacity-40;
+	@apply w-full h-full object-cover opacity-40;
 }
 
 /* Contenedor de cuenta regresiva */
 .countdown-container {
-  @apply flex flex-col items-center justify-center bg-blue-900/50 rounded-xl p-8 backdrop-blur-md text-white;
+	@apply flex flex-col items-center justify-center bg-blue-900/50 rounded-xl p-8 backdrop-blur-md text-white;
 }
 
 .countdown-text {
-  @apply text-xl font-bold mb-2;
+	@apply text-xl font-bold mb-2;
 }
 
 .countdown-number {
-  @apply text-6xl font-extrabold text-yellow-400 mb-6;
+	@apply text-6xl font-extrabold text-yellow-400 mb-6;
 }
 
 .start-now-button {
-  @apply px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded-lg transition-all duration-300;
+	@apply px-6 py-3 bg-green-600 hover:bg-green-500 text-white rounded-lg transition-all duration-300;
 }
 
 /* Indicador VS */
 .vs-indicator {
-  @apply text-5xl font-extrabold text-red-500 mb-8;
+	@apply text-5xl font-extrabold text-red-500 mb-8;
 }
 
 /* Estado de listo */
 .ready-status {
-  @apply flex items-center gap-2 mt-4;
+	@apply flex items-center gap-2 mt-4;
 }
 
 .status-indicator {
-  @apply w-3 h-3 rounded-full;
+	@apply w-3 h-3 rounded-full;
 }
 
 .status-indicator.ready {
-  @apply bg-green-500;
+	@apply bg-green-500;
 }
 
 .status-indicator.not-ready {
-  @apply bg-red-500;
+	@apply bg-red-500;
 }
 
 .status-text {
-  @apply text-sm font-medium;
+	@apply text-sm font-medium;
 }
 
 /* Pantalla central */
 .center-display {
-  @apply flex flex-col items-center justify-center h-full w-full bg-gradient-to-b from-transparent via-blue-800/20 to-transparent;
+	@apply flex flex-col items-center justify-center h-full w-full bg-gradient-to-b from-transparent via-blue-800/20 to-transparent;
 }
 
 /* Pantalla de versus */
 .versus-screen {
-  @apply flex flex-col items-center justify-center bg-blue-900/60 p-8 rounded-xl backdrop-blur-md text-white w-4/5;
+	@apply flex flex-col items-center justify-center p-8 rounded-xl backdrop-blur-md text-white w-4/5;
+	background: rgba(26, 42, 108, 0.6);
+	border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .versus-characters {
-  @apply flex items-center justify-between w-full mb-6;
+	@apply flex items-center justify-between w-full mb-6;
 }
 
 .versus-character {
-  @apply flex flex-col items-center;
+	@apply flex flex-col items-center;
 }
 
 .versus-character-image {
-  @apply w-24 h-24 object-contain;
+	@apply w-24 h-24 object-contain;
 }
 
 .versus-character-name {
-  @apply mt-2 font-bold text-lg;
+	@apply mt-2 font-bold text-lg;
 }
 
 .versus-display {
-  @apply flex items-center justify-center gap-3 mb-4 mt-2;
+	@apply flex items-center justify-center gap-3 mb-4 mt-2;
 }
 
 .versus-player {
-  @apply text-lg font-bold;
+	@apply text-lg font-bold;
 }
 
 .versus-vs {
-  @apply text-lg font-extrabold text-yellow-500;
+	@apply text-lg font-extrabold;
+	color: #fdbb2d;
+	text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 /* Jugador desactivado */
 .ice-cream-selector.disabled-player {
-  @apply opacity-70 relative;
+	@apply opacity-70 relative;
 }
 
 .character-image.dimmed {
-  @apply filter grayscale opacity-70;
+	@apply filter grayscale opacity-70;
 }
 
 .selected-character-image.dimmed {
-  @apply filter grayscale opacity-70;
+	@apply filter grayscale opacity-70;
 }
 
 .player-name-input.disabled {
-  @apply bg-gray-100 border-gray-300 text-gray-500;
+	@apply bg-gray-100 border-gray-300 text-gray-500;
 }
 
 .waiting-player-message {
-  @apply mt-2.5 py-2 px-3 bg-black bg-opacity-10 rounded-lg text-center font-bold text-gray-600 shadow-sm;
+	@apply mt-2.5 py-2 px-3 bg-black bg-opacity-10 rounded-lg text-center font-bold text-gray-600 shadow-sm;
 }
 
 /* Código de sala */
 .room-code {
-  @apply font-mono bg-blue-900 text-yellow-400 px-2 py-1 rounded-md mx-1 tracking-wide;
+	@apply font-mono px-2 py-1 rounded-md mx-1 tracking-wide;
+	background: rgba(26, 42, 108, 0.8);
+	color: #fdbb2d;
+	border: 1px solid rgba(253, 187, 45, 0.3);
 }
 
 .room-info {
-  @apply flex flex-col items-center justify-center bg-blue-700 bg-opacity-40 p-6 rounded-xl shadow-lg backdrop-blur-sm w-full mx-auto;
+	@apply flex flex-col items-center justify-center p-6 rounded-xl shadow-lg backdrop-blur-sm w-full mx-auto;
+	background: rgba(26, 42, 108, 0.4);
+	border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .room-code-display {
-  @apply flex flex-col items-center justify-center mb-6;
+	@apply flex flex-col items-center justify-center mb-6;
 }
 
 .room-code-label {
-  @apply text-xl font-medium text-white mb-1;
+	@apply text-xl font-medium text-white mb-1;
 }
 
 .room-code-value {
-  @apply text-4xl font-mono font-bold bg-blue-900 text-yellow-400 px-4 py-2 rounded-md tracking-wide shadow-inner;
+	@apply text-4xl font-mono font-bold px-4 py-2 rounded-md tracking-wide shadow-inner;
+	background: rgba(26, 42, 108, 0.8);
+	color: #fdbb2d;
+	border: 1px solid rgba(253, 187, 45, 0.3);
 }
 
 .room-code-help {
-  @apply text-sm text-blue-100 mt-2 text-center;
+	@apply text-sm text-blue-100 mt-2 text-center;
 }
 
 /* Matchmaking */
 .matchmaking-status {
-  @apply flex flex-col items-center bg-blue-800 bg-opacity-50 p-4 rounded-lg;
+	@apply flex flex-col items-center p-4 rounded-lg;
+	background: rgba(26, 42, 108, 0.6);
+	border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .searching-indicator {
-  @apply flex items-center space-x-2 mb-2;
+	@apply flex items-center space-x-2 mb-2;
 }
 
 .pulse-dot {
-  @apply w-3 h-3 bg-green-500 rounded-full animate-pulse;
+	@apply w-3 h-3 bg-green-500 rounded-full animate-pulse;
 }
 
 .search-time {
-  @apply text-lg font-mono text-white mb-3;
+	@apply text-lg font-mono text-white mb-3;
 }
 
 .cancel-search-button {
-  @apply px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-all duration-200 font-medium;
+	@apply px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-all duration-200 font-medium;
 }
 
 .find-opponent-button {
-  @apply px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed;
+	@apply px-6 py-3 text-white font-bold rounded-lg transition-all duration-200;
+	background: rgba(59, 130, 246, 0.8);
+	border: 2px solid rgba(59, 130, 246, 0.3);
+}
+
+.find-opponent-button:hover:not(:disabled) {
+	background: rgba(59, 130, 246, 0.9);
+	transform: translateY(-2px);
+}
+
+.find-opponent-button:disabled {
+	background: rgba(107, 114, 128, 0.6);
+	border-color: rgba(107, 114, 128, 0.3);
 }
 
 .matchmaking-help {
-  @apply text-sm text-blue-100 mt-2 text-center;
+	@apply text-sm text-blue-100 mt-2 text-center;
 }
 
 .matchmaking-controls {
-  @apply flex flex-col items-center space-y-3;
+	@apply flex flex-col items-center space-y-3;
 }
 
 /* Debug info */
 .debug-info {
-  @apply fixed bottom-1 right-1 text-xs text-gray-600 bg-white/70 px-1 py-0.5 rounded;
+	@apply fixed bottom-1 right-1 text-xs text-gray-600 bg-white/70 px-1 py-0.5 rounded;
 }
 
 /* Scrollbars */
 .character-selection::-webkit-scrollbar {
-  width: 8px;
+	width: 8px;
 }
 
 .character-selection::-webkit-scrollbar-track {
-  @apply bg-white/10 rounded-full;
+	background: rgba(255, 255, 255, 0.1);
 }
 
 .character-selection::-webkit-scrollbar-thumb {
-  @apply bg-yellow-500/70 rounded-full;
+	background: rgba(253, 187, 45, 0.5);
 }
 
 .character-selection::-webkit-scrollbar-thumb:hover {
-  @apply bg-yellow-600;
+	background: rgba(253, 187, 45, 0.7);
 }
 
 /* Media Queries */
 @media (prefers-color-scheme: dark) {
-  html, body {
-    @apply bg-blue-900;
-  }
+	html,
+	body {
+		@apply bg-blue-900;
+	}
 }
 
 /* Animaciones */
 @keyframes readyPulse {
-  0% { box-shadow: 0 0 15px rgba(34, 197, 94, 0.4); }
-  50% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.8); }
-  100% { box-shadow: 0 0 15px rgba(34, 197, 94, 0.4); }
+	0% {
+		box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+	}
+	50% {
+		box-shadow: 0 0 20px rgba(34, 197, 94, 0.8);
+	}
+	100% {
+		box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+	}
 }
 
 @keyframes readyBounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-5px);
+	}
 }
 
 @keyframes pulse-countdown {
-  0% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.8; }
-  100% { transform: scale(1); opacity: 1; }
+	0% {
+		transform: scale(1);
+		opacity: 1;
+	}
+	50% {
+		transform: scale(1.2);
+		opacity: 0.8;
+	}
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
 }
 
 @keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+	from {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
 }
 
 @keyframes playerJoiningAnimation {
-  0% { opacity: 0.2; transform: translateX(70%); }
-  50% { opacity: 0.6; transform: translateX(50%); }
-  100% { opacity: 0.2; transform: translateX(70%); }
+	0% {
+		opacity: 0.2;
+		transform: translateX(70%);
+	}
+	50% {
+		opacity: 0.6;
+		transform: translateX(50%);
+	}
+	100% {
+		opacity: 0.2;
+		transform: translateX(70%);
+	}
 }
 
 /* Aplicar animaciones */
 .ice-cream-selector.player-ready {
-  animation: readyPulse 2s infinite;
+	animation: readyPulse 2s infinite;
 }
 
 .ready-indicator {
-  animation: readyBounce 2s infinite;
+	animation: readyBounce 2s infinite;
 }
 
 .countdown-number {
-  animation: pulse-countdown 1s infinite;
+	animation: pulse-countdown 1s infinite;
 }
 
 .selectors-container:not(.single-player-mode) .player2-container {
-  animation: slideInRight 1s ease-in-out forwards;
+	animation: slideInRight 1s ease-in-out forwards;
+}
+
+.waiting-message {
+	@apply text-2xl text-white font-bold text-center;
+	text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.ice-cream-selector-overlay {
+	position: absolute;
+	inset: 0;
+	background: rgba(130, 18, 134, 0.356);
+	z-index: 2;
+	border-radius: 16px;
+	pointer-events: none;
 }

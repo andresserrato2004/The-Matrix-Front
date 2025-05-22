@@ -1,66 +1,90 @@
 const WS_BASE_URL = import.meta.env.VITE_WS_BASE_URL || "ws://localhost:3000";
 
 let ws: WebSocket | null = null;
-let messageQueue: any[] = []; // Queue to store messages when WebSocket is not ready
+const messageQueue: Message[] = []; // Queue to store messages when WebSocket is not ready
+
+interface Message {
+	message: string;
+	[key: string]: unknown;
+}
 
 export function createWebSocketConnection(path = ""): WebSocket {
-    const wsUrl = `${WS_BASE_URL}${path}`;
-    ws = new WebSocket(wsUrl);
-    console.log("WEBSOKET WebSocket:", wsUrl);
+	const wsUrl = `${WS_BASE_URL}${path}`;
+	const token = localStorage.getItem("token");
 
-    ws.onopen = () => {
-        console.log("WebSocket abierto:", wsUrl);
+	const wsConnection = new WebSocket(wsUrl, token || undefined);
 
-        // Send all queued messages
-        while (messageQueue.length > 0) {
-            const message = messageQueue.shift();
-            ws.send(JSON.stringify(message));
-            console.log("Queued message sent:", message);
-        }
-    };
+	console.log("WEBSOCKET WebSocket:", wsUrl);
+	console.log("WebSocket connection:", wsConnection);
+	console.log("WebSocket readyState:", wsConnection.readyState);
 
-    ws.onclose = (event) => {
-        console.log("WebSocket cerrado:", event);
-    };
+	// Asignar la conexión inmediatamente
+	ws = wsConnection;
+	console.log("WebSocket asignado:", ws);
 
-    ws.onmessage = (event) => {
-        try {
-            const message = JSON.parse(event.data);
-            console.log("Received message:", message);
+	wsConnection.onopen = () => {
+		console.log("WebSocket abierto:", wsUrl);
+		console.log(
+			"WebSocket readyState después de abrir:",
+			wsConnection.readyState,
+		);
+		console.log("WebSocket actual:", ws);
 
-            if (message.message === 'match-found' && message.match && message.match.id) {
-                console.log("Match found ID:", message.match.id);
-            }
-        } catch (error) {
-            console.error("Error parsing WebSocket message:", error);
-        }
-    };
+		// Send all queued messages
+		console.log("Sending queued messages", messageQueue);
+		while (messageQueue.length > 0) {
+			const message = messageQueue.shift();
+			if (ws && ws.readyState === WebSocket.OPEN) {
+				ws.send(JSON.stringify(message));
+				console.log("Queued message sent:", message);
+			}
+		}
+	};
 
-    ws.onerror = (error) => {
-        console.error("Error en WebSocket:", error);
-    };
+	wsConnection.onclose = (event) => {
+		console.log("WebSocket cerrado:", event);
+		ws = null;
+		console.log("WebSocket después de cerrar:", ws);
+	};
 
-    return ws;
+	wsConnection.onerror = (error) => {
+		console.error("Error en WebSocket:", error);
+		ws = null;
+		console.log("WebSocket después de error:", ws);
+	};
+
+	return wsConnection;
 }
 
 // Function to send messages through WebSocket
-export function sendMessage(message: any): void {
-    if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify(message));
-        console.log("Message sent:", message);
-    } else {
-        console.warn("WebSocket not connected. Message queued:", message);
-        messageQueue.push(message); // Queue the message for later
-    }
+export function sendMessage(message: Message): void {
+	console.log("WebSocket - Enviando mensaje:", message);
+	console.log("WebSocket - Estado:", ws?.readyState);
+	console.log("WebSocket - URL:", ws?.url);
+	console.log("WebSocket - Conexión:", ws);
+
+	if (ws && ws.readyState === WebSocket.OPEN) {
+		const messageString = JSON.stringify(message);
+		console.log("WebSocket - Enviando mensaje:", {
+			message: message,
+			raw: messageString,
+			readyState: ws.readyState,
+		});
+		ws.send(messageString);
+		console.log("Message sent:", message);
+	} else {
+		console.warn("WebSocket not connected. Message queued:", message);
+		messageQueue.push(message); // Queue the message for later
+	}
 }
 
 // Function to close the WebSocket connection
 export function closeWebSocket(): void {
-    if (ws) {
-        ws.close();
-        ws = null;
-        console.log("WebSocket connection closed manually");
-    }
+	if (ws) {
+		ws.close();
+		ws = null;
+		console.log("WebSocket connection closed manually");
+	}
 }
 
 export { ws };

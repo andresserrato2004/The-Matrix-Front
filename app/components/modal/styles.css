@@ -1,8 +1,82 @@
-.modal-container {
-  @apply w-[1000px] h-[100px] rounded-lg shadow-xl overflow-hidden relative p-5 
-  max-height-[100vh] max-width-[90vw];
+.basic-modal {
+	@apply outline-none;
 }
 
-.basic-modal {
-  @apply outline-none;
+/* app/components/IceCreamScoreModal.css */
+.icecream-modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 2000;
+}
+
+.icecream-modal-content {
+	background: linear-gradient(
+		135deg,
+		rgba(26, 42, 108, 1) 0%,
+		rgba(178, 31, 31, 0.95) 60%,
+		rgba(253, 187, 45, 0.8) 100%
+	);
+	border: 3px solid #ffd700;
+	border-radius: 18px;
+	box-shadow: 0 8px 32px rgba(26, 42, 108, 0.18), 0 2px 8px
+		rgba(255, 255, 255, 0.08) inset;
+	padding: 24px 36px 36px 36px;
+	min-width: 340px;
+	min-height: 120px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	position: relative;
+	animation: borderGlow 3s linear infinite;
+	backdrop-filter: blur(8px);
+}
+
+@keyframes borderGlow {
+	0% {
+		box-shadow: 0 0 12px 2px #ffd70055, 0 8px 32px rgba(218, 165, 32, 0.18);
+	}
+	50% {
+		box-shadow: 0 0 24px 6px #ffd700cc, 0 8px 32px rgba(218, 165, 32, 0.18);
+	}
+	100% {
+		box-shadow: 0 0 12px 2px #ffd70055, 0 8px 32px rgba(218, 165, 32, 0.18);
+	}
+}
+
+.icecream-score-icons {
+	display: grid;
+	grid-template-columns: repeat(5, 36px);
+	grid-template-rows: repeat(2, 36px);
+	gap: 8px 12px;
+	margin-bottom: 18px;
+}
+
+.icecream-cone {
+	width: 36px;
+	height: 36px;
+	filter: drop-shadow(0 1px 2px #d4b06a55);
+}
+
+.icecream-score-bottom {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 12px;
+	padding: 0 24px;
+}
+
+.icecream-poop {
+	width: 32px;
+	height: 32px;
+	opacity: 1;
 }

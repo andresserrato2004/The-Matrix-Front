@@ -1,0 +1,84 @@
+.lvl-selector-bg {
+	background: #f5e6b2;
+	border: 6px solid #bfa76f;
+	border-radius: 18px;
+	padding: 24px 16px 16px 16px;
+	width: 480px;
+	margin: 0 auto;
+	box-shadow: 0 8px 0 #a68b4c, 0 0 0 4px #fff8e1;
+	position: relative;
+}
+
+.lvl-selector-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 12px;
+}
+
+.lvl-selector-settings {
+	background: #fff8e1;
+	border: 3px solid #bfa76f;
+	border-radius: 50%;
+	width: 38px;
+	height: 38px;
+	font-size: 1.5rem;
+	cursor: pointer;
+	box-shadow: 0 2px 0 #a68b4c;
+	transition: background 0.2s;
+}
+.lvl-selector-settings:hover {
+	background: #ffe066;
+}
+
+.lvl-selector-grid {
+	display: grid;
+	grid-template-columns: repeat(8, 1fr);
+	gap: 10px;
+	margin-bottom: 18px;
+}
+
+.lvl-btn {
+	background: linear-gradient(180deg, #ffe066 60%, #bfa76f 100%);
+	border: 3px solid #bfa76f;
+	border-radius: 12px;
+	font-family: "Press Start 2P", monospace, cursive;
+	font-size: 1.1rem;
+	color: #5a4a1b;
+	box-shadow: 0 2px 0 #a68b4c;
+	cursor: pointer;
+	transition: background 0.2s, transform 0.1s;
+	height: 38px;
+	width: 38px;
+	padding: 0;
+}
+.lvl-btn:active {
+	transform: translateY(2px);
+}
+.lvl-btn.locked {
+	background: #d3c6a0;
+	color: #aaa;
+	cursor: not-allowed;
+	border-style: dashed;
+}
+
+.lvl-selector-footer {
+	display: flex;
+	justify-content: center;
+	margin-top: 8px;
+}
+
+.lvl-selector-back {
+	background: #fff8e1;
+	border: 3px solid #bfa76f;
+	border-radius: 12px;
+	width: 60px;
+	height: 38px;
+	font-size: 1.5rem;
+	cursor: pointer;
+	box-shadow: 0 2px 0 #a68b4c;
+	transition: background 0.2s;
+}
+.lvl-selector-back:hover {
+	background: #ffe066;
+}

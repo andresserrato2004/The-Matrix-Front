@@ -1,117 +1,82 @@
-import { useEffect, useRef, useState } from "react";
-import { ws, sendMessage } from "~/services/websocket";
+import { useRef, useEffect, useState } from "react";
+import type { SpriteSheetInfo, Frame } from "~/types/animation";
+import { loadSprite } from "~/utils/spriteLoader";
+import type { UserInformation } from "~/types/types";
 import "./IceCream.css";
-import type { BoardCell } from "../types/types";
 
-type IceCreamProps = {
-  playerInformation: BoardCell
-  playerColor: string;
-  hostIsAlive: boolean;
-  setHostIsAlive: (isAlive: boolean) => void;
-  guestIsAlive: boolean;
-  setGuestIsAlive: (isAlive: boolean) => void;
-  hostId: string;
-  guestId: string;
-  matchId: string;
-};
 
-export default function IceCream({ 
-    playerInformation, playerColor, 
-    hostIsAlive, setHostIsAlive, 
-    guestIsAlive, setGuestIsAlive, 
-    hostId, guestId, matchId}: IceCreamProps) {
-  const [direction, setDirection] = useState(playerInformation.character?.orientation);
-  const [xPosition, setxPosition] = useState(playerInformation.x);
-  const [yPosition, setyPosition] = useState(playerInformation.y);  
-  const holdTimeout = useRef<NodeJS.Timeout | null>(null);
-  const moveInterval = useRef<NodeJS.Timeout | null>(null);
+export default function SpriteEnemy({ iceCreamInformation, styles }: { iceCreamInformation: UserInformation, styles: any }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [tick, setTick] = useState(0);
+  const [spriteData, setSpriteData] = useState<SpriteSheetInfo | null>(null);
+
+  const type = iceCreamInformation.flavour.toLowerCase();
+  const animKey = iceCreamInformation.state !== "alive" ? iceCreamInformation.state : iceCreamInformation.direction;
+  const [prevPosition, setPrevPosition] = useState(iceCreamInformation.position);
+  const [isMoving, setIsMoving] = useState(false);
 
   useEffect(() => {
-    // Escuchar mensajes del WebSocket
-    const handleMessage = (event: MessageEvent) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.message === "element move" && data.id === playerInformation.character?.id) {
-          setxPosition(data.xPosition);
-          setyPosition(data.yPosition);        }
-      } catch (error) {
-        console.error("Error parsing WebSocket message:", error);
-      }
-    };
-
-    if (ws) {
-      ws.addEventListener("message", handleMessage);
+    if (prevPosition.x !== iceCreamInformation.position.x || prevPosition.y !== iceCreamInformation.position.y) {
+      setIsMoving(true);
+      const timer = setTimeout(() => setIsMoving(false), 200);
+      setPrevPosition(iceCreamInformation.position);
+      return () => clearTimeout(timer);
     }
+  }, [iceCreamInformation.position, prevPosition]);
 
-    return () => {
-      if (ws) {
-        ws.removeEventListener("message", handleMessage);
-      }
-    };
-  }, [playerInformation]);
-
+  // Carga el sprite JSON (una sola vez por tipo gracias a la caché)
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.repeat) return; // Evita múltiples activaciones inmediatas
+    if (!type) return;
+    loadSprite(type, "icecream").then(setSpriteData).catch(console.error);
+  }, [type]);
 
-      let newDirection: string | null = null;
-      switch (event.key) {
-        case "ArrowUp":
-          newDirection = "up";
-          break;
-        case "ArrowDown":
-          newDirection = "down";
-          break;
-        case "ArrowLeft":
-          newDirection = "left";
-          break;
-        case "ArrowRight":
-          newDirection = "right";
-          break;
-        default:
-          return;
-      }
+  // Avanza frame según fps
+  useEffect(() => {
+    if (!spriteData) return;
+    const anim = spriteData.animations[animKey];
+    const interval = setInterval(() => {
+      setTick(prev => prev + 1);
+    }, 1000 / anim.fps);
+    return () => clearInterval(interval);
+  }, [spriteData, animKey]);
 
-      // Si la dirección cambió, actualizarla
-      if (newDirection !== direction) {
-        sendMessage({ type: "player_set_direction", direction: newDirection });
-        setDirection(newDirection);
-      }
+  // Dibuja en canvas
+  useEffect(() => {
+    if (!spriteData) return;
+    const ctx = canvasRef.current?.getContext("2d");
 
-      // Esperar 500ms para enviar el primer mensaje
-      holdTimeout.current = setTimeout(() => {
-        sendMessage({ type: "player_move", direction: newDirection });
+    if (!ctx) return;
 
-        // Después del primer mensaje, iniciar el envío repetitivo cada 200ms
-        moveInterval.current = setInterval(() => {
-          sendMessage({ type: "player_move", direction: newDirection });
-        }, 200);
-      }, 500);
+    const anim = spriteData.animations[animKey];
+    const frame: Frame = anim.frames[tick % anim.frames.length];
+
+    const img = new Image();
+    img.src = spriteData.imageUrl;
+    img.onload = () => {
+      ctx.clearRect(0, 0, frame.w, frame.h);
+      ctx.drawImage(img, frame.x, frame.y, frame.w, frame.h, 0, 0, frame.w, frame.h);
     };
+  }, [tick, spriteData, animKey]);
 
-    const handleKeyUp = () => {
-      if (holdTimeout.current) {
-        clearTimeout(holdTimeout.current);
-        holdTimeout.current = null;
-      }
-      if (moveInterval.current) {
-        clearInterval(moveInterval.current);
-        moveInterval.current = null;
-      }
-    };
+  if (!spriteData) return null;
 
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-    };
-  }, [direction]);
+  const anim = spriteData.animations[animKey];
+  const frame = anim.frames[0];
 
   return (
-    <div className="IceCream" style={{ left: `${playerInformation.x * 40}px`, top: `${playerInformation.y * 40}px` }}>
-      <img src={`/assets/player-${playerInformation.character?.id}.webp`} alt={`Player ${playerInformation.character?.id}`} />
-    </div>
+    <canvas
+      ref={canvasRef}
+      width={frame.w}
+      height={frame.h}
+      style={{
+        ...styles,
+        position: "relative",
+        left: `${iceCreamInformation.position.x * 0}px`,
+        top: `${iceCreamInformation.position.y * 1.2}px `,
+        transition: "0.2s ease-in-out",
+        zIndex: 1,
+      }}
+    />
   );
 }
+

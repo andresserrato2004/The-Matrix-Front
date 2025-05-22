@@ -1,81 +1,91 @@
+/* Pantalla principal de join */
 .join-screen {
-  @apply relative flex items-center justify-center h-screen w-screen bg-blue-100;
+	@apply relative flex items-center justify-center h-screen w-screen;
+	background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+}
+
+/* Oculta cualquier imagen de fondo previa */
+.background {
+	@apply absolute inset-0 w-full h-full object-cover blur-sm;
+	z-index: 0;
 }
 
 .join-screen__background {
-  @apply absolute inset-0 w-full h-full object-cover;
+	display: none !important;
 }
 
 .join-screen__menu {
-  @apply absolute bottom-20 flex flex-col items-center;
+	@apply absolute inset-0 flex items-start justify-center w-full h-full pt-10;
 }
 
 .join-screen__buttons {
-  @apply absolute bottom-[8rem] right-[24rem] flex flex-col gap-[3rem] ;
+	@apply absolute bottom-[8rem] right-[24rem] flex flex-col gap-[3rem];
 }
 
 .join-screen__button {
-  @apply px-14 py-6 border-2 border-yellow-500 bg-[#F3EAD0] text-lg font-bold text-black rounded-lg shadow-lg 
-  hover:bg-yellow-500 transition-all duration-300 ease-in-out; 
-} 
-
-.background {
-  @apply items-center inset-0 w-[1080] h-[950px] object-cover blur-sm ;
+	@apply px-14 py-6 border-2 border-yellow-500 bg-[#F3EAD0] text-lg font-bold text-black rounded-lg shadow-lg hover:bg-yellow-500 transition-all duration-300 ease-in-out;
 }
 
 .iceCream {
-  @apply rounded-2xl relative w-[850] h-[850px] object-cover; 
+	@apply rounded-b-full w-[750px] h-[800px] object-cover;
 }
 
-
+/* Modal de join */
 .join-modal-content {
-  @apply flex flex-col items-center p-8 text-white min-h-[300px];
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+	@apply flex flex-col items-center p-8 text-white min-h-[300px];
+	text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
 }
 
 .join-modal-title {
-  @apply text-4xl font-bold mb-8 text-center;
+	@apply text-4xl font-bold mb-8 text-center;
 }
 
 .join-modal-forms {
-  @apply w-full flex flex-col gap-6 items-center; 
-} 
+	@apply w-full flex flex-col gap-6 items-center;
+}
 
 .join-modal-input {
-  @apply items-center w-64 py-3 px-4 rounded-lg border-2 border-gray-200 text-base bg-opacity-90 bg-white text-gray-800;
+	@apply items-center w-64 py-3 px-4 rounded-lg border-2 border-gray-200 text-base bg-opacity-90 bg-white text-gray-800;
 }
 
 .join-modal-input:focus {
-  @apply outline-none border-blue-500;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-}
-
-.join-modal-buttons {
-  @apply flex justify-between mt-4 gap-4;
-}
-
-.join-modal-button-cancel {
-  @apply items-center py-3 px-6 border-2 h-[3.2rem] w-[7rem] border-yellow-500 bg-[#F3EAD0] text-lg font-bold text-black rounded-lg shadow-lg 
-  hover:bg-red-500 transition-all duration-300 ease-in-out;
-}
-
-
-.join-modal-button-join {
-  @apply items-center py-3 px-6 border-2 h-[3.2rem] w-[7rem] border-yellow-500 bg-[#F3EAD0] text-lg font-bold text-black rounded-lg shadow-lg 
-  hover:bg-yellow-500 transition-all duration-300 ease-in-out;
+	@apply outline-none border-blue-500;
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
 }
 
 .join-modal-input.input-error {
-    @apply border-red-500 bg-red-50;
+	@apply border-red-500 bg-red-50;
 }
 
+.join-modal-buttons {
+	@apply flex justify-between mt-4 gap-4;
+}
 
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
+.join-modal-button-cancel {
+	@apply items-center py-3 px-6 border-2 h-[3.2rem] w-[7rem] border-yellow-500 bg-[#F3EAD0] text-lg font-bold text-black rounded-lg shadow-lg hover:bg-red-500 transition-all duration-300 ease-in-out;
+}
+
+.join-modal-button-join {
+	@apply items-center py-3 px-6 border-2 h-[3.2rem] w-[7rem] border-yellow-500 bg-[#F3EAD0] text-lg font-bold text-black rounded-lg shadow-lg hover:bg-yellow-500 transition-all duration-300 ease-in-out;
 }
 
 .join-modal-button-join:disabled {
-    animation: pulse 1.5s infinite;
+	animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+	0% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+.background {
+	@apply absolute inset-0 w-full h-full object-cover blur-sm;
+	z-index: 0;
 }
