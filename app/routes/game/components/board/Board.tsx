@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import IceCream from "./ice-cream/IceCream";
-import Fruit from "./fruit/Fruit";
-import EspecialFruit from "./fruit/EspecialFruit";
+import FruitFactory from "./fruit/FruitFactory";
 import IceBlock from "./ice-block/IceBlock";
 import type { BoardCell, UserInformation } from "~/types/types";
 import { useBoard } from "~/contexts/game/Board/BoardContext";
@@ -11,8 +10,9 @@ import { useGameWebSocket } from "~/contexts/game/GameWebSocketProvider";
 import { closeWebSocket } from "~/services/websocket";
 import "./Board.css";
 import EnemyFactory from "./enemies/enemyFactory/enemyFactory";
+import Rock from "./staticElements/Rock";
 
-export const ICE_BLOCK_ANIMATION_INTERVAL = 100; // ms
+export const ICE_BLOCK_ANIMATION_INTERVAL = 75; // ms
 
 export default function Board() {
 	// Variables de canvas y tamaño de celda
@@ -25,13 +25,17 @@ export default function Board() {
 	const enemies = boardState.enemies;
 	const iceBlocks = boardState.iceBlocks;
 	const [visibleIceBlocks, setVisibleIceBlocks] = useState<BoardCell[]>([]);
-	const especialFruit = boardState.especialFruit;
 	// Variables de estado de los usuarios
 	const { state: usersState } = useUsers();
 	const iceCreams = [usersState.mainUser, usersState.secondaryUser];
 	// Variables de estado de la barra de frutas
 	const { state: fruitBarState } = useFruitBar();
 	const { connectWebSocket } = useGameWebSocket();
+
+	useEffect(() => {
+		console.log(JSON.stringify(iceCreams));
+	}
+	, [iceCreams]);
 
 	useEffect(() => {
 		const setupCanvas = () => {
@@ -164,7 +168,7 @@ export default function Board() {
 
 			return (
 				<div key={fruit.item.id} style={style}>
-					<Fruit fruitInformation={fruit} subtype={fruitBarState.actualFruit} />
+					<FruitFactory fruitInformation={fruit} subtype={fruitBarState.actualFruit} />
 				</div>
 			);
 		});
@@ -203,7 +207,7 @@ export default function Board() {
 
 	const renderIceCreams = () => {
 		return iceCreams.map((iceCream: UserInformation) => {
-			if (!iceCream.id) return null;
+        	if (!iceCream.id || !iceCream.position.x || !iceCream.position.y ) return null;
 			const style = {
 				...getElementsStyles(
 					iceCream.position.y,
@@ -215,26 +219,25 @@ export default function Board() {
 			};
 			return (
 				<div key={iceCream.id} style={style}>
-					<IceCream {...iceCream} />
+					<IceCream iceCreamInformation={iceCream} styles={style} />
 				</div>
 			);
 		});
 	};
-
-	const renderEspecialFruit = () => {
-		if (!especialFruit) return null;
-		const style = {
-			...getElementsStyles(
-				especialFruit.coordinates.y,
-				especialFruit.coordinates.x,
-				cellSize,
-				true
-				),
-		};
-		return (
-			<EspecialFruit
-				fruitInformation={especialFruit}
-			/>
+	
+	const renderStaticElements = () => {
+		return boardState.staticElements.map((element: BoardCell) => {
+			const style = getElementsStyles(element.coordinates.y, element.coordinates.x, cellSize);
+			return (
+				<div key={element.item?.id} style={style}>
+					<Rock
+						blockInformation={element}
+						styles={style}
+						cellSize={cellSize}
+					/>
+				</div>
+			);
+		}
 		);
 	};
 
@@ -288,7 +291,7 @@ export default function Board() {
 				{cellSize > 0 && renderIceBlocks()}
 				{cellSize > 0 && renderFruits()}
 				{cellSize > 0 && renderIceCreams()}
-				{cellSize > 0 && renderEspecialFruit()}
+				{cellSize > 0 && renderStaticElements()}
 			</div>
 		</div>
 	);

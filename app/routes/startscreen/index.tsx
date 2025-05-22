@@ -8,6 +8,7 @@ import Button from "~/components/shared/Button";
 import Modal from '~/components/modal/Modal';
 import "~/components/modal/styles.css";
 import { useMsal } from "@azure/msal-react";
+import IceCream from "../game/components/board/ice-cream/IceCream";
 
 
 interface ApiError {
@@ -156,22 +157,48 @@ export default function StartScreen() {
                         marginBottom: "10px",
                         textShadow: "0 2px 8px #fff6"
                     }}>
-                        Ice Cream Score
+                        Instructions
                     </h2>
-                    <div className="icecream-score-icons">
-                        {Array.from({ length: 10 }).map((_, i) => (
-                            <img
-                                key={`icecream-cone-svg-${i}-${Date.now()}`}
-                                src="/assets/ice-cream-cone.svg"
-                                alt="ice cream"
-                                className="icecream-cone"
-                                style={{ opacity: 0.25 }}
-                            />
-                        ))}
-                    </div>
-                    <div className="icecream-score-bottom">
-                        <img src="/assets/poob.svg" alt="poop" className="icecream-poop left" />
-                        <img src="/assets/poob.svg" alt="poop" className="icecream-poop right" />
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '20px 0' }}>
+                        <IceCream
+                            iceCreamInformation={{
+                                flavour: "vanilla",
+                                state: "alive",
+                                direction: "down",
+                                position: { x: 0, y: 0 },
+                                id: "help-icecream",
+                                matchId: "help-match",
+                                name: "Demo Player",
+                            }}
+                            styles={{
+                                width: 96,
+                                height: 96,
+                                margin: "0 auto",
+                                background: "none",
+                                backgroundColor: "transparent"
+                            }}
+                        />
+                        <div style={{ textAlign: 'center', marginTop: 16 }}>
+                            Move the ice cream <b>up</b> <span style={{ fontSize: 24, marginRight: 8 }}>⬆️</span>
+                            and <b>down</b> <span style={{ fontSize: 24, marginRight: 8 }}>⬇️</span>
+                        </div>
+                        <div style={{ textAlign: 'center', marginTop: 16 }}>
+                            Change the flavour <b>left</b> <span style={{ fontSize: 24, marginRight: 8 }}>⬅️</span>
+                            and <b>right</b> <span style={{ fontSize: 24, marginRight: 8 }}>➡️</span>
+                        </div>
+                        <div style={{ textAlign: 'center', marginTop: 16 }}>
+                            <kbd style={{
+                                padding: "4px 16px",
+                                borderRadius: "6px",
+                                border: "1px solid #bbb",
+                                background: "rgb(32, 123, 241)",
+                                fontWeight: "bold",
+                                fontSize: "1.1em",
+                                marginRight: 8,
+                                boxShadow: "0 1px 2px #ccc"
+                            }}>Space</kbd>
+                            to <b>power</b> the ice cream
+                        </div>
                     </div>
                     <Button
                         variant="secondary"
@@ -179,7 +206,7 @@ export default function StartScreen() {
                         onClick={() => setShowScoreModal(false)}
                         style={{ marginTop: "24px" }}
                     >
-                        Salir
+                        Exit
                     </Button>
                 </div>
             </Modal>

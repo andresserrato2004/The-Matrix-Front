@@ -8,7 +8,7 @@ import IceCreamSelector from "./components/IceCreamSelector";
 import GameControls from "./components/GameControls";
 import api from "~/services/api";
 import "./styles.css";
-import { UsersProvider, useUsers } from "~/contexts/UsersContext";
+import { useUsers } from "~/contexts/UsersContext";
 
 // TODO tipar todo
 

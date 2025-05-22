@@ -1,6 +1,6 @@
 import { createContext, useReducer, useContext } from "react";
 import type { ReactNode, Dispatch } from "react";
-import type { PlayerMove, UserInformation, GameState } from "../types/types";
+import type { PlayerMove, UserInformation, GameState, UpdateState } from "~/types/types";
 
 export interface UsersState {
     mainUser: UserInformation;
@@ -14,7 +14,8 @@ type UsersAction =
     | { type: "MOVE_USER"; payload: PlayerMove }
     | { type: "SET_MAIN_USER"; payload: UserInformation }
     | { type: "SET_GAME_STATE"; payload: GameState }
-    | { type: "SET_SECONDARY_USER"; payload: UserInformation };
+    | { type: "SET_SECONDARY_USER"; payload: UserInformation }
+    | { type: "UPDATE_STATE"; payload: UpdateState };
 
 const initialState: UsersState = {
     mainUser: {
@@ -91,6 +92,40 @@ function usersReducer(state: UsersState, action: UsersAction): UsersState {
                 ...state,
                 gameState: action.payload,
             };
+        case "UPDATE_STATE":
+            if (!action.payload.id) return state;
+            if (action.payload.id === state.mainUser.id) {
+                return {
+                    ...state,
+                    mainUser: {
+                        ...state.mainUser,
+                        // Solo actualiza si viene en el payload, si no deja el anterior
+                        state: action.payload.state ?? state.mainUser.state,
+                        //flavour: action.payload.color ?? state.mainUser.flavour,
+                        direction: state.mainUser.direction,
+                        position: state.mainUser.position, // <--- agrega esto
+                        matchId: state.mainUser.matchId,
+                        id: state.mainUser.id,
+                        name: state.mainUser.name,
+                    },
+                };
+            }
+            if (action.payload.id === state.secondaryUser.id) {
+                return {
+                    ...state,
+                    secondaryUser: {
+                        ...state.secondaryUser,
+                        state: action.payload.state ?? state.secondaryUser.state,
+                        //flavour: action.payload.color ?? state.secondaryUser.flavour,
+                        direction: state.secondaryUser.direction,
+                        position: state.secondaryUser.position,
+                        matchId: state.secondaryUser.matchId,
+                        id: state.secondaryUser.id,
+                        name: state.secondaryUser.name,
+                    },
+                };
+            }
+            return state;
         default:
             return state;
     }

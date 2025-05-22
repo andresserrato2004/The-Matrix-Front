@@ -12,13 +12,10 @@ type FruitProps = {
 export default function Fruit({ fruitInformation, subtype }: FruitProps) {
 
   const { frozen, coordinates } = fruitInformation;
-
-  const freezeImage = useFreezeFrames(
-    frozen,
-    `/fruits/frozen-${subtype}.webp`
-  );
-
-  const src = freezeImage ?? `/fruits/${subtype}.webp`;
+  // const freezeImage = useFreezeFrames(
+  //   frozen,
+  //   `/fruits/frozen-${subtype}.webp`
+  // );
 
   if (fruitInformation.frozen) return (
     <div
@@ -33,6 +30,8 @@ export default function Fruit({ fruitInformation, subtype }: FruitProps) {
         </Sign>
       </div>
   );
+
+  const src = `/fruits/${subtype}.webp`;
 
   return (
     <div
