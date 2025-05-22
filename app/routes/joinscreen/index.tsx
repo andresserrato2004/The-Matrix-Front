@@ -115,10 +115,8 @@ export default function JoinScreen() {
 
 
         try {
-            //console.log("askdjhsakd", `http://192.168.50.31:3000/rest/users/${userData?.userId}/matches`);
-            //console.log("userData", userData?.userId);
+            
             const response = await api.post(`/rest/users/${userData?.userId}/matches`, lobbyData);
-            //console.log("API response:", response.data);
             const response2 = await api.get(`/rest/users/${userData?.userId}/matches`);
             console.log("API response:", response2.data.matchId);
             navigate(`/createlobby?code=${response2.data.matchId}`);
