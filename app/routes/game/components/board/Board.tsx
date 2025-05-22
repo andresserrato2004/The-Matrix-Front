@@ -34,9 +34,9 @@ export default function Board() {
 
 	useEffect(() => {
 		console.log("gameState", usersState.gameState);
-		console.log(JSON.stringify(iceCreams));
+		//console.log(JSON.stringify(iceCreams));
 	}
-	, [iceCreams]);
+		, [iceCreams]);
 
 	useEffect(() => {
 		const setupCanvas = () => {
@@ -81,7 +81,7 @@ export default function Board() {
 				};
 
 				bgImage.onerror = () => {
-					console.error("Error al cargar la imagen de fondo");
+					//console.error("Error al cargar la imagen de fondo");
 					setIsBackgroundLoaded(true);
 				};
 			}
@@ -98,59 +98,59 @@ export default function Board() {
 	}, [connectWebSocket]);
 
 	useEffect(() => {
-	  if (!iceBlocks) return;
-	
-	  let timeout: NodeJS.Timeout;
-	
-	  function areBlocksEqual(a: BoardCell, b: BoardCell) {
-		return a.coordinates.x === b.coordinates.x && a.coordinates.y === b.coordinates.y;
-	  }
-	
-	  function blockIsNotPresent(current: BoardCell[], target: BoardCell[]) {
-		return target.find(
-		  t => !current.some(c => areBlocksEqual(c, t))
-		);
-	  }
-	
-	  function blockIsPresent(current: BoardCell[], target: BoardCell[]) {
-		return current.find(
-		  c => !target.some(t => areBlocksEqual(c, t))
-		);
-	  }
-	
-	  function animateIceBlocks() {
-		// Agregar bloques que faltan
-		if (visibleIceBlocks.length < iceBlocks.length) {
-		  const blockToAdd = blockIsNotPresent(visibleIceBlocks, iceBlocks);
-		  if (blockToAdd) {
-			setVisibleIceBlocks(prev => {
-			if (prev.some(b => areBlocksEqual(b, blockToAdd))) return prev; // Ya existe, no lo agregues
-			return [...prev, blockToAdd];
-			});
-			timeout = setTimeout(animateIceBlocks, ICE_BLOCK_ANIMATION_INTERVAL);
+		if (!iceBlocks) return;
+
+		let timeout: NodeJS.Timeout;
+
+		function areBlocksEqual(a: BoardCell, b: BoardCell) {
+			return a.coordinates.x === b.coordinates.x && a.coordinates.y === b.coordinates.y;
 		}
-		}
-		// Eliminar bloques que sobran
-		else if (visibleIceBlocks.length > iceBlocks.length) {
-		  const blockToRemove = blockIsPresent(visibleIceBlocks, iceBlocks);
-		  if (blockToRemove) {
-			setVisibleIceBlocks(prev =>
-			  prev.filter(
-				b => !areBlocksEqual(b, blockToRemove)
-			  )
+
+		function blockIsNotPresent(current: BoardCell[], target: BoardCell[]) {
+			return target.find(
+				t => !current.some(c => areBlocksEqual(c, t))
 			);
-			timeout = setTimeout(animateIceBlocks, ICE_BLOCK_ANIMATION_INTERVAL);
-		  }
 		}
-		// Si son iguales, termina la animación
-	  }
-	
-	  if (visibleIceBlocks.length !== iceBlocks.length) {
-		timeout = setTimeout(animateIceBlocks, ICE_BLOCK_ANIMATION_INTERVAL);
-	  }
-	
-	  return () => clearTimeout(timeout);
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+
+		function blockIsPresent(current: BoardCell[], target: BoardCell[]) {
+			return current.find(
+				c => !target.some(t => areBlocksEqual(c, t))
+			);
+		}
+
+		function animateIceBlocks() {
+			// Agregar bloques que faltan
+			if (visibleIceBlocks.length < iceBlocks.length) {
+				const blockToAdd = blockIsNotPresent(visibleIceBlocks, iceBlocks);
+				if (blockToAdd) {
+					setVisibleIceBlocks(prev => {
+						if (prev.some(b => areBlocksEqual(b, blockToAdd))) return prev; // Ya existe, no lo agregues
+						return [...prev, blockToAdd];
+					});
+					timeout = setTimeout(animateIceBlocks, ICE_BLOCK_ANIMATION_INTERVAL);
+				}
+			}
+			// Eliminar bloques que sobran
+			else if (visibleIceBlocks.length > iceBlocks.length) {
+				const blockToRemove = blockIsPresent(visibleIceBlocks, iceBlocks);
+				if (blockToRemove) {
+					setVisibleIceBlocks(prev =>
+						prev.filter(
+							b => !areBlocksEqual(b, blockToRemove)
+						)
+					);
+					timeout = setTimeout(animateIceBlocks, ICE_BLOCK_ANIMATION_INTERVAL);
+				}
+			}
+			// Si son iguales, termina la animación
+		}
+
+		if (visibleIceBlocks.length !== iceBlocks.length) {
+			timeout = setTimeout(animateIceBlocks, ICE_BLOCK_ANIMATION_INTERVAL);
+		}
+
+		return () => clearTimeout(timeout);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [iceBlocks, visibleIceBlocks]);
 
 	const getElementsStyles = (x: number, y: number, size: number, needsTransition = false) => ({
@@ -180,7 +180,7 @@ export default function Board() {
 			const style = getElementsStyles(block.coordinates.y, block.coordinates.x, cellSize);
 			return (
 				<div key={`${block.coordinates.x}-${block.coordinates.y}`} style={style}>
-					<IceBlock blockInformation={block} styles={style} cellSize={cellSize}/>
+					<IceBlock blockInformation={block} styles={style} cellSize={cellSize} />
 				</div>
 			);
 		});
@@ -208,7 +208,7 @@ export default function Board() {
 
 	const renderIceCreams = () => {
 		return iceCreams.map((iceCream: UserInformation) => {
-        	if (!iceCream.id || !iceCream.position.x || !iceCream.position.y ) return null;
+			if (!iceCream.id || !iceCream.position.x || !iceCream.position.y) return null;
 			const style = {
 				...getElementsStyles(
 					iceCream.position.y,
@@ -225,7 +225,7 @@ export default function Board() {
 			);
 		});
 	};
-	
+
 	const renderStaticElements = () => {
 		return boardState.staticElements.map((element: BoardCell) => {
 			const style = getElementsStyles(element.coordinates.y, element.coordinates.x, cellSize);

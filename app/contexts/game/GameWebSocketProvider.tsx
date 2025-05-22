@@ -36,11 +36,11 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
     if (ws) {
       ws.close();
     }
-    console.log(" ...");
+    //console.log(" ...");
     const token = localStorage.getItem('token');
     const socket = new WebSocket(`${WS_BASE_URL}/ws/game/${userData.userId}/${userData.matchId}`, token || undefined);
     setWs(socket);
-    console.log(ws);
+    //console.log(ws);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData?.userId, userData?.matchId]);
 
@@ -56,7 +56,7 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!ws) return;
-    console.log("websocket a añadirle eventos ", ws);
+    //console.log("websocket a añadirle eventos ", ws);
     ws.onopen = () => {
       console.log("WebSocket conectado.");
     };
@@ -75,7 +75,7 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
     ws.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
-        console.log("Received message from gameWebSocket: ", message);
+        //console.log("Received message from gameWebSocket: ", message);
         // MENSAJES PARA EL HEADER
         if (message.type === "update-time") {
           headerDispatch({ type: "SET_MINUTES", payload: message.payload.minutesLeft });

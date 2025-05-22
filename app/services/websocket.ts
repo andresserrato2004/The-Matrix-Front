@@ -14,9 +14,9 @@ export function createWebSocketConnection(path = ""): WebSocket {
 
 	const wsConnection = new WebSocket(wsUrl, token || undefined);
 
-	console.log("WEBSOCKET WebSocket:", wsUrl);
-	console.log("WebSocket connection:", wsConnection);
-	console.log("WebSocket readyState:", wsConnection.readyState);
+	//console.log("WEBSOCKET WebSocket:", wsUrl);
+	//console.log("WebSocket connection:", wsConnection);
+	//console.log("WebSocket readyState:", wsConnection.readyState);
 
 	// Asignar la conexión inmediatamente
 	ws = wsConnection;
@@ -58,10 +58,10 @@ export function createWebSocketConnection(path = ""): WebSocket {
 
 // Function to send messages through WebSocket
 export function sendMessage(message: Message): void {
-	console.log("WebSocket - Enviando mensaje:", message);
-	console.log("WebSocket - Estado:", ws?.readyState);
-	console.log("WebSocket - URL:", ws?.url);
-	console.log("WebSocket - Conexión:", ws);
+	//console.log("WebSocket - Enviando mensaje:", message);
+	//console.log("WebSocket - Estado:", ws?.readyState);
+	//console.log("WebSocket - URL:", ws?.url);
+	//console.log("WebSocket - Conexión:", ws);
 
 	if (ws && ws.readyState === WebSocket.OPEN) {
 		const messageString = JSON.stringify(message);
