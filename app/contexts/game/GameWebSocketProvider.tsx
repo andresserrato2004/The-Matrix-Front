@@ -37,7 +37,8 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
       ws.close();
     }
     console.log(" ...");
-    const socket = new WebSocket(`${WS_BASE_URL}/ws/game/${userData.userId}/${userData.matchId}`);
+    const token = localStorage.getItem('token');
+    const socket = new WebSocket(`${WS_BASE_URL}/ws/game/${userData.userId}/${userData.matchId}`, token || undefined);
     setWs(socket);
     console.log(ws);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -61,23 +62,24 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
     };
 
     ws.onclose = (event) => {
-      if (event.wasClean) {
-        console.log(`WebSocket cerrado limpiamente, código=${event.code}, razón=${event.reason}`);
-      } else {
+      if (!event.wasClean || event.code === 1005) {
         usersDispatch({
-            type: "SET_GAME_STATE",
-            payload: "lost-connection"
-          });
-        if (reconnectAttempts.current < 10) { // 10 intentos * 2 segundos = 20 segundos
+
+          type: "SET_GAME_STATE",
+          payload: "lost-connection"
+        });
+        if (reconnectAttempts.current < 15) { // 10 intentos * 2 segundos = 20 segundos
           reconnectAttempts.current += 1;
           console.warn(`WebSocket cerrado inesperadamente. Intentando reconectar (Intento ${reconnectAttempts.current}/10)`);
           reconnectTimeout.current = setTimeout(() => {
             connectWebSocket();
-            sendMessage({type: "update-all", payload: ""}); // Enviar mensaje de reconexión
+            sendMessage({ type: "update-all", payload: "" }); // Enviar mensaje de reconexión
           }, 2000); // 2 segundos
         } else {
-          console.error("No se pudo reconectar después de 1 minuto.");
+          console.error("No se pudo reconectar después de 30 segundos.");
         }
+      } else {
+        console.log(`WebSocket cerrado limpiamente, código=${event.code}, razón=${event.reason}`);
       }
     };
 
@@ -113,15 +115,24 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
         // MENSAJES PARA EL TABLERO Y HEADER 
         else if (message.type === "update-enemy") {
           // Manejar el movimiento de un enemigo
-          boardDispatch({ type: "MOVE_ENEMY", payload: message.payload });
+          boardDispatch({ type: "UPDATE_ENEMY", payload: message.payload });
         }
         // MENSAJE DE ESTADO DEL JUEGO
         else if (message.type === "end") {
           // Manejar el resultado del juego
-          usersDispatch({
-            type: "SET_GAME_STATE",
-            payload: message.payload.result
-          });
+          if (message.payload.result === "win" || message.payload.result === "lose") {
+            setTimeout(() => {
+              usersDispatch({
+                type: "SET_GAME_STATE",
+                payload: message.payload.result
+              });
+            }, 2000);
+          } else {
+            usersDispatch({
+              type: "SET_GAME_STATE",
+              payload: message.payload.result
+            });
+          }
         }
         // MENSAJE DE FRUTAS
         else if (message.type === "update-fruits") {
@@ -132,13 +143,13 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
         // MENSAJE DE BLOQUES DE HIELO
         else if (message.type === "update-frozen-cells") {
           console.log("Bloques de hielo actualizados: ");
-          boardDispatch({ 
-            type: "UPDATE_ICE_BLOCKS", 
+          boardDispatch({
+            type: "UPDATE_ICE_BLOCKS",
             payload: {
               cells: message.payload.cells,
               actualFruit: fruitBarState.actualFruit,
             }
-        });
+          });
         }
         // MENSAJE DE RECONEXIÓN
         else if (message.type === "update-all") {
@@ -186,6 +197,12 @@ export function GameWebSocketProvider({ children }: { children: ReactNode }) {
             payload: message.payload === true ? "paused" : "playing"
           });
           headerDispatch({ type: "SET_IS_RUNNING", payload: !message.payload });
+        }
+        else if (message.type === "update-state") {
+          usersDispatch({
+            type: "UPDATE_STATE",
+            payload: message.payload
+          });
         }
         else {
           console.warn("Mensaje no reconocido:", message);

@@ -2,7 +2,6 @@ import { useState, useEffect, lazy, Suspense, useCallback } from "react";
 import { useLocation } from "@remix-run/react";
 import LoadingScreen from "~/components/loadingScreen/LoadingScreen";
 import type { BoardCell } from "../../types/types";
-import { useHeader } from "~/contexts/game/Header/HeaderContext";
 import { useBoard } from "~/contexts/game/Board/BoardContext";
 import { useFruitBar } from "~/contexts/game/FruitBar/FruitBarContext";
 import { useUser } from "~/contexts/user/userContext";
@@ -33,7 +32,6 @@ export default function GameScreen() {
 	const [modalType, setModalType] = useState<'win' | 'lose'>('lose');
 	const [modalMessage, setModalMessage] = useState("");
 
-	const { state: headerSate, dispatch: headerDispatch } = useHeader();
 	const { state: boardState, dispatch: boardDispatch } = useBoard();
 	const { state: fruitBarState, dispatch: fruitBarDispatch } = useFruitBar();
 	const { state: usersState, dispatch: usersDispatch } = useUsers();
@@ -146,7 +144,7 @@ export default function GameScreen() {
 		const guestCoords = coordinates[1];
 
 		const isMainUserHost = gameData.match.hostId === usersState.mainUser.id;
-
+		// Actualizar el estado de los jugadores
 		usersDispatch({
 			type: "SET_MAIN_USER",
 			payload: {
@@ -176,7 +174,6 @@ export default function GameScreen() {
 				state: "alive"     // Set initial state
 			}
 		});
-		boardDispatch({ type: "SET_BOARD", payload: gameData.match.board.cells });
 		// cargar fruitBarContext
 		fruitBarDispatch({
 			type: "SET_FRUITS",
@@ -184,6 +181,8 @@ export default function GameScreen() {
 		});
 		fruitBarDispatch({ type: "SET_ACTUAL_FRUIT", payload: gameData.match.typeFruits[0] });
 
+		// cargar boardContext
+		boardDispatch({ type: "SET_BOARD", payload: gameData.match.board.cells });
 
 
 	}, [boardDispatch, fruitBarDispatch, gameData]);

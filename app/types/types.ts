@@ -2,13 +2,7 @@ export type Character = {
 	type: string; // Tipo del personaje (por ejemplo: "troll")
 	orientation: string; // Orientación del personaje (por ejemplo: "down")
 	id: string; // Identificador único del personaje
-};
-
-export type Enemey = {
-	type: string; // Tipo del enemigo (por ejemplo: "troll")
-	orientation: string; // Orientación del enemigo (por ejemplo: "down")
-	id: string; // Identificador único del enemigo
-	enemyStatus: EnemyStatus; // Estado del enemigo (por ejemplo: "alive" o "dead")
+	enemyState: EnemyStatus; // Estado del personaje (por ejemplo: "alive" o "dead")
 };
 
 export type EnemyStatus = "walking" | "rolling" | "stopped"; // Estado del enemigo (por ejemplo: "alive" o "dead")
@@ -34,6 +28,7 @@ export type EnemyMove = {
 	enemyId: string; // ID del enemigo que se mueve
 	coordinates: Coordinates; // Nuevas coordenadas del enemigo
 	direction: "up" | "down" | "left" | "right"; // Dirección en la que se mueve el enemigo (por ejemplo: "up", "down", "left", "right")
+	enemyState: EnemyStatus; // Estado del enemigo (por ejemplo: "alive" o "dead")
 };
 
 export type GameState = "playing" | "paused" | "win" | "lose" | "lost-connection"; // Estado del juego
@@ -59,8 +54,10 @@ export type UsersBoardInformation = {
 	id: string;
 	position: Coordinates;
 	direction: "up" | "down" | "left" | "right";
-};	
-
-export type EspecialFruitInformation = {
-  coordinates: Coordinates;
 };
+
+export type UpdateState = {
+  id: string;
+  state: 'dead' | 'alive';
+  color?: string;
+}

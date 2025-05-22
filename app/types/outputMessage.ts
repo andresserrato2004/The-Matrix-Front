@@ -20,7 +20,7 @@ export type ExecPowerMessage = {
 
 export type UpdateAllMessage = {
     type: 'update-all',
-    payload: string | null;
+    payload: string;
 };
 
 export type PauseResumeMessage = {

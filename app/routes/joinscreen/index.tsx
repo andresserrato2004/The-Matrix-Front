@@ -4,7 +4,13 @@ import { useState } from "react";
 import Modal from "~/components/modal/Modal";
 import api from "~/services/api";
 import Button from "~/components/shared/Button";
+import { useWebSocket } from "~/hooks/useWebSocket";
 import "./styles.css";
+
+const lobbyData = {
+    level: 1,
+    map: "desert"
+};
 
 export default function JoinScreen() {
     const navigate = useNavigate();
@@ -12,7 +18,8 @@ export default function JoinScreen() {
     const [roomCode, setRoomCode] = useState("");
     const [isJoining, setIsJoining] = useState(false);
     const [joinError, setJoinError] = useState("");
-    const { userData } = useUser();
+    const { userData, setUserData } = useUser();
+    const { connect } = useWebSocket();
 
     const openModal = () => {
         setRoomCode("");
@@ -24,8 +31,7 @@ export default function JoinScreen() {
     const closeModal = () => setIsShowModal(false);
 
     const handleRoomCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        // Convert to uppercase and limit to 6 characters
-        const value = e.target.value.toUpperCase().slice(0, 6);
+        const value = e.target.value.slice(0, 8);
         setRoomCode(value);
 
         // Clear any previous error when user is typing
@@ -34,7 +40,7 @@ export default function JoinScreen() {
         }
     };
 
-    const handleJoinLobby = async () => {
+    const handleEnableRoom = async () => {
         if (!roomCode.trim()) {
             setJoinError("Please enter a room code");
             return;
@@ -44,40 +50,76 @@ export default function JoinScreen() {
         setIsJoining(true);
 
         try {
-            // Simulate API call to validate room code
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            console.log("roomCode", roomCode);
+            // Create WebSocket connection using the hook
+            const wssURI = `/ws/join-game/${userData?.userId}/${roomCode}`;
+            const ws = connect(wssURI);
+            console.log("ws", ws);
 
-            // For demo purposes, let's check if the code is exactly 6 characters
-            // In a real implementation, you would validate against your backend
-            if (roomCode.length === 6) {
-                // Valid code - navigate to the lobby with the room code
-                navigate(`/createlobby?code=${roomCode}`);
+            if (ws) {
+                console.log("WebSocket connection established in joinscreen");
+
+                ws.onmessage = (event) => {
+                    try {
+                        const message = JSON.parse(event.data);
+                        console.log("Received message in joinscreen:", message);
+
+                        if (message.message === 'match-found') {
+                            // Configurar al jugador como player 2
+                            const positions = message.match.board.playersStartCoordinates;
+
+                            // Actualizar userData con la posición del jugador 2
+                            setUserData({
+                                ...userData,
+                                matchId: message.match.id,
+                                position: positions[1].reverse(),
+                                isPlayer2: true // Marcar como jugador 2
+                            });
+
+                            // Navegar a la pantalla de crear lobby con el estado actualizado
+                            navigate(`/createlobby?code=${roomCode}`, {
+                                state: {
+                                    isPlayer2: true,
+                                    matchData: message,
+                                    showSecondPlayer: true // Indicar que se debe mostrar el segundo jugador
+                                }
+                            });
+                        }
+                    } catch (error) {
+                        console.error("Error parsing WebSocket message:", error);
+                    }
+                };
+
+                ws.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    setJoinError("Error connecting to game server. Please try again.");
+                    setIsJoining(false);
+                };
+
+                ws.onclose = () => {
+                    console.log('WebSocket connection closed');
+                };
             } else {
-                // Invalid code
-                setJoinError("Invalid room code. Please check and try again.");
+                setJoinError("Failed to create WebSocket connection");
+                setIsJoining(false);
             }
         } catch (error) {
             setJoinError("Error joining room. Please try again.");
             console.error("Join room error:", error);
-        } finally {
             setIsJoining(false);
         }
     };
 
-
     const handleCreateLobby = async () => {
 
-        const lobbyData = {
-            level: 1,
-            map: "desert"
-        };
+
 
         try {
-            //console.log("askdjhsakd", `http://192.168.50.31:3000/rest/users/${userData?.userId}/matches`);
-            //console.log("userData", userData?.userId);
+            
             const response = await api.post(`/rest/users/${userData?.userId}/matches`, lobbyData);
-            //console.log("API response:", response.data);
-            navigate(`/createlobby?code=${response.data.code}`);
+            const response2 = await api.get(`/rest/users/${userData?.userId}/matches`);
+            console.log("API response:", response2.data.matchId);
+            navigate(`/createlobby?code=${response2.data.matchId}`);
         } catch (error) {
             console.error("Error in handleCreateLobby:", error);
             const err = (error as Error | { response?: { data?: { message?: string }, statusText?: string }, request?: unknown });
@@ -90,8 +132,6 @@ export default function JoinScreen() {
             }
         }
     }
-
-
 
     return (
         <div className="join-screen">
@@ -126,12 +166,11 @@ export default function JoinScreen() {
                     <div className="join-modal-forms">
                         <input
                             type="text"
-                            placeholder="Enter 6-Digit Lobby Code"
+                            placeholder="Enter 8-Digit Lobby Code"
                             className={`join-modal-input ${joinError ? 'input-error' : ''}`}
                             value={roomCode}
                             onChange={handleRoomCodeChange}
-                            style={{ textTransform: 'uppercase' }}
-                            maxLength={6}
+                            maxLength={8}
                         />
 
                         {joinError && (
@@ -152,7 +191,7 @@ export default function JoinScreen() {
                             <Button
                                 variant="primary"
                                 size="medium"
-                                onClick={handleJoinLobby}
+                                onClick={handleEnableRoom}
                                 disabled={isJoining || !roomCode.trim()}
                             >
                                 {isJoining ? 'Joining...' : 'Join'}

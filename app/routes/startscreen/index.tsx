@@ -1,5 +1,5 @@
-import { useNavigate } from "@remix-run/react";
-import { useState } from "react";
+import { useNavigate, useSearchParams } from "@remix-run/react";
+import { useState, useEffect } from "react";
 import { useUser } from "../../contexts/user/userContext";
 import api from "../../services/api";
 import "./styles.css";
@@ -8,6 +8,7 @@ import Button from "~/components/shared/Button";
 import Modal from '~/components/modal/Modal';
 import "~/components/modal/styles.css";
 import { useMsal } from "@azure/msal-react";
+import IceCream from "../game/components/board/ice-cream/IceCream";
 
 
 interface ApiError {
@@ -30,50 +31,40 @@ export function MicrosoftLoginButton() {
         });
     };
 
-    return (
-        <>
-            <Button
-                variant="primary"
-                size="large"
-                onClick={handleLogin}
-                className="microsoft-login-btn"
-                style={{
-                    background: "linear-gradient(90deg, #1a2a6c, #b21f1f, #fdbb2d)",
-                    color: "#fff",
-                    border: "2px solid #ffd700",
-                    borderRadius: "12px",
-                    fontWeight: "bold",
-                    fontSize: "1.1rem",
-                    boxShadow: "0 4px 16px rgba(26,42,108,0.15)",
-                    marginTop: "12px",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px"
-                }}
-            >
-                <svg width="24" height="24" viewBox="0 0 24 24" style={{ marginRight: 8 }}>
-                    <rect x="1" y="1" width="10" height="10" fill="#F35325" />
-                    <rect x="13" y="1" width="10" height="10" fill="#81BC06" />
-                    <rect x="1" y="13" width="10" height="10" fill="#05A6F0" />
-                    <rect x="13" y="13" width="10" height="10" fill="#FFBA08" />
-                </svg>
-                Iniciar sesión con Microsoft
-            </Button>
-            {accounts.length > 0 && (
-                <div>
-                    Sesión iniciada como: <b>{accounts[0].username}</b>
-                </div>
-            )}
-        </>
-    );
 }
 
 export default function StartScreen() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const [error, setError] = useState("");
     const { setUserData, userData } = useUser();
     const { state: usersState, dispatch: usersDispatch } = useUsers();
     const [showScoreModal, setShowScoreModal] = useState(false);
+
+    const handleAuthCode = async () => {
+        const code = searchParams.get('code');
+        const state = searchParams.get('state');
+        const sessionState = searchParams.get('session_state');
+
+        console.log("code aqui :", code);
+        if (code && state && sessionState) {
+            try {
+                const response = await api.get('/rest/redirect', {
+                    params: {
+                        code: code,
+                    }
+                });
+                console.log("response aqui :", response?.data.accessToken);
+                localStorage.setItem('token', response?.data.accessToken);
+            } catch (error) {
+                console.error('Error getting redirect:', error);
+            }
+        }
+    };
+
+    useEffect(() => {
+        handleAuthCode();
+    }, [searchParams]);
 
     const handleStartGame = async () => {
         console.log("handleStartGame");
@@ -142,7 +133,6 @@ export default function StartScreen() {
                     >
                         Help
                     </Button>
-                    <MicrosoftLoginButton />
                 </div>
             </div>
             {error && (
@@ -167,22 +157,48 @@ export default function StartScreen() {
                         marginBottom: "10px",
                         textShadow: "0 2px 8px #fff6"
                     }}>
-                        Ice Cream Score
+                        Instructions
                     </h2>
-                    <div className="icecream-score-icons">
-                        {Array.from({ length: 10 }).map((_, i) => (
-                            <img
-                                key={`icecream-cone-svg-${i}-${Date.now()}`}
-                                src="/assets/ice-cream-cone.svg"
-                                alt="ice cream"
-                                className="icecream-cone"
-                                style={{ opacity: 0.25 }}
-                            />
-                        ))}
-                    </div>
-                    <div className="icecream-score-bottom">
-                        <img src="/assets/poob.svg" alt="poop" className="icecream-poop left" />
-                        <img src="/assets/poob.svg" alt="poop" className="icecream-poop right" />
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '20px 0' }}>
+                        <IceCream
+                            iceCreamInformation={{
+                                flavour: "vanilla",
+                                state: "alive",
+                                direction: "down",
+                                position: { x: 0, y: 0 },
+                                id: "help-icecream",
+                                matchId: "help-match",
+                                name: "Demo Player",
+                            }}
+                            styles={{
+                                width: 96,
+                                height: 96,
+                                margin: "0 auto",
+                                background: "none",
+                                backgroundColor: "transparent"
+                            }}
+                        />
+                        <div style={{ textAlign: 'center', marginTop: 16 }}>
+                            Move the ice cream <b>up</b> <span style={{ fontSize: 24, marginRight: 8 }}>⬆️</span>
+                            and <b>down</b> <span style={{ fontSize: 24, marginRight: 8 }}>⬇️</span>
+                        </div>
+                        <div style={{ textAlign: 'center', marginTop: 16 }}>
+                            Change the flavour <b>left</b> <span style={{ fontSize: 24, marginRight: 8 }}>⬅️</span>
+                            and <b>right</b> <span style={{ fontSize: 24, marginRight: 8 }}>➡️</span>
+                        </div>
+                        <div style={{ textAlign: 'center', marginTop: 16 }}>
+                            <kbd style={{
+                                padding: "4px 16px",
+                                borderRadius: "6px",
+                                border: "1px solid #bbb",
+                                background: "rgb(32, 123, 241)",
+                                fontWeight: "bold",
+                                fontSize: "1.1em",
+                                marginRight: 8,
+                                boxShadow: "0 1px 2px #ccc"
+                            }}>Space</kbd>
+                            to <b>power</b> the ice cream
+                        </div>
                     </div>
                     <Button
                         variant="secondary"
@@ -190,7 +206,7 @@ export default function StartScreen() {
                         onClick={() => setShowScoreModal(false)}
                         style={{ marginTop: "24px" }}
                     >
-                        Salir
+                        Exit
                     </Button>
                 </div>
             </Modal>

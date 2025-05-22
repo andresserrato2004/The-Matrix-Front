@@ -6,11 +6,17 @@ import { useUser } from '../../../app/contexts/user/userContext';
 import { useUsers } from '../../../app/contexts/UsersContext';
 import { useMsal } from '@azure/msal-react';
 import api from '../../../app/services/api';
+import * as remix from "@remix-run/react";
 
 // Mock de las dependencias
-vi.mock('@remix-run/react', () => ({
-    useNavigate: vi.fn()
-}));
+vi.mock("@remix-run/react", async (importOriginal) => {
+    const actual = await importOriginal();
+    return {
+        ...actual,
+        useSearchParams: vi.fn(() => [new URLSearchParams(), vi.fn()]),
+        useNavigate: vi.fn(() => vi.fn()),
+    };
+});
 
 vi.mock('../../../app/contexts/user/userContext', () => ({
     useUser: vi.fn()
@@ -39,16 +45,16 @@ describe('StartScreen', () => {
         vi.clearAllMocks();
 
         // Configurar mocks
-        (useNavigate as any).mockReturnValue(mockNavigate);
-        (useUser as any).mockReturnValue({
+        (useNavigate as unknown as vi.Mock).mockReturnValue(mockNavigate);
+        (useUser as unknown as vi.Mock).mockReturnValue({
             setUserData: mockSetUserData,
             userData: null
         });
-        (useUsers as any).mockReturnValue({
+        (useUsers as unknown as vi.Mock).mockReturnValue({
             state: { mainUser: {} },
             dispatch: mockUsersDispatch
         });
-        (useMsal as any).mockReturnValue({
+        (useMsal as unknown as vi.Mock).mockReturnValue({
             instance: {
                 loginPopup: vi.fn()
             },
@@ -61,7 +67,6 @@ describe('StartScreen', () => {
 
         expect(screen.getByRole('button', { name: /start game/i })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /help/i })).toBeInTheDocument();
-        expect(screen.getByRole('button', { name: /iniciar sesión con microsoft/i })).toBeInTheDocument();
     });
 
     it('shows help modal when help button is clicked', () => {
@@ -69,12 +74,12 @@ describe('StartScreen', () => {
 
         const helpButton = screen.getByRole('button', { name: /help/i });
         fireEvent.click(helpButton);
-        expect(screen.getByText('Ice Cream Score')).toBeInTheDocument();
+        expect(screen.getByText('Instructions')).toBeInTheDocument();
     });
 
     it('handles start game successfully', async () => {
         const mockUserId = '123';
-        (api.post as any).mockResolvedValueOnce({ data: { userId: mockUserId } });
+        (api.post as unknown as vi.Mock).mockResolvedValueOnce({ data: { userId: mockUserId } });
 
         render(<StartScreen />);
 
@@ -91,7 +96,7 @@ describe('StartScreen', () => {
 
     it('handles start game error', async () => {
         const errorMessage = 'Server error';
-        (api.post as any).mockRejectedValueOnce({
+        (api.post as unknown as vi.Mock).mockRejectedValueOnce({
             response: {
                 data: { message: errorMessage }
             }
@@ -105,50 +110,5 @@ describe('StartScreen', () => {
         await waitFor(() => {
             expect(screen.getByText(`Server error: ${errorMessage}`)).toBeInTheDocument();
         });
-    });
-});
-
-describe('MicrosoftLoginButton', () => {
-    const mockLoginPopup = vi.fn();
-    const mockAccounts: { username: string }[] = [];
-
-    beforeEach(() => {
-        vi.clearAllMocks();
-        (useMsal as any).mockReturnValue({
-            instance: {
-                loginPopup: mockLoginPopup
-            },
-            accounts: mockAccounts
-        });
-    });
-
-    it('renders login button', () => {
-        render(<MicrosoftLoginButton />);
-        expect(screen.getByRole('button', { name: /iniciar sesión con microsoft/i })).toBeInTheDocument();
-    });
-
-    it('calls loginPopup when clicked', () => {
-        render(<MicrosoftLoginButton />);
-        const loginButton = screen.getByRole('button', { name: /iniciar sesión con microsoft/i });
-        fireEvent.click(loginButton);
-        expect(mockLoginPopup).toHaveBeenCalledWith({
-            scopes: ['User.Read']
-        });
-    });
-
-    it('shows username when logged in', () => {
-        const mockUsername = 'test@example.com';
-        (useMsal as any).mockReturnValue({
-            instance: {
-                loginPopup: mockLoginPopup
-            },
-            accounts: [{ username: mockUsername }]
-        });
-
-        render(<MicrosoftLoginButton />);
-        const usernameElement = screen.getByText((content, element) => {
-            return element?.textContent === `Sesión iniciada como: ${mockUsername}`;
-        });
-        expect(usernameElement).toBeInTheDocument();
     });
 }); 

@@ -1,4 +1,3 @@
-// src/components/IceBlock.tsx
 import { useFreezeFrames } from "~/hooks/useFreezeFrames";
 import type { BoardCell } from "~/types/types";
 import "./IceBlock.css";

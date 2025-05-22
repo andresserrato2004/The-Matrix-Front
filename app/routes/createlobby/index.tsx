@@ -1,14 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import LvlSelector from "./components/LvlSelector";
 import { useWebSocket } from "~/hooks/useWebSocket";
-import { useNavigate } from "@remix-run/react";
+import { sendMessage } from "~/services/websocket";
+import { useNavigate, useLocation } from "@remix-run/react";
 import { useUser } from "~/contexts/user/userContext";
 import Button from "~/components/shared/Button";
 import IceCreamSelector from "./components/IceCreamSelector";
 import GameControls from "./components/GameControls";
 import api from "~/services/api";
 import "./styles.css";
-import { UsersProvider, useUsers } from "~/contexts/UsersContext";
+import { useUsers } from "~/contexts/UsersContext";
 
 // TODO tipar todo
 
@@ -25,10 +26,12 @@ const iceCreams = [
 
 export default function Lobby() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { state: usersState, dispatch: usersDispatch } = useUsers();
     const { userData, setUserData, secondaryUserData, setSecondaryUserData } = useUser();
-
     const { connect } = useWebSocket();
+    const hasReconnected = useRef(false);
+    const [isnewconnection, setIsnewconnection] = useState(true);
 
     const [player1IceCream, setPlayer1IceCream] = useState(null);
     const [player2IceCream, setPlayer2IceCream] = useState(null);
@@ -58,37 +61,42 @@ export default function Lobby() {
     // Estado para mostrar/ocultar el selector
     const [showLvlSelector, setShowLvlSelector] = useState(false);
 
+    // Estado para el WebSocket activo
+    const [lobbyWebSocket, setLobbyWebSocket] = useState(null);
+
     // Callback cuando se selecciona un nivel
-    const handleSelectLevel = (level: number) => {
-        // Aquí puedes guardar el nivel seleccionado o hacer lo que necesites
-        console.log("Nivel seleccionado:", level);
-        setShowLvlSelector(false); // Oculta el selector después de seleccionar
+    const handleSelectLevel = async (level: number) => {
+        if (!userData?.userId || !roomCode) {
+            console.error("Missing userId or roomCode");
+            return;
+        }
+
+        const lobbyData = {
+            level: level,
+            map: "desert"
+        };
+
+        try {
+            const response = await api.put(`/rest/users/${userData.userId}/matches/${roomCode}`, lobbyData);
+            console.log("Level updated successfully:", response.data);
+            setShowLvlSelector(false); // Oculta el selector después de seleccionar
+        } catch (error) {
+            console.error("Error updating level:", error);
+            const err = (error as Error | { response?: { data?: { message?: string }, statusText?: string }, request?: unknown });
+            if ('response' in err && err.response) {
+                console.error(`Server error: ${err.response.data?.message || err.response.statusText}`);
+            } else if ('request' in err && err.request) {
+                console.error("Network error: Unable to reach the server");
+            } else {
+                console.error(`Error: ${error}`);
+            }
+        }
     };
 
     // Callback para volver atrás
     const handleBack = () => {
         setShowLvlSelector(false);
     };
-
-    // Efecto para mostrar al segundo jugador después de 10 segundos
-    // useEffect(() => {
-    //     // Primero mostramos la animación de "uniendo" a los 8 segundos
-    //     const joiningTimer = setTimeout(() => {
-    //         console.log("Player joining animation started");
-    //         setPlayerJoining(true);
-    //     }, 3000);
-
-    //     // Luego mostramos el jugador completo a los 10 segundos
-    //     const showPlayerTimer = setTimeout(() => {
-    //         console.log("Showing second player");
-    //         setShowSecondPlayer(true);
-    //     }, 5000);
-
-    //     return () => {
-    //         clearTimeout(joiningTimer);
-    //         clearTimeout(showPlayerTimer);
-    //     };
-    // }, []);
 
     // Cargar el código de sala cuando el componente se monte
 
@@ -101,14 +109,46 @@ export default function Lobby() {
                 const response = await api.get(`/rest/users/${userData?.userId}/matches`);
                 console.log("API response:", response.data.matchId);
                 setRoomCode(response.data.matchId);
+
+                // Solo mostrar el segundo jugador si viene del estado de navegación
+                const state = location.state as { showSecondPlayer?: boolean };
+                console.log("state?.showSecondPlayer:", state?.showSecondPlayer);
+                if (state?.showSecondPlayer && isnewconnection) {
+                    // Cerrar cualquier conexión WebSocket existente
+                    if (lobbyWebSocket) {
+                        console.log("Cerrando conexión WebSocket existente");
+                        lobbyWebSocket.close();
+                        setLobbyWebSocket(null);
+                        setIsnewconnection(false);
+                    }
+
+                    // Crear nueva conexión WebSocket para la sala
+                    const wssURI = `/ws/join-game/${userData?.userId}/${response.data.matchId}`;
+                    console.log("wssURIii2", wssURI);
+                    const newWs = connect(wssURI);
+
+                    if (newWs) {
+                        console.log("Nueva conexión WebSocket establecida para el jugador que se une");
+                        setWebSocketHandlers(newWs);
+                        setLobbyWebSocket(newWs);
+                        hasReconnected.current = true; // Marcar que ya se realizó la reconexión
+                    }
+
+                    setPlayerJoining(true);
+                    setShowSecondPlayer(true);
+                    setIsSoloPlayer(false);
+                }
+
             } catch (error) {
                 console.error("Error loading room code:", error);
                 setRoomCode("ERROR");
             }
         };
 
-        loadRoomCode();
-    }, [userData?.userId]);
+        if (userData?.userId) {
+            loadRoomCode();
+        }
+    }, [userData, location.state, connect, lobbyWebSocket]);
 
     const togglePlayer1Ready = () => setPlayer1Ready(prev => !prev);
     const togglePlayer2Ready = () => setPlayer2Ready(prev => !prev);
@@ -147,45 +187,42 @@ export default function Lobby() {
 
     // Countdown timer when players are ready
     useEffect(() => {
+        if (!isGameReady || gameStarted) return;
 
-        setUserData({
-            ...userData,
-            imageUrl: isGameReady.image
-        });
-        usersDispatch({
-            type: "SET_MAIN_USER",
-            payload: {
-                ...usersState.mainUser,
-                name: player1Name
+        const timer = setInterval(() => {
+            setCountdown(prev => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    console.log("game data:", message);
+                    navigate("/game", { state: message });
+                    setGameStarted(true);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => {
+            clearInterval(timer);
+            setCountdown(3);
+        };
+    }, [isGameReady, navigate, gameStarted, message]);
+
+    //quitar al otro jugador
+    useEffect(() => {
+        if (showSecondPlayer) {
+            if (!player1Ready) {
+                setPlayer1Ready(false);
             }
-        });
-
-        console.log("isGameReady:", isGameReady);
-        // Solo iniciar el temporizador si el juego no ha comenzado ya
-        if (gameStarted) return;
-
-        let timer;
-        if (isGameReady) {
-            timer = setInterval(() => {
-                setCountdown(prev => {
-                    if (prev <= 1) {
-                        clearInterval(timer);
-                        console.log("game data:", message);
-                        // Marcar como iniciado y navegar
-                        navigate("/game", { state: message });
-                        setGameStarted(true);
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            }, 1000);
+            if (!player2Ready) {
+                setPlayer2Ready(false);
+            }
         }
-        return () => { clearInterval(timer); setCountdown(3) };
-    }, [isGameReady, navigate, gameStarted]);
-
+    }, [showSecondPlayer, player1Ready, player2Ready]);
 
     const setWebSocketHandlers = (websocket) => {
         if (!websocket) return;
+        setLobbyWebSocket(websocket);
 
         websocket.onopen = () => {
             console.log("WebSocket connection opened successfully in createlobby");
@@ -195,15 +232,15 @@ export default function Lobby() {
             try {
                 const message = JSON.parse(event.data);
                 console.log("Received message in createlobby:", message);
-                console.log("Message positions:", message.match.board.playersStartCoordinates);
-
-                const positions = message.match.board.playersStartCoordinates;
 
                 if (message.message === 'match-found') {
+                    const positions = message.match.board.playersStartCoordinates;
                     console.log("Match found ID:", message.match?.id);
-                    setMessage(message); // Guardar el mensaje en el estado
+                    setMessage(message);
 
-                    // Guardar matchId en userData
+                    // Mostrar inmediatamente el segundo jugador
+                    setPlayerJoining(true);
+                    setShowSecondPlayer(true);
 
                     if (message.match.host === userData?.userId) {
                         // Si eres el host
@@ -229,7 +266,7 @@ export default function Lobby() {
                         // Llenar los datos del guest en secondaryUserData
                         setSecondaryUserData({
                             userId: message.match.guestId,
-                            username: message.match.guestUsername, // Si existe un campo para el nombre del guest
+                            username: message.match.guestUsername,
                             position: positions[1].reverse(),
                         });
 
@@ -277,7 +314,7 @@ export default function Lobby() {
                         // Llenar los datos del host en secondaryUserData
                         setSecondaryUserData({
                             userId: message.match.hostId,
-                            username: message.match.hostUsername, // Si existe un campo para el nombre del host
+                            username: message.match.hostUsername,
                             position: positions[0].reverse(),
                         });
 
@@ -305,13 +342,8 @@ export default function Lobby() {
                     console.log("userData updated with matchId:", userData);
 
                     console.log("Match found, navigating to game screen");
-                    setPlayer1Ready(true);
                     setIsSoloPlayer(true);
-                    websocket.close(); // Close the WebSocket connection
                 }
-
-
-
 
             } catch (error) {
                 console.error("Error parsing WebSocket message:", error);
@@ -388,6 +420,11 @@ export default function Lobby() {
     const cancelMatchmaking = () => {
         setIsSearching(false);
         setSearchTime(0);
+        // Cerrar la conexión WebSocket
+        const ws = connect(`/ws/matchmaking/${roomCode}`);
+        if (ws) {
+            ws.close();
+        }
     };
 
     // Format search time as MM:SS
@@ -395,6 +432,87 @@ export default function Lobby() {
         const minutes = Math.floor(searchTime / 60);
         const seconds = searchTime % 60;
         return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    };
+
+    const handleEnableRoom = () => {
+        try {
+            // Create WebSocket connection for publishing matches
+            const wssURI = `/ws/publish-match/${userData?.userId}/${roomCode}`;
+            const newWs = connect(wssURI);
+
+            if (newWs) {
+                console.log("WebSocket connection established");
+                setWebSocketHandlers(newWs);
+            } else {
+                setError("Failed to create WebSocket connection");
+            }
+        } catch (error) {
+            console.error("Error enabling room:", error);
+            setError("Error enabling room. Please try again.");
+        }
+    };
+
+    // Handlers que envían mensajes por WebSocket
+    const handlePlayer1IceCream = (iceCream) => {
+        setPlayer1IceCream(iceCream);
+        if (lobbyWebSocket && showSecondPlayer) {
+            sendMessage({
+                type: 'set-color',
+                payload: iceCream.flavour
+            });
+        }
+    };
+
+    const handlePlayer1Name = (name) => {
+        setPlayer1Name(name);
+        if (lobbyWebSocket && showSecondPlayer) {
+            sendMessage({
+                type: 'set-name',
+                payload: name
+            });
+        }
+    };
+
+    const handlePlayer1Ready = () => {
+        const newReady = !player1Ready;
+        setPlayer1Ready(newReady);
+        if (lobbyWebSocket && showSecondPlayer) {
+            sendMessage({
+                type: 'set-status',
+                payload: newReady ? 'READY' : 'WAITING'
+            });
+        }
+    };
+
+    const handlePlayer2IceCream = (iceCream) => {
+        setPlayer2IceCream(iceCream);
+        if (lobbyWebSocket && showSecondPlayer) {
+            sendMessage({
+                type: 'set-color',
+                payload: iceCream.flavour
+            });
+        }
+    };
+
+    const handlePlayer2Name = (name) => {
+        setPlayer2Name(name);
+        if (lobbyWebSocket && showSecondPlayer) {
+            sendMessage({
+                type: 'set-name',
+                payload: name
+            });
+        }
+    };
+
+    const handlePlayer2Ready = () => {
+        const newReady = !player2Ready;
+        setPlayer2Ready(newReady);
+        if (lobbyWebSocket && showSecondPlayer) {
+            sendMessage({
+                type: 'set-status',
+                payload: newReady ? 'READY' : 'WAITING'
+            });
+        }
     };
 
 
@@ -421,13 +539,17 @@ export default function Lobby() {
                     <IceCreamSelector
                         iceCreams={iceCreams}
                         selectedIceCream={player1IceCream}
-                        onIceCreamSelect={setPlayer1IceCream}
+                        onIceCreamSelect={handlePlayer1IceCream}
                         position="left"
                         playerName="Player 1"
                         isReady={player1Ready}
-                        onReadyToggle={togglePlayer1Ready}
+                        onReadyToggle={handlePlayer1Ready}
                         playerCustomName={player1Name}
-                        onPlayerNameChange={setPlayer1Name}
+                        onPlayerNameChange={handlePlayer1Name}
+                        isDisabled={
+                            showSecondPlayer && (userData?.userId !== usersState.secondaryUser.id)
+                        }
+                        waitingForPlayer={false}
                     />
                 </div>
 
@@ -446,6 +568,15 @@ export default function Lobby() {
                             <div className="room-code-value">{roomCode}</div>
                             <p className="room-code-help">Share this code with another player to join your game.</p>
                         </div>
+
+                        <Button
+                            variant="primary"
+                            size="large"
+                            onClick={handleEnableRoom}
+                            className="enable-room-button"
+                        >
+                            Enable Room
+                        </Button>
 
                         {isSearching ? (
                             <div className="matchmaking-status">
@@ -523,14 +654,17 @@ export default function Lobby() {
                     <IceCreamSelector
                         iceCreams={iceCreams}
                         selectedIceCream={player2IceCream}
-                        onIceCreamSelect={setPlayer2IceCream}
+                        onIceCreamSelect={handlePlayer2IceCream}
                         position="right"
                         playerName="Player 2"
                         isReady={player2Ready}
-                        onReadyToggle={togglePlayer2Ready}
+                        onReadyToggle={handlePlayer2Ready}
                         playerCustomName={player2Name}
-                        onPlayerNameChange={setPlayer2Name}
-                        isDisabled={!showSecondPlayer}
+                        onPlayerNameChange={handlePlayer2Name}
+                        isDisabled={
+                            !showSecondPlayer || (userData?.userId !== usersState.mainUser.id)
+                        }
+                        waitingForPlayer={!showSecondPlayer}
                     />
                 </div>
             </div>
