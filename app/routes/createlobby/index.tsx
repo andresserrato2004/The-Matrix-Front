@@ -41,7 +41,6 @@ export default function Lobby() {
     const [player1Name, setPlayer1Name] = useState("Player 1");
     const [player2Name, setPlayer2Name] = useState("Player 2");
     const [countdown, setCountdown] = useState(3);
-
     // Inicializa roomCode con "Loading..."
     const [roomCode, setRoomCode] = useState("Loading...");
     const [isSearching, setIsSearching] = useState(false);
@@ -100,6 +99,8 @@ export default function Lobby() {
 
     // Cargar el código de sala cuando el componente se monte
 
+    let state;
+
 
     useEffect(() => {
         const loadRoomCode = async () => {
@@ -111,8 +112,9 @@ export default function Lobby() {
                 setRoomCode(response.data.matchId);
 
                 // Solo mostrar el segundo jugador si viene del estado de navegación
-                const state = location.state as { showSecondPlayer?: boolean };
+                state = location.state as { showSecondPlayer?: boolean };
                 console.log("state?.showSecondPlayer:", state?.showSecondPlayer);
+
                 if (state?.showSecondPlayer && isnewconnection) {
                     // Cerrar cualquier conexión WebSocket existente
                     if (lobbyWebSocket) {
@@ -231,7 +233,63 @@ export default function Lobby() {
         websocket.onmessage = (event) => {
             try {
                 const message = JSON.parse(event.data);
-                console.log("Received message in createlobby:", message);
+                console.log("Received message in createlobbyyy:", message);
+                console.log("message.type:", message.type);
+                if (message.type === 'player-update') {
+                    console.log("player-update message received in createlobby");
+                    const { id, status, name } = message.payload;
+
+                    // Determinar si el mensaje es para el host o el guest
+                    const isHost = id === usersState.secondaryUser.id;
+                    console.log("isHost:", isHost, "id:", id, "usersState.mainUser.id:", usersState.mainUser.id);
+                    console.log("userData?.isPlayer2:", userData?.isPlayer2);
+                    console.log("status:", state?.showSecondPlayer);
+                    console.log("status:", status);
+
+                    // Actualizar el estado según el tipo de mensaje
+                    if (status) {
+
+                        if (state?.showSecondPlayer) {
+                            if (!isHost) {
+                                // Si soy el jugador 2, actualizo al jugador 1 (el otro jugador)
+                                setPlayer1Ready(status === 'READY');
+                            } else {
+                                // Si soy el jugador 1, actualizo al jugador 2 (el otro jugador)
+                                setPlayer2Ready(status === 'READY');
+                            }
+                        } else {
+                            if (!isHost) {
+                                setPlayer2Ready(status === 'READY');
+                            } else {
+                                setPlayer1Ready(status === 'READY');
+                            }
+                        }
+                    }
+
+
+                    if (name) {
+
+                        if (state?.showSecondPlayer) {
+                            if (!isHost) {
+                                console.log("!isHost:", isHost,);
+                                // Si soy el jugador 2, actualizo al jugador 1 (el otro jugador)
+                                setPlayer1Name(name);
+                            } else {
+                                // Si soy el jugador 1, actualizo al jugador 2 (el otro jugador)
+                                setPlayer2Name(name);
+                            }
+                        } else {
+                            if (!isHost) {
+                                // Si soy el jugador 2, actualizo al jugador 1 (el otro jugador)
+                                console.log("!isHost:", isHost,);
+                                setPlayer2Name(name);
+                            } else {
+                                // Si soy el jugador 1, actualizo al jugador 2 (el otro jugador)
+                                setPlayer1Name(name);
+                            }
+                        }
+                    }
+                }
 
                 if (message.message === 'match-found') {
                     const positions = message.match.board.playersStartCoordinates;
@@ -251,7 +309,7 @@ export default function Lobby() {
                         setUserData({
                             ...userData,
                             matchId: message.match.id,
-                            position: position.reverse(),
+                            position: message.match.board.playersStartCoordinates[0],
                         });
 
                         usersDispatch({
@@ -259,7 +317,7 @@ export default function Lobby() {
                             payload: {
                                 ...usersState.mainUser,
                                 matchId: message.match.id,
-                                position: message.match.board.playersStartCoordinates[0],
+                                position: position,
                             }
                         });
 
@@ -267,7 +325,7 @@ export default function Lobby() {
                         setSecondaryUserData({
                             userId: message.match.guestId,
                             username: message.match.guestUsername,
-                            position: positions[1].reverse(),
+                            position: message.match.board.playersStartCoordinates[1],
                         });
 
                         usersDispatch({
@@ -276,19 +334,8 @@ export default function Lobby() {
                                 ...usersState.secondaryUser,
                                 matchId: message.match.id,
                                 id: message.match.guestId,
-                                position: message.match.board.playersStartCoordinates[1]
+                                position: positions[1]
                             }
-                        });
-
-                        console.log("Host data updated:", {
-                            ...userData,
-                            matchId: message.match.id,
-                            position: position.reverse(),
-                        });
-                        console.log("Guest data updated in secondaryUserData:", {
-                            userId: message.match.guest,
-                            username: message.match.guestUsername,
-                            position: positions[1].reverse(),
                         });
                     } else {
                         // Si eres el guest
@@ -298,7 +345,7 @@ export default function Lobby() {
                         setUserData({
                             ...userData,
                             matchId: message.match.id,
-                            position: positions[1].reverse(),
+                            position: message.match.board.playersStartCoordinates[1],
                         });
 
                         usersDispatch({
@@ -307,7 +354,7 @@ export default function Lobby() {
                                 ...usersState.mainUser,
                                 id: message.match.guestId,
                                 matchId: message.match.id,
-                                position: message.match.board.playersStartCoordinates[1]
+                                position: positions[1]
                             }
                         });
 
@@ -315,7 +362,7 @@ export default function Lobby() {
                         setSecondaryUserData({
                             userId: message.match.hostId,
                             username: message.match.hostUsername,
-                            position: positions[0].reverse(),
+                            position: message.match.board.playersStartCoordinates[0],
                         });
 
                         usersDispatch({
@@ -324,27 +371,19 @@ export default function Lobby() {
                                 ...usersState.secondaryUser,
                                 id: message.match.hostId,
                                 matchId: message.match.id,
-                                position: message.match.board.playersStartCoordinates[0]
+                                position: positions[0]
                             }
-                        });
-
-                        console.log("Guest data updated:", {
-                            ...userData,
-                            matchId: message.match.id,
-                            position: positions[1].reverse(),
-                        });
-                        console.log("Host data updated in secondaryUserData:", {
-                            userId: message.match.host,
-                            username: message.match.hostUsername,
-                            position: positions[0].reverse(),
                         });
                     }
                     console.log("userData updated with matchId:", userData);
-
                     console.log("Match found, navigating to game screen");
-                    setIsSoloPlayer(true);
-                }
 
+                    // Si estamos en modo solo, iniciar la partida inmediatamente
+                    if (isSoloPlayer) {
+                        setGameStarted(true);
+                        navigate("/game", { state: message });
+                    }
+                }
             } catch (error) {
                 console.error("Error parsing WebSocket message:", error);
             }
@@ -465,7 +504,7 @@ export default function Lobby() {
 
     const handlePlayer1Name = (name) => {
         setPlayer1Name(name);
-        if (lobbyWebSocket && showSecondPlayer) {
+        if (lobbyWebSocket && showSecondPlayer && name.length > 1) {
             sendMessage({
                 type: 'set-name',
                 payload: name
@@ -478,7 +517,7 @@ export default function Lobby() {
         setPlayer1Ready(newReady);
         if (lobbyWebSocket && showSecondPlayer) {
             sendMessage({
-                type: 'set-status',
+                type: 'set-state',
                 payload: newReady ? 'READY' : 'WAITING'
             });
         }
@@ -496,7 +535,7 @@ export default function Lobby() {
 
     const handlePlayer2Name = (name) => {
         setPlayer2Name(name);
-        if (lobbyWebSocket && showSecondPlayer) {
+        if (lobbyWebSocket && showSecondPlayer && name.length > 1) {
             sendMessage({
                 type: 'set-name',
                 payload: name
@@ -509,7 +548,7 @@ export default function Lobby() {
         setPlayer2Ready(newReady);
         if (lobbyWebSocket && showSecondPlayer) {
             sendMessage({
-                type: 'set-status',
+                type: 'set-state',
                 payload: newReady ? 'READY' : 'WAITING'
             });
         }
@@ -599,13 +638,16 @@ export default function Lobby() {
                                     className="find-opponent-button"
                                     onClick={handleFindOpponent}
                                     type="button"
+
                                 >
                                     Find Opponent
                                 </button>
                                 <p className="matchmaking-help">
-                                    {player1Ready && player1IceCream
-                                        ? "Click to find an opponent"
-                                        : "Select character and mark as Ready to find opponents"}
+                                    {!showSecondPlayer
+                                        ? "Waiting for another player to join..."
+                                        : !player1Ready || !player2Ready
+                                            ? "Both players must be ready to find opponents"
+                                            : "Click to find an opponent"}
                                 </p>
                             </div>
                         )}

@@ -33,6 +33,7 @@ export default function Board() {
 	const { connectWebSocket } = useGameWebSocket();
 
 	useEffect(() => {
+		console.log("gameState", usersState.gameState);
 		console.log(JSON.stringify(iceCreams));
 	}
 	, [iceCreams]);

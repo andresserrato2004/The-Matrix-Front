@@ -184,6 +184,11 @@ export default function GameScreen() {
 		// cargar boardContext
 		boardDispatch({ type: "SET_BOARD", payload: gameData.match.board.cells });
 
+		usersDispatch({
+			type: "SET_GAME_STATE",
+			payload: "playing"
+		});
+
 
 	}, [boardDispatch, fruitBarDispatch, gameData]);
 

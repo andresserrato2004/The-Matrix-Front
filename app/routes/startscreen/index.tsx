@@ -160,24 +160,6 @@ export default function StartScreen() {
                         Instructions
                     </h2>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '20px 0' }}>
-                        <IceCream
-                            iceCreamInformation={{
-                                flavour: "vanilla",
-                                state: "alive",
-                                direction: "down",
-                                position: { x: 0, y: 0 },
-                                id: "help-icecream",
-                                matchId: "help-match",
-                                name: "Demo Player",
-                            }}
-                            styles={{
-                                width: 96,
-                                height: 96,
-                                margin: "0 auto",
-                                background: "none",
-                                backgroundColor: "transparent"
-                            }}
-                        />
                         <div style={{ textAlign: 'center', marginTop: 16 }}>
                             Move the ice cream <b>up</b> <span style={{ fontSize: 24, marginRight: 8 }}>⬆️</span>
                             and <b>down</b> <span style={{ fontSize: 24, marginRight: 8 }}>⬇️</span>
