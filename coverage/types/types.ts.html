@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/66</span>
+                <span class='fraction'>0/63</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/66</span>
+                <span class='fraction'>0/63</span>
             </div>
         
             
@@ -125,11 +125,7 @@
 <a name='L60'></a><a href='#L60'>60</a>
 <a name='L61'></a><a href='#L61'>61</a>
 <a name='L62'></a><a href='#L62'>62</a>
-<a name='L63'></a><a href='#L63'>63</a>
-<a name='L64'></a><a href='#L64'>64</a>
-<a name='L65'></a><a href='#L65'>65</a>
-<a name='L66'></a><a href='#L66'>66</a>
-<a name='L67'></a><a href='#L67'>67</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L63'></a><a href='#L63'>63</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -191,21 +187,11 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >export type Character = {</span></span></span>
+<span class="cline-any cline-no">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >export type Character = {</span></span></span>
 <span class="cstat-no" title="statement not covered" >	type: string; // Tipo del personaje (por ejemplo: "troll")</span>
 <span class="cstat-no" title="statement not covered" >	orientation: string; // Orientación del personaje (por ejemplo: "down")</span>
 <span class="cstat-no" title="statement not covered" >	id: string; // Identificador único del personaje</span>
-<span class="cstat-no" title="statement not covered" >};</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export type Enemey = {</span>
-<span class="cstat-no" title="statement not covered" >	type: string; // Tipo del enemigo (por ejemplo: "troll")</span>
-<span class="cstat-no" title="statement not covered" >	orientation: string; // Orientación del enemigo (por ejemplo: "down")</span>
-<span class="cstat-no" title="statement not covered" >	id: string; // Identificador único del enemigo</span>
-<span class="cstat-no" title="statement not covered" >	enemyStatus: EnemyStatus; // Estado del enemigo (por ejemplo: "alive" o "dead")</span>
+<span class="cstat-no" title="statement not covered" >	enemyState: EnemyStatus; // Estado del personaje (por ejemplo: "alive" o "dead")</span>
 <span class="cstat-no" title="statement not covered" >};</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export type EnemyStatus = "walking" | "rolling" | "stopped"; // Estado del enemigo (por ejemplo: "alive" o "dead")</span>
@@ -231,6 +217,7 @@
 <span class="cstat-no" title="statement not covered" >	enemyId: string; // ID del enemigo que se mueve</span>
 <span class="cstat-no" title="statement not covered" >	coordinates: Coordinates; // Nuevas coordenadas del enemigo</span>
 <span class="cstat-no" title="statement not covered" >	direction: "up" | "down" | "left" | "right"; // Dirección en la que se mueve el enemigo (por ejemplo: "up", "down", "left", "right")</span>
+<span class="cstat-no" title="statement not covered" >	enemyState: EnemyStatus; // Estado del enemigo (por ejemplo: "alive" o "dead")</span>
 <span class="cstat-no" title="statement not covered" >};</span>
 <span class="cstat-no" title="statement not covered" ></span>
 <span class="cstat-no" title="statement not covered" >export type GameState = "playing" | "paused" | "win" | "lose" | "lost-connection"; // Estado del juego</span>
@@ -256,19 +243,20 @@
 <span class="cstat-no" title="statement not covered" >	id: string;</span>
 <span class="cstat-no" title="statement not covered" >	position: Coordinates;</span>
 <span class="cstat-no" title="statement not covered" >	direction: "up" | "down" | "left" | "right";</span>
-<span class="cstat-no" title="statement not covered" >};	</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >export type EspecialFruitInformation = {</span>
-<span class="cstat-no" title="statement not covered" >  coordinates: Coordinates;</span>
 <span class="cstat-no" title="statement not covered" >};</span>
-&nbsp;</pre></td></tr></table></pre>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >export type UpdateState = {</span>
+<span class="cstat-no" title="statement not covered" >  id: string;</span>
+<span class="cstat-no" title="statement not covered" >  state: 'dead' | 'alive';</span>
+<span class="cstat-no" title="statement not covered" >  color?: string;</span>
+<span class="cstat-no" title="statement not covered" >}</span></pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-17T23:05:09.575Z
+                at 2025-05-22T05:14:18.362Z
             </div>
         <script src="../prettify.js"></script>
         <script>

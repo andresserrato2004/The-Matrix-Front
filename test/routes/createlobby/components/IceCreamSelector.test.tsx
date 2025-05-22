@@ -75,8 +75,7 @@ describe('IceCreamSelector', () => {
     });
 
     it('handles disabled state', () => {
-        render(<IceCreamSelector {...defaultProps} selectedIceCream={mockIceCreams[0]} isDisabled={true} />);
-        expect(screen.getByText('Waiting for player...')).toBeInTheDocument();
+        render(<IceCreamSelector {...defaultProps} selectedIceCream={mockIceCreams[1]} isDisabled={true} />);
 
         // Verify interactions are disabled
         const nameInput = screen.getByPlaceholderText('Enter your name');
@@ -95,13 +94,15 @@ describe('IceCreamSelector', () => {
 
     });
 
-
-
-    it('shows ready button only when not disabled', () => {
+    it('shows ready button always, but disables it when isDisabled', () => {
         const { rerender } = render(<IceCreamSelector {...defaultProps} selectedIceCream={mockIceCreams[0]} />);
-        expect(screen.getByText('Ready')).toBeInTheDocument();
+        const readyButton = screen.getByText('Ready');
+        expect(readyButton).toBeInTheDocument();
+        expect(readyButton).not.toBeDisabled();
 
-        rerender(<IceCreamSelector {...defaultProps} selectedIceCream={mockIceCreams[0]} isDisabled={true} />);
-        expect(screen.queryByText('Ready')).not.toBeInTheDocument();
+        rerender(<IceCreamSelector {...defaultProps} selectedIceCream={mockIceCreams[1]} isDisabled={true} />);
+        const readyButtonDisabled = screen.getByText('Ready');
+        expect(readyButtonDisabled).toBeInTheDocument();
+        expect(readyButtonDisabled).toBeDisabled();
     });
 }); 

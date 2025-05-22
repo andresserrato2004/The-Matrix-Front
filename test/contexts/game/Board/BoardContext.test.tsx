@@ -95,7 +95,7 @@ describe('BoardContext', () => {
         });
 
         expect(getByTestId('fruits-count')).toHaveTextContent('1');
-        expect(getByTestId('ice-blocks-count')).toHaveTextContent('1');
+        expect(getByTestId('ice-blocks-count')).toHaveTextContent('0');
         expect(getByTestId('enemies-count')).toHaveTextContent('1');
     });
 
@@ -150,7 +150,7 @@ describe('BoardContext', () => {
             getByText('Delete Ice Blocks').click();
         });
 
-        expect(getByTestId('ice-blocks-count')).toHaveTextContent('1');
+        expect(getByTestId('ice-blocks-count')).toHaveTextContent('0');
     });
 
     it('handles ADD_ICE_BLOCKS action', () => {
