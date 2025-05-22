@@ -478,6 +478,10 @@ export default function Lobby() {
                         onReadyToggle={togglePlayer1Ready}
                         playerCustomName={player1Name}
                         onPlayerNameChange={setPlayer1Name}
+                        isDisabled={
+                            showSecondPlayer && (userData?.userId !== usersState.secondaryUser.id)
+                        }
+                        waitingForPlayer={false}
                     />
                 </div>
 
@@ -589,7 +593,10 @@ export default function Lobby() {
                         onReadyToggle={togglePlayer2Ready}
                         playerCustomName={player2Name}
                         onPlayerNameChange={setPlayer2Name}
-                        isDisabled={!showSecondPlayer}
+                        isDisabled={
+                            !showSecondPlayer || (userData?.userId !== usersState.mainUser.id)
+                        }
+                        waitingForPlayer={!showSecondPlayer}
                     />
                 </div>
             </div>

@@ -17,6 +17,7 @@ interface IceCreamSelectorProps {
     playerCustomName: string;
     onPlayerNameChange: (name: string) => void;
     isDisabled?: boolean;
+    waitingForPlayer?: boolean;
 }
 
 export default function IceCreamSelector({
@@ -29,7 +30,8 @@ export default function IceCreamSelector({
     onReadyToggle,
     playerCustomName,
     onPlayerNameChange,
-    isDisabled = false
+    isDisabled = false,
+    waitingForPlayer = false
 }: IceCreamSelectorProps) {
     // Set default selection when component mounts if nothing is selected
     useEffect(() => {
@@ -44,7 +46,10 @@ export default function IceCreamSelector({
     const isInteractionDisabled = isReady || isDisabled;
 
     return (
-        <div className={`ice-cream-selector ${position}-selector ${isReady ? 'player-ready' : ''} ${isDisabled ? 'disabled-player' : ''}`}>
+        <div className={`ice-cream-selector ${position}-selector ${isReady ? 'player-ready' : ''} ${waitingForPlayer ? 'disabled-player' : ''}`} style={{ position: 'relative' }}>
+            {(isDisabled && !waitingForPlayer) && (
+                <div className="ice-cream-selector-overlay"></div>
+            )}
             <h2 className="player-title">{playerName}</h2>
 
             <div className="character-selection">
@@ -59,7 +64,7 @@ export default function IceCreamSelector({
                         <img
                             src={iceCream.image}
                             alt={iceCream.name}
-                            className={`character-image ${isDisabled ? 'dimmed' : ''}`}
+                            className={`character-image ${waitingForPlayer ? 'dimmed' : ''}`}
                         />
                         <span className="character-name">{iceCream.name}</span>
                     </button>
@@ -72,7 +77,7 @@ export default function IceCreamSelector({
                     <img
                         src={selectedIceCream.image}
                         alt={selectedIceCream.name}
-                        className={`selected-character-image ${isDisabled ? 'dimmed' : ''}`}
+                        className={`selected-character-image ${waitingForPlayer ? 'dimmed' : ''}`}
                     />
 
                     {/* Player Name Input */}
@@ -86,28 +91,20 @@ export default function IceCreamSelector({
                             value={playerCustomName}
                             onChange={(e) => !isDisabled && onPlayerNameChange(e.target.value)}
                             placeholder="Enter your name"
-                            className={`player-name-input ${isDisabled ? 'disabled' : ''}`}
+                            className={`player-name-input ${waitingForPlayer ? 'disabled' : ''}`}
                             maxLength={15}
                             disabled={isInteractionDisabled}
                         />
                     </div>
 
-                    {!isDisabled && (
-                        <button
+                    <button
                         type="button"
-                            className={`player-ready-button ${isReady ? 'ready' : ''}`}
-                            onClick={onReadyToggle}
-                            disabled={isDisabled}
-                        >
-                            {isReady ? "Not Ready" : "Ready"}
-                        </button>
-                    )}
-
-                    {isDisabled && (
-                        <div className="waiting-player-message">
-                            Waiting for player...
-                        </div>
-                    )}
+                        className={`player-ready-button ${isReady ? 'ready' : ''}`}
+                        onClick={onReadyToggle}
+                        disabled={isDisabled}
+                    >
+                        {isReady ? "Not Ready" : "Ready"}
+                    </button>
 
                     {isReady && !isDisabled && <div className="ready-indicator">Ready!</div>}
                 </div>

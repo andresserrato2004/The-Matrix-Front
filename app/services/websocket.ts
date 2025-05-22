@@ -8,9 +8,12 @@ interface Message {
 	[key: string]: unknown;
 }
 
+
 export function createWebSocketConnection(path = ""): WebSocket {
 	const wsUrl = `${WS_BASE_URL}${path}`;
-	const wsConnection = new WebSocket(wsUrl);
+	const token = localStorage.getItem('token');
+	
+	const wsConnection = new WebSocket(wsUrl, token || undefined);
 
 	console.log("WEBSOCKET WebSocket:", wsUrl);
 

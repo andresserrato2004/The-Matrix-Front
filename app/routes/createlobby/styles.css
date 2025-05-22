@@ -583,3 +583,12 @@
 	@apply text-2xl text-white font-bold text-center;
 	text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
 }
+
+.ice-cream-selector-overlay {
+	position: absolute;
+	inset: 0;
+	background: rgba(130, 18, 134, 0.356);
+	z-index: 2;
+	border-radius: 16px;
+	pointer-events: none;
+}

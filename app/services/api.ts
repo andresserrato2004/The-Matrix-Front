@@ -11,6 +11,11 @@ const api = axios.create({
 
 api.interceptors.request.use(
     (config) => {
+        const token = localStorage.getItem('token');
+        console.log("Token from localStorage:", token);
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
         config.headers['Access-Control-Allow-Origin'] = '*';
         config.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, PATCH, DELETE, OPTIONS';
         config.headers['Access-Control-Allow-Headers'] = 'Origin, Content-Type, Accept, Authorization, X-Auth-Token, X-Requested-With';
