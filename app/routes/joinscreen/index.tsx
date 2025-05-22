@@ -115,7 +115,7 @@ export default function JoinScreen() {
 
 
         try {
-            
+
             const response = await api.post(`/rest/users/${userData?.userId}/matches`, lobbyData);
             const response2 = await api.get(`/rest/users/${userData?.userId}/matches`);
             console.log("API response:", response2.data.matchId);

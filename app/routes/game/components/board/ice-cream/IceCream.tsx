@@ -44,7 +44,7 @@ export default function SpriteEnemy({ iceCreamInformation, styles }: { iceCreamI
   useEffect(() => {
     if (!spriteData) return;
     const ctx = canvasRef.current?.getContext("2d");
-    
+
     if (!ctx) return;
 
     const anim = spriteData.animations[animKey];
