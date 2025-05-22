@@ -24,6 +24,7 @@ export default function IceCreamController() {
   const trySendMove = useCallback((direction: "up" | "down" | "left" | "right") => {
     const now = Date.now();
     if (now - lastMoveTimeRef.current >= MOVE_COOLDOWN) {
+      console.log("Sending move:", direction);
       sendMessage({ type: "movement", payload: direction });
       lastMoveTimeRef.current = now;
       return true;
@@ -46,6 +47,7 @@ export default function IceCreamController() {
     if (!isAlive || !canMakeMovements) return;
 
     if (event.code === "Space" || event.key === " " || event.key === "Spacebar") {
+      console.log("Space key pressed");
         sendMessage({ type: "exec-power", payload: "power-execution" });
         return;
       }
