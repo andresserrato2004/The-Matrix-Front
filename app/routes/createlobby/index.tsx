@@ -216,6 +216,16 @@ export default function Lobby() {
         return () => { clearInterval(timer); setCountdown(3) };
     }, [isGameReady, navigate, gameStarted]);
 
+    //quitar al otro jugador
+
+    useEffect(() => {
+        if (showSecondPlayer && !player1Ready) {
+            setPlayer1Ready(true);
+        }
+        if (showSecondPlayer && !player2Ready) {
+            setPlayer2Ready(true);
+        }
+    }, [showSecondPlayer]);
 
     const setWebSocketHandlers = (websocket) => {
         if (!websocket) return;
